@@ -14,7 +14,9 @@ import Check from "../assets/images/icon/check.svg";
 import { Shadow } from "react-native-shadow-2";
 import { useEffect, useState } from "react";
 
-const SCREEN_HEIGHT = Dimensions.get("window").height;
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const SCREEN_RATIO = SCREEN_WIDTH / 390;
+const IMAGE_SIZE = 160 * SCREEN_RATIO;
 
 export default function SelectPhotoScreen({ navigation }) {
   const [selectedPhotos, setSelectedPhotos] = useState([]);
@@ -89,7 +91,7 @@ export default function SelectPhotoScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           alignItems: "center",
-          paddingTop: 30,
+          paddingTop: 80,
           paddingBottom: 140,
           paddingHorizontal: 20,
         }}
@@ -100,7 +102,13 @@ export default function SelectPhotoScreen({ navigation }) {
           <Text style={{ color: theme.main_blue }}>5장을</Text>
         </Text>
         <Text style={styles.text}>골라주세요!</Text>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            width: "100%",
+            justifyContent: "space-between",
+          }}
+        >
           {[0, 1].map((row) => (
             <View style={{ marginTop: row === 0 ? 50 : 70 }} key={row}>
               {photos.slice(row * 8, (row + 1) * 8).map((photo, index) => {
@@ -210,16 +218,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#F3F3F3",
   },
   imageContainter: {
-    width: 160,
-    height: 160,
+    width: IMAGE_SIZE,
+    height: IMAGE_SIZE,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
     marginBottom: 20,
   },
   selectedContainer: {
-    width: 160,
-    height: 160,
+    width: IMAGE_SIZE,
+    height: IMAGE_SIZE,
     borderRadius: 16,
     borderWidth: 2,
     borderColor: theme.main_blue,
@@ -227,8 +235,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 90,
-    // bottom: SCREEN_HEIGHT / 9,
+    bottom: 50,
     left: 0,
     right: 0,
     alignItems: "center",
