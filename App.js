@@ -5,6 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TestPage from "./screens/TestPage";
 import SelectPhotoScreen from "./screens/SelectPhotoScreen";
+import SelectClub from "./screens/SelectClub"; // Import the new screen
 
 const Stack = createNativeStackNavigator();
 
@@ -34,6 +35,11 @@ export default function App() {
         <Stack.Screen
           name="SelectPhoto"
           component={SelectPhotoScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="SelectClub"
+          component={SelectClub}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
