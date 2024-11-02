@@ -16,6 +16,7 @@ export default function App() {
     "Pretendard-ExtraBold": require("./assets/fonts/Pretendard-ExtraBold.ttf"),
     "Pretendard-Medium": require("./assets/fonts/Pretendard-Medium.ttf"),
     "Pretendard-Regular": require("./assets/fonts/Pretendard-Regular.ttf"),
+    "Pretendard-SemiBold": require("./assets/fonts/Pretendard-SemiBold.ttf"),
   });
   if (!fontsLoaded) return null;
 

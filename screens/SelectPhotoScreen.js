@@ -13,6 +13,7 @@ import { WithLocalSvg } from "react-native-svg/css";
 import Check from "../assets/images/icon/check.svg";
 import { Shadow } from "react-native-shadow-2";
 import { useEffect, useState } from "react";
+import BottomBtn from "../component/BottomBtn";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_RATIO = SCREEN_WIDTH / 390;
@@ -92,7 +93,7 @@ export default function SelectPhotoScreen({ navigation }) {
         contentContainerStyle={{
           alignItems: "center",
           paddingTop: 80,
-          paddingBottom: 140,
+          paddingBottom: 120,
           paddingHorizontal: 20,
         }}
       >
@@ -174,25 +175,11 @@ export default function SelectPhotoScreen({ navigation }) {
       </ScrollView>
 
       {/* 버튼 */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          disabled={selectedPhotos.length < 5}
-          activeOpacity={0.5}
-          style={[
-            styles.button,
-            selectedPhotos.length < 5 && { backgroundColor: "#F3F3F3" },
-          ]}
-        >
-          <Text
-            style={[
-              styles.buttonText,
-              selectedPhotos.length < 5 && { color: "#B8B8B8" },
-            ]}
-          >
-            완료
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <BottomBtn
+        text="완료"
+        onPress={() => console.log("완료")}
+        isDisabled={selectedPhotos.length < 5}
+      />
     </SafeAreaView>
   );
 }
@@ -232,26 +219,5 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: theme.main_blue,
     backgroundColor: "#00000000",
-  },
-  buttonContainer: {
-    position: "absolute",
-    bottom: 50,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  button: {
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-    height: 55,
-    borderRadius: 9,
-    backgroundColor: theme.main_blue,
-  },
-  buttonText: {
-    fontSize: 20,
-    fontFamily: "Pretendard-Bold",
-    color: "white",
   },
 });
