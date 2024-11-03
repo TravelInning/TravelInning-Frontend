@@ -5,7 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TestPage from "./screens/TestPage";
 import SelectPhotoScreen from "./screens/SelectPhotoScreen";
-import SelectClub from "./screens/SelectClub"; // Import the new screen
+import SelectClub from "./screens/SelectClub"; 
 
 const Stack = createNativeStackNavigator();
 
