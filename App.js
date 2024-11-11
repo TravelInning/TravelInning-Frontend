@@ -6,6 +6,9 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TestPage from "./screens/TestPage";
 import SelectPhotoScreen from "./screens/SelectPhotoScreen";
 import SelectClub from "./screens/SelectClub"; // Import the new screen
+import HomeScreen from "./screens/HomeScreen";
+import MainScreen from "./screens/MainScreen";
+import NoticeScreen from "./screens/NoticeScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -23,7 +26,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Test"
+        initialRouteName="Main"
         screenOptions={{
           animation: "fade",
         }}
@@ -41,6 +44,21 @@ export default function App() {
         <Stack.Screen
           name="SelectClub"
           component={SelectClub}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Main"
+          component={MainScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Notice"
+          component={NoticeScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { theme } from "../colors/color";
 import { WithLocalSvg } from "react-native-svg/css";
-import Check from "../assets/images/icon/check.svg";
+import Check from "../assets/icon/check.svg";
 import { Shadow } from "react-native-shadow-2";
 import { useEffect, useState } from "react";
 import BottomBtn from "../component/BottomBtn";
