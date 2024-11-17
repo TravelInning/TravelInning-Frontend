@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Image,
   ImageBackground,
@@ -22,8 +22,7 @@ import FilterModal from "../component/FilterModal";
 
 // 디바이스에 따라 메인 마진값 조절
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const SCREEN_RATIO = SCREEN_WIDTH / 390;
-const MARGIN = 45 * SCREEN_RATIO;
+const MARGIN = SCREEN_WIDTH / 10;
 
 export default function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
@@ -111,7 +110,7 @@ export default function HomeScreen({ navigation }) {
         <View
           style={{
             width: "100%",
-            marginTop: MARGIN - 24,
+            marginTop: MARGIN,
             marginBottom: MARGIN,
             paddingHorizontal: 30,
           }}
@@ -267,7 +266,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    marginBottom: 20,
   },
   todayTeamText: {
     fontSize: 16,

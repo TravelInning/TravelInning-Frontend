@@ -38,15 +38,24 @@ const FilterModal = ({ visible, onClose }) => {
               style={{ width: "100%", transform: [{ translateY: slideAnim }] }}
             >
               <View style={styles.modal}>
-                <TouchableOpacity onPress={() => {}}>
+                <TouchableOpacity
+                  onPress={() => {}}
+                  style={styles.touchContainer}
+                >
                   <Text style={styles.modalText}>스크랩한 장소만 보기</Text>
                 </TouchableOpacity>
                 <View style={styles.line} />
-                <TouchableOpacity onPress={() => {}}>
+                <TouchableOpacity
+                  onPress={() => {}}
+                  style={styles.touchContainer}
+                >
                   <Text style={styles.modalText}>스크랩한 장소만 보기</Text>
                 </TouchableOpacity>
                 <View style={styles.line} />
-                <TouchableOpacity onPress={() => {}}>
+                <TouchableOpacity
+                  onPress={() => {}}
+                  style={styles.touchContainer}
+                >
                   <Text style={{ ...styles.modalText, color: theme.main_blue }}>
                     스크랩한 장소만 보기
                   </Text>
@@ -63,7 +72,10 @@ const FilterModal = ({ visible, onClose }) => {
                   marginTop: 20,
                 }}
               >
-                <TouchableOpacity onPress={onClose}>
+                <TouchableOpacity
+                  onPress={onClose}
+                  style={styles.touchContainer}
+                >
                   <Text style={{ ...styles.modalText, color: "#f00" }}>
                     취소
                   </Text>
@@ -103,6 +115,10 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 1,
     backgroundColor: "#EDEDED",
+  },
+  touchContainer: {
+    width: "100%",
+    alignItems: "center",
   },
 });
 

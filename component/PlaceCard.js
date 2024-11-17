@@ -7,19 +7,40 @@ import SeeMoreActivate from "../assets/icon/see_more_activate.svg";
 import { theme } from "../colors/color";
 import { Shadow } from "react-native-shadow-2";
 import SeeMoreModal from "./SeeMoreModal";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function PlaceCard() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [clipState, setClipState] = useState(false);
+  const [buttonPosition, setButtonPosition] = useState({ top: 0 });
+  const buttonRef = useRef(null);
+
+  useEffect(() => {
+    console.log(clipState);
+    handleClip();
+  }, [clipState]);
+
+  // 알림 모달 열기
+  const openModal = () => {
+    buttonRef.current.measure((x, y, width, height, pageX, pageY) => {
+      setButtonPosition({ top: pageY - 10 });
+    });
+    setModalVisible(!modalVisible);
+  };
+
+  const handleClip = () => {
+    // 나중에 저장 상태변경 코드
+  };
 
   return (
     <Shadow distance={2} startColor="#00000015" endColor="#00000000">
       <View style={styles.placeContainer}>
-        <View
+        <TouchableOpacity
+          activeOpacity={0.5}
+          onPress={() => console.log("장소 자세히보기")}
           style={{
             flexDirection: "row",
             flex: 1,
-            marginRight: 18,
           }}
         >
           <View
@@ -27,7 +48,7 @@ export default function PlaceCard() {
               flex: 2,
               height: 71,
               justifyContent: "space-between",
-              marginRight: 18,
+              marginRight: 14,
             }}
           >
             <View>
@@ -46,6 +67,7 @@ export default function PlaceCard() {
           <View
             style={{
               flex: 1,
+              alignItems: "flex-end",
             }}
           >
             <Image
@@ -53,22 +75,11 @@ export default function PlaceCard() {
               style={styles.photo}
             />
           </View>
-        </View>
-        <TouchableOpacity onPress={() => console.log("자세히보기")}>
-          <Right width={6} height={11} />
-        </TouchableOpacity>
-        <View
-          style={{
-            ...styles.rowContainer,
-            position: "absolute",
-            right: 42,
-            bottom: 8,
-          }}
-        >
-          <TouchableOpacity>
-            <ClipFalse width={10} height={13} style={{ marginRight: 7 }} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
+          <TouchableOpacity
+            ref={buttonRef}
+            onPress={openModal}
+            style={{ marginLeft: 13 }}
+          >
             <View
               style={{
                 width: 17,
@@ -86,10 +97,26 @@ export default function PlaceCard() {
               )}
             </View>
           </TouchableOpacity>
+        </TouchableOpacity>
+        <View
+          style={{
+            position: "absolute",
+            right: 43,
+            bottom: 11,
+          }}
+        >
+          <TouchableOpacity onPress={() => setClipState(!clipState)}>
+            {clipState ? (
+              <ClipTrue width={10} height={13} />
+            ) : (
+              <ClipFalse width={11} height={14} />
+            )}
+          </TouchableOpacity>
         </View>
         <SeeMoreModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
+          buttonPosition={buttonPosition}
         />
       </View>
     </Shadow>
@@ -109,7 +136,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor: "#fff",
     borderRadius: 16,
-    paddingHorizontal: 18,
+    paddingLeft: 18,
+    paddingRight: 13,
     paddingVertical: 16,
     marginBottom: 20,
   },

@@ -13,14 +13,14 @@ import Share from "../assets/icon/share.svg";
 export default function SeeMoreModal({
   visible,
   onClose,
-  buttonPosition = { top: 317 },
+  buttonPosition = { top: 400 },
 }) {
   return (
     <Modal transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.modalBackground}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View
-          style={[styles.container, { top: buttonPosition.top + 8, right: 20 }]}
+          style={[styles.container, { top: buttonPosition.top, right: 20 }]}
         >
           {/* 확인 버튼 */}
           <TouchableOpacity
@@ -30,7 +30,7 @@ export default function SeeMoreModal({
               alignItems: "center",
             }}
           >
-            <Share width={8} height={8} />
+            <Share width={10} height={10} />
             <Text style={styles.text}>공유하기</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -40,7 +40,7 @@ export default function SeeMoreModal({
               alignItems: "center",
             }}
           >
-            <Reject width={8} height={8} />
+            <Reject width={10} height={10} />
             <Text style={{ ...styles.text, color: "#f00" }}>
               더 이상 추천받지 않음
             </Text>
@@ -53,12 +53,12 @@ export default function SeeMoreModal({
 
 const styles = StyleSheet.create({
   container: {
-    width: 116,
-    height: 54,
+    width: 165,
+    height: 79,
     justifyContent: "space-between",
     backgroundColor: "#fff",
-    borderRadius: 9,
-    padding: 9,
+    borderRadius: 3,
+    padding: 14,
     borderWidth: 1,
     borderColor: "#EDEDED",
     position: "absolute",
@@ -69,9 +69,9 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   text: {
-    fontSize: 10,
+    fontSize: 14,
     fontFamily: "Pretendard-Regular",
-    marginLeft: 3,
+    marginLeft: 5,
     color: "#545454",
   },
 });
