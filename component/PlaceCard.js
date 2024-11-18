@@ -71,7 +71,7 @@ export default function PlaceCard() {
             }}
           >
             <Image
-              source={require("../assets/images/selectphoto/photo1_1.png")}
+              source={require("../assets/images/selectphoto/photo1.png")}
               style={styles.photo}
             />
           </View>
