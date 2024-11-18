@@ -1,21 +1,21 @@
 import {
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
-  Dimensions,
   ImageBackground,
+  FlatList,
+  Dimensions,
 } from "react-native";
 import { theme } from "../colors/color";
 import Check from "../assets/icon/check.svg";
-import { Shadow } from "react-native-shadow-2";
 import { useEffect, useState } from "react";
 import BottomBtn from "../component/BottomBtn";
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
-const IMAGE_SIZE = SCREEN_WIDTH / 3;
+// 디바이스에 따라 메인 마진값 조절
+const SCREEN_HEIGHT = Dimensions.get("window").height;
+const MARGIN = SCREEN_HEIGHT / 40;
 
 export default function SelectPhotoScreen({ navigation }) {
   const [selectedKeyword, setSelectedKeyword] = useState([]); // 선택 키워드
@@ -44,7 +44,7 @@ export default function SelectPhotoScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{ marginTop: 80 }}>
+      <View style={{ width: "100%", marginTop: 44 + MARGIN }}>
         <Text style={styles.text}>
           <Text>마음에 드는 </Text>
           <Text style={{ color: theme.main_blue }}>관광지 키워드</Text>를
@@ -52,50 +52,91 @@ export default function SelectPhotoScreen({ navigation }) {
         <Text style={styles.text}>
           <Text style={{ color: theme.main_blue }}>2개</Text> 골라주세요!
         </Text>
-        <Text style={{ marginTop: 10, marginBottom: 30 }}>
+        <Text
+          style={{
+            fontSize: 13,
+            fontFamily: "Pretendard-Medium",
+            color: "#545454",
+            marginTop: MARGIN - 12,
+            marginBottom: MARGIN + 10,
+          }}
+        >
           해당하는 장소를 우선으로 추천드릴게요
         </Text>
       </View>
-      <View style={styles.imageGrid}>
-        {keywords.map((keyword, index) => {
-          const isSelected = selectedKeyword.includes(keyword);
+      <FlatList
+        data={keywords}
+        keyExtractor={(item, index) => index.toString()}
+        numColumns={2} // 열 수를 2로 설정
+        columnWrapperStyle={{
+          justifyContent: "space-between", // 각 열의 요소 간격 설정
+        }}
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={false}
+        style={{ width: "100%" }}
+        contentContainerStyle={{
+          paddingHorizontal: 10,
+          paddingBottom: 100,
+        }}
+        renderItem={({ item, index }) => {
+          const isSelected = selectedKeyword.includes(item);
           return (
             <View
-              key={index}
               style={{
-                margin: 10,
-                width: IMAGE_SIZE,
-                height: IMAGE_SIZE,
+                width: "42%",
+                aspectRatio: 1,
+                marginBottom: MARGIN,
               }}
             >
               <TouchableOpacity
                 activeOpacity={0.5}
+                disabled={selectedKeyword.length == 2 && !isSelected}
                 onPress={() => {
                   if (selectedKeyword.length == 2 && !isSelected) {
                     console.log("사진이 2개 선택되었습니다.");
                   } else {
-                    togglePhoto(keyword);
+                    togglePhoto(item);
                   }
                 }}
+                style={{ flex: 1 }}
               >
                 <ImageBackground
-                  source={imageMap[keyword]}
+                  source={imageMap[item]}
                   resizeMode="cover"
-                  imageStyle={{
-                    borderRadius: 100,
-                  }}
+                  imageStyle={{ borderRadius: 100 }}
                   style={styles.imageContainter}
                 >
+                  <View
+                    style={{
+                      width: "100%",
+                      aspectRatio: 1,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#00000030",
+                      borderRadius: 100,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        ...styles.text,
+                        fontFamily: "Pretendard-Bold",
+                        color: "#fff",
+                      }}
+                    >
+                      {item}
+                    </Text>
+                  </View>
                   {isSelected ? (
                     <View
                       style={[
                         styles.circle,
                         {
+                          borderColor: theme.main_blue,
                           backgroundColor: theme.main_blue,
                         },
                       ]}
                     >
-                      <Check width={11} height={11} />
+                      <Check width={13} height={13} />
                     </View>
                   ) : (
                     <View style={styles.circle} />
@@ -104,8 +145,8 @@ export default function SelectPhotoScreen({ navigation }) {
               </TouchableOpacity>
             </View>
           );
-        })}
-      </View>
+        }}
+      />
 
       {/* 버튼 */}
       <BottomBtn
@@ -125,11 +166,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   text: {
-    fontSize: 28,
+    fontSize: MARGIN + 10,
     fontFamily: "Pretendard-ExtraBold",
     color: "#000",
   },
   imageGrid: {
+    flex: 1,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
@@ -148,11 +190,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   imageContainter: {
-    width: IMAGE_SIZE,
-    height: IMAGE_SIZE,
+    width: "100%",
+    aspectRatio: 1,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 16,
     marginBottom: 20,
   },
 });

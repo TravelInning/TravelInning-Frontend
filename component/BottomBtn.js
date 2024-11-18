@@ -1,5 +1,15 @@
-import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Text,
+  Dimensions,
+} from "react-native";
 import { theme } from "../colors/color";
+
+// 디바이스에 따라 메인 마진값 조절
+const SCREEN_HEIGHT = Dimensions.get("window").height;
+const MARGIN = SCREEN_HEIGHT / 20;
 
 export default function BottomBtn({ text, onPress, isDisabled }) {
   return (
@@ -21,7 +31,7 @@ export default function BottomBtn({ text, onPress, isDisabled }) {
 const styles = StyleSheet.create({
   buttonContainer: {
     position: "absolute",
-    bottom: 50,
+    bottom: MARGIN,
     left: 0,
     right: 0,
     alignItems: "center",

@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
   View,
   Dimensions,
-  ScrollView,
   Animated,
+  FlatList,
 } from "react-native";
 import Location from "../assets/icon/location.svg";
 import Notice from "../assets/icon/notification.svg";
@@ -26,23 +26,25 @@ const MARGIN = SCREEN_WIDTH / 10;
 
 export default function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState([]);
 
-  // 애니메이션 적용하려했는데
-  // 스크롤 안하고 꾹누르고 있으면 깜빡거리는 문제가 있어서 일단 보류
-  //   const scrollY = useRef(new Animated.Value(0)).current;
+  const scrollY = useRef(new Animated.Value(0)).current; // 스크롤 위치 추적
 
-  //   const headerHeight = scrollY.interpolate({
-  //     inputRange: [0, 150], // 스크롤 위치에 따라 조정
-  //     outputRange: [MARGIN * 4, 0], // 상단 영역 높이 축소
-  //     extrapolate: "clamp",
-  //   });
-
-  //   const headerOpacity = scrollY.interpolate({
-  //     inputRange: [0, 80],
-  //     outputRange: [1, 0],
-  //     extrapolate: "clamp",
-  //   });
+  // 이름과 마진 높이와 투명도 조절
+  const nameHeight = scrollY.interpolate({
+    inputRange: [0, 100], // 스크롤 범위
+    outputRange: [40, 0], // 높이가 줄어드는 범위
+    extrapolate: "clamp",
+  });
+  const nameOpacity = scrollY.interpolate({
+    inputRange: [0, 20],
+    outputRange: [1, 0], // 투명도 변화
+    extrapolate: "clamp",
+  });
+  const marginHeight = scrollY.interpolate({
+    inputRange: [0, 100], // 스크롤 범위
+    outputRange: [MARGIN, 10], // 높이가 줄어드는 범위
+    extrapolate: "clamp",
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -100,30 +102,30 @@ export default function HomeScreen({ navigation }) {
           />
         </View>
         {/* 이름, 오늘의 경기 */}
-        {/* <Animated.View
-          style={{
-            width: "100%",
-            height: headerHeight,
-            opacity: headerOpacity,
-          }}
-        > */}
         <View
           style={{
             width: "100%",
-            marginTop: MARGIN,
-            marginBottom: MARGIN,
             paddingHorizontal: 30,
           }}
         >
-          <Text
+          <Animated.View
             style={{
-              fontSize: 30,
-              fontFamily: "Pretendard-ExtraBold",
-              color: "#000",
+              width: "100%",
+              height: nameHeight,
+              opacity: nameOpacity,
+              marginTop: marginHeight,
             }}
           >
-            Hi, Jihye
-          </Text>
+            <Text
+              style={{
+                fontSize: 30,
+                fontFamily: "Pretendard-ExtraBold",
+                color: "#000",
+              }}
+            >
+              Hi, Jihye
+            </Text>
+          </Animated.View>
           <View
             style={{
               ...styles.rowContainer,
@@ -168,8 +170,9 @@ export default function HomeScreen({ navigation }) {
               vs KIA 타이거즈
             </Text>
           </View>
+          <Animated.View style={{ height: marginHeight }} />
         </View>
-        {/* </Animated.View> */}
+
         {/* 추천 플레이스 */}
         <View
           style={{
@@ -223,26 +226,17 @@ export default function HomeScreen({ navigation }) {
                 </Text>
               </TouchableOpacity>
             </View>
-            {/* <Animated.ScrollView
-              showsVerticalScrollIndicator={false}
+            <FlatList
+              data={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => <PlaceCard />}
               contentContainerStyle={styles.scroll}
               onScroll={Animated.event(
                 [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                 { useNativeDriver: false }
               )}
-            > */}
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scroll}
-            >
-              <PlaceCard />
-              <PlaceCard />
-              <PlaceCard />
-              <PlaceCard />
-              <PlaceCard />
-              <PlaceCard />
-            </ScrollView>
-            {/* </Animated.ScrollView> */}
+              scrollEventThrottle={16}
+            />
           </ImageBackground>
         </View>
       </ImageBackground>
