@@ -10,6 +10,8 @@ import {
   Dimensions,
   Animated,
   FlatList,
+  Platform,
+  StatusBar,
 } from "react-native";
 import Location from "../assets/icon/location.svg";
 import Notice from "../assets/icon/notification.svg";
@@ -54,7 +56,7 @@ export default function HomeScreen({ navigation }) {
         style={{
           flex: 1,
           alignItems: "center",
-          paddingTop: 62,
+          paddingTop: 16,
         }}
       >
         {/* 헤더 */}
@@ -249,7 +251,11 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
   rowContainer: {
     flexDirection: "row",
     alignItems: "center",

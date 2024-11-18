@@ -7,6 +7,8 @@ import {
   ImageBackground,
   FlatList,
   Dimensions,
+  Platform,
+  StatusBar,
 } from "react-native";
 import { theme } from "../colors/color";
 import Check from "../assets/icon/check.svg";
@@ -44,7 +46,7 @@ export default function SelectPhotoScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{ width: "100%", marginTop: 44 + MARGIN }}>
+      <View style={{ width: "100%", marginTop: 18 + MARGIN }}>
         <Text style={styles.text}>
           <Text>마음에 드는 </Text>
           <Text style={{ color: theme.main_blue }}>관광지 키워드</Text>를
@@ -164,6 +166,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     paddingHorizontal: 20,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   text: {
     fontSize: MARGIN + 10,

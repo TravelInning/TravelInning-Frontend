@@ -59,7 +59,10 @@ export default function App() {
         <Stack.Screen
           name="Notice"
           component={NoticeScreen}
-          options={{ headerShown: false }}
+          options={{
+            headerShown: false,
+            animation: "slide_from_right",
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>
