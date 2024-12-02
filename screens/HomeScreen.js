@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import Location from "../assets/icon/location.svg";
 import Notice from "../assets/icon/notification.svg";
+import NewNotice from "../assets/icon/notification_new.svg";
 import DropDown from "../assets/icon/dropdown.svg";
 import Filter from "../assets/icon/filter.svg";
 import { theme } from "../colors/color";
@@ -61,7 +62,7 @@ export default function HomeScreen({ navigation }) {
       >
         {/* 헤더 */}
         <View style={styles.header}>
-          <View style={{ width: 12 }} />
+          <View style={{ width: 46 }} />
           <TouchableOpacity
             onPress={() => console.log("위치 클릭")}
             style={styles.rowContainer}
@@ -87,10 +88,29 @@ export default function HomeScreen({ navigation }) {
               부산 사직구장
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("Notice")}>
-            <Notice width={12} height={14} />
-          </TouchableOpacity>
-          {/* 새 알림 있을때만 보일거 */}
+          {/* 채팅, 알림 아이콘 */}
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TouchableOpacity onPress={() => console.log("채팅")}>
+              <Image
+                source={require("../assets/icon/chat.png")}
+                style={styles.chatImage}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Notice")}>
+              <Notice width={15} height={17} />
+            </TouchableOpacity>
+            {/* 안읽은게 있을때 */}
+            {/* <TouchableOpacity onPress={() => console.log("채팅")}>
+              <Image
+                source={require("../assets/icon/chat_new.png")}
+                style={styles.chatImage}
+              />
+            </TouchableOpacity> */}
+            {/* <TouchableOpacity onPress={() => navigation.navigate("Notice")}>
+              <NewNotice width={15} height={17} />
+            </TouchableOpacity> */}
+          </View>
+          {/* 새 알림 있을때만 보일거
           <View
             style={{
               position: "absolute",
@@ -101,7 +121,7 @@ export default function HomeScreen({ navigation }) {
               backgroundColor: theme.main_blue,
               borderRadius: 30,
             }}
-          />
+          /> */}
         </View>
         {/* 이름, 오늘의 경기 */}
         <View
@@ -284,5 +304,11 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingTop: 20,
     paddingHorizontal: 20,
+  },
+  chatImage: {
+    width: 16,
+    height: 16,
+    resizeMode: "contain",
+    marginRight: 17,
   },
 });
