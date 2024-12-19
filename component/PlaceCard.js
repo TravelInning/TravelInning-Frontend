@@ -11,12 +11,12 @@ import { useEffect, useRef, useState } from "react";
 
 export default function PlaceCard() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [clipState, setClipState] = useState(false);
+  const [clipState, setClipState] = useState(false); // 스크랩
   const [buttonPosition, setButtonPosition] = useState({ top: 0 });
   const buttonRef = useRef(null);
 
   useEffect(() => {
-    console.log(clipState);
+    //console.log(clipState);
     handleClip();
   }, [clipState]);
 
