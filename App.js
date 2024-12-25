@@ -9,6 +9,8 @@ import SelectClub from "./screens/SelectClub"; // Import the new screen
 import HomeScreen from "./screens/HomeScreen";
 import MainScreen from "./screens/MainScreen";
 import NoticeScreen from "./screens/NoticeScreen";
+import JoinMemberPassword from "./screens/JoinMemberPassword";
+import JoinMemberProfile from "./screens/JoinMemberProfile";
 
 const Stack = createNativeStackNavigator();
 
@@ -62,6 +64,20 @@ export default function App() {
           options={{
             headerShown: false,
             animation: "slide_from_right",
+          }}
+        />
+        <Stack.Screen
+          name="JoinMemberPassword"
+          component={JoinMemberPassword}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="JoinMemberProfile"
+          component={JoinMemberProfile}
+          options={{
+            headerShown: false,
           }}
         />
       </Stack.Navigator>

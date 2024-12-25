@@ -18,13 +18,12 @@ import Notice from "../assets/icon/notification.svg";
 import NewNotice from "../assets/icon/notification_new.svg";
 import DropDown from "../assets/icon/dropdown.svg";
 import Filter from "../assets/icon/filter.svg";
-import { theme } from "../colors/color";
+import { theme, SCREEN_WIDTH } from "../colors/color";
 import { Shadow } from "react-native-shadow-2";
 import PlaceCard from "../component/PlaceCard";
 import FilterModal from "../component/FilterModal";
 
 // 디바이스에 따라 메인 마진값 조절
-const SCREEN_WIDTH = Dimensions.get("window").width;
 const MARGIN = SCREEN_WIDTH / 10;
 
 export default function HomeScreen({ navigation }) {

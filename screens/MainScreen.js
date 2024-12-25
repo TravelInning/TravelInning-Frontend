@@ -31,6 +31,14 @@ export default function MainScreen({ route }) {
   // const { user_code, ipnumber } = route.params;
   // console.log(user_code, ipnumber);
 
+  function NullScreen() {
+    return (
+      <SafeAreaView>
+        <Text>빈화면</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -70,7 +78,7 @@ export default function MainScreen({ route }) {
       />
       <Tab.Screen
         name="GoWith"
-        component={HomeScreen}
+        component={NullScreen}
         options={{
           title: "동행찾기",
           tabBarIcon: ({ color }) =>
@@ -96,7 +104,7 @@ export default function MainScreen({ route }) {
       />
       <Tab.Screen
         name="OnlineTour"
-        component={HomeScreen}
+        component={NullScreen}
         options={{
           title: "랜선투어",
           tabBarIcon: ({ color }) =>
@@ -109,7 +117,7 @@ export default function MainScreen({ route }) {
       />
       <Tab.Screen
         name="MyPage"
-        component={HomeScreen}
+        component={NullScreen}
         options={{
           title: "내 정보",
           tabBarIcon: () => <My width={18} height={18} />,

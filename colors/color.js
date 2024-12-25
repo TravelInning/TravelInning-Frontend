@@ -1,4 +1,4 @@
-import { Platform, StatusBar } from "react-native";
+import { Platform, StatusBar, Dimensions } from "react-native";
 
 export const theme = {
   main_blue: "#0084FF",
@@ -11,3 +11,5 @@ export const theme = {
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
 };
+
+export const SCREEN_WIDTH = Dimensions.get("window").width;
