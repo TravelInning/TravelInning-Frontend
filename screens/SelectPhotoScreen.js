@@ -6,17 +6,15 @@ import {
   TouchableOpacity,
   ImageBackground,
   FlatList,
-  Dimensions,
   Platform,
   StatusBar,
 } from "react-native";
-import { theme } from "../colors/color";
+import { theme, SCREEN_HEIGHT } from "../colors/color";
 import Check from "../assets/icon/check.svg";
 import { useEffect, useState } from "react";
 import BottomBtn from "../component/BottomBtn";
 
 // 디바이스에 따라 메인 마진값 조절
-const SCREEN_HEIGHT = Dimensions.get("window").height;
 const MARGIN = SCREEN_HEIGHT / 40;
 
 export default function SelectPhotoScreen({ navigation }) {
@@ -169,7 +167,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   text: {
-    fontSize: MARGIN + 10,
+    fontSize: 28,
     fontFamily: "Pretendard-ExtraBold",
     color: "#000",
   },

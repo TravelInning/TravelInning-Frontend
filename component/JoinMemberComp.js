@@ -24,7 +24,7 @@ export function JoinMemberBtn({
   return (
     <View
       style={{
-        flex: 0.9,
+        flex: 0.8,
         alignItems: "center",
         justifyContent: "center",
         paddingHorizontal: 20,

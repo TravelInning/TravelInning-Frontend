@@ -1,4 +1,11 @@
-import { SafeAreaView, Keyboard, View, Text, TextInput } from "react-native";
+import {
+  SafeAreaView,
+  Keyboard,
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+} from "react-native";
 import { theme } from "../colors/color";
 import { useEffect, useState } from "react";
 import {
@@ -59,46 +66,48 @@ export default function JoinMemberPassword({ navigation }) {
           subtext={"잊은 비밀번호는\n이메일로 다시 보내드릴게요."}
           imageSource={require("../assets/images/joinmembership/password_icon.png")}
         />
-        <Text
-          style={[
-            JoinMemberStyle.subText_black,
-            { fontFamily: "Pretendard-SemiBold" },
-          ]}
-        >
-          비밀번호
-        </Text>
-        <TextInput
-          placeholder="사용할 비밀번호 입력"
-          placeholderTextColor={"#919191"}
-          onChangeText={validatePassword}
-          keyboardType="default"
-          autoCapitalize="none"
-          autoFocus={true}
-          style={{
-            ...JoinMemberStyle.textInputStyle,
-            borderColor: isValid ? theme.main_blue : "#EDEDED",
-          }}
-        />
-        <Text
-          style={[
-            JoinMemberStyle.subText_black,
-            { fontFamily: "Pretendard-SemiBold" },
-          ]}
-        >
-          비밀번호 확인
-        </Text>
-        <TextInput
-          placeholder="비밀번호 다시 입력하여 확인"
-          placeholderTextColor={"#919191"}
-          onChangeText={correctPassword}
-          keyboardType="default"
-          autoCapitalize="none"
-          secureTextEntry={true}
-          style={{
-            ...JoinMemberStyle.textInputStyle,
-            borderColor: isCorrect ? theme.main_blue : "#EDEDED",
-          }}
-        />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Text
+            style={[
+              JoinMemberStyle.subText_black,
+              { fontFamily: "Pretendard-SemiBold" },
+            ]}
+          >
+            비밀번호
+          </Text>
+          <TextInput
+            placeholder="사용할 비밀번호 입력"
+            placeholderTextColor={"#919191"}
+            onChangeText={validatePassword}
+            keyboardType="default"
+            autoCapitalize="none"
+            autoFocus={true}
+            style={{
+              ...JoinMemberStyle.textInputStyle,
+              borderColor: isValid ? theme.main_blue : "#EDEDED",
+            }}
+          />
+          <Text
+            style={[
+              JoinMemberStyle.subText_black,
+              { fontFamily: "Pretendard-SemiBold" },
+            ]}
+          >
+            비밀번호 확인
+          </Text>
+          <TextInput
+            placeholder="비밀번호 다시 입력하여 확인"
+            placeholderTextColor={"#919191"}
+            onChangeText={correctPassword}
+            keyboardType="default"
+            autoCapitalize="none"
+            secureTextEntry={true}
+            style={{
+              ...JoinMemberStyle.textInputStyle,
+              borderColor: isCorrect ? theme.main_blue : "#EDEDED",
+            }}
+          />
+        </ScrollView>
       </View>
       {!isKeyboardVisible && (
         <JoinMemberBtn
