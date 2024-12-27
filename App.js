@@ -5,7 +5,13 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TestPage from "./screens/TestPage";
 import SelectPhotoScreen from "./screens/SelectPhotoScreen";
-import SelectClub from "./screens/SelectClub"; 
+import SelectClub from "./screens/SelectClub"; // Import the new screen
+import HomeScreen from "./screens/HomeScreen";
+import MainScreen from "./screens/MainScreen";
+import NoticeScreen from "./screens/NoticeScreen";
+import JoinMemberPassword from "./screens/JoinMemberPassword";
+import JoinMemberProfile from "./screens/JoinMemberProfile";
+import JoinMemberTerms from "./screens/JoinMemberTerms";
 
 const Stack = createNativeStackNavigator();
 
@@ -23,7 +29,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Test"
+        initialRouteName="Main"
         screenOptions={{
           animation: "fade",
         }}
@@ -42,6 +48,45 @@ export default function App() {
           name="SelectClub"
           component={SelectClub}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Main"
+          component={MainScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Notice"
+          component={NoticeScreen}
+          options={{
+            headerShown: false,
+            animation: "slide_from_right",
+          }}
+        />
+        <Stack.Screen
+          name="JoinMemberPassword"
+          component={JoinMemberPassword}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="JoinMemberProfile"
+          component={JoinMemberProfile}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="JoinMemberTerms"
+          component={JoinMemberTerms}
+          options={{
+            headerShown: false,
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

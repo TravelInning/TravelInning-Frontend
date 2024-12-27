@@ -32,6 +32,13 @@ export default function TestPage({ navigation, route }) {
         >
           <Text style={styles.buttonText}>구단 선택</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          onPress={() => navigation.push("JoinMemberPassword")}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>회원가입-은이</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
