@@ -161,6 +161,7 @@ const FilterModal = ({ visible, onClose }) => {
                                 styles.modalText,
                                 {
                                   color: theme.main_blue,
+                                  fontFamily: "Pretendard-Medium",
                                 },
                               ]}
                             >
@@ -221,8 +222,14 @@ const FilterModal = ({ visible, onClose }) => {
                   }}
                   style={styles.touchContainer}
                 >
-                  <Text style={{ ...styles.modalText, color: "#f00" }}>
-                    취소
+                  <Text
+                    style={{
+                      ...styles.modalText,
+                      color: !keywordFilterToggle ? "#f00" : theme.main_blue,
+                      fontFamily: keywordFilterToggle && "Pretendard-SemiBold",
+                    }}
+                  >
+                    {!keywordFilterToggle ? "취소" : "완료"}
                   </Text>
                 </TouchableOpacity>
               </View>

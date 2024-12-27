@@ -158,6 +158,7 @@ export default function JoinMemberProfile({ navigation }) {
       {!isKeyboardVisible && (
         <JoinMemberBtn
           nextCondition={nickname && gender && introMessage}
+          nextFunction={() => navigation.push("JoinMemberTerms")}
           backText={"뒤로"}
         />
       )}

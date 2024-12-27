@@ -12,8 +12,14 @@ export function TopLayout({ title, subtext, imageSource }) {
   );
 }
 
-export function JoinMemberBtn({ nextCondition, nextFunction, backText }) {
+export function JoinMemberBtn({
+  nextCondition,
+  nextFunction,
+  backText,
+  backFunction,
+}) {
   const navigation = useNavigation();
+  const handleBack = backFunction || (() => navigation.goBack());
 
   return (
     <View
@@ -48,7 +54,7 @@ export function JoinMemberBtn({ nextCondition, nextFunction, backText }) {
           다음
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
+      <TouchableOpacity onPress={handleBack}>
         <Text
           style={{
             fontFamily: "Pretendard-Bold",

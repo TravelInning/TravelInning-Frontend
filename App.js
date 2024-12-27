@@ -11,6 +11,7 @@ import MainScreen from "./screens/MainScreen";
 import NoticeScreen from "./screens/NoticeScreen";
 import JoinMemberPassword from "./screens/JoinMemberPassword";
 import JoinMemberProfile from "./screens/JoinMemberProfile";
+import JoinMemberTerms from "./screens/JoinMemberTerms";
 
 const Stack = createNativeStackNavigator();
 
@@ -76,6 +77,13 @@ export default function App() {
         <Stack.Screen
           name="JoinMemberProfile"
           component={JoinMemberProfile}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="JoinMemberTerms"
+          component={JoinMemberTerms}
           options={{
             headerShown: false,
           }}
