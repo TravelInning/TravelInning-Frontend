@@ -5,11 +5,11 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import { theme } from "../colors/color";
+import { theme } from "../../colors/color";
 import { useEffect, useState } from "react";
-import { JoinMemberStyle, JoinMemberBtn } from "../component/JoinMemberComp";
+import { JoinMemberStyle, JoinMemberBtn } from "../../component/JoinMemberComp";
 import { Shadow } from "react-native-shadow-2";
-import Check from "../assets/icon/check_white.svg";
+import Check from "../../assets/icon/check_white.svg";
 
 export default function JoinMemberTerms({ navigation }) {
   const [selectedTerms, setSelectedTerms] = useState([]);

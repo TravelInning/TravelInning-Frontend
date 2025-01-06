@@ -49,7 +49,7 @@ export default function HomeScreen({ navigation }) {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={theme.container}>
       <ImageBackground
         source={require("../assets/images/home/home_background.png")}
         resizeMode="stretch"
@@ -270,11 +270,6 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-  },
   rowContainer: {
     flexDirection: "row",
     alignItems: "center",

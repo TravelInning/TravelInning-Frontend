@@ -6,13 +6,13 @@ import {
   TextInput,
   ScrollView,
 } from "react-native";
-import { theme } from "../colors/color";
+import { theme } from "../../colors/color";
 import { useEffect, useState } from "react";
 import {
   TopLayout,
   JoinMemberStyle,
   JoinMemberBtn,
-} from "../component/JoinMemberComp";
+} from "../../component/JoinMemberComp";
 
 export default function JoinMemberPassword({ navigation }) {
   const [password, setPassword] = useState("");
@@ -64,7 +64,7 @@ export default function JoinMemberPassword({ navigation }) {
         <TopLayout
           title={"비밀번호를\n입력해주세요."}
           subtext={"잊은 비밀번호는\n이메일로 다시 보내드릴게요."}
-          imageSource={require("../assets/images/joinmembership/password_icon.png")}
+          imageSource={require("../../assets/images/joinmembership/password_icon.png")}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
           <Text

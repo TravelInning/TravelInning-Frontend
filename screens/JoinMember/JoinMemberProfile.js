@@ -8,13 +8,13 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
-import { theme } from "../colors/color";
+import { theme } from "../../colors/color";
 import { useEffect, useState } from "react";
 import {
   TopLayout,
   JoinMemberStyle,
   JoinMemberBtn,
-} from "../component/JoinMemberComp";
+} from "../../component/JoinMemberComp";
 
 export default function JoinMemberProfile({ navigation }) {
   const [nickname, setNickname] = useState("");
@@ -52,7 +52,7 @@ export default function JoinMemberProfile({ navigation }) {
           subtext={
             "동행 신청 시 상대방에게 공개되며\n마이페이지에서 언제든 변경할 수 있습니다."
           }
-          imageSource={require("../assets/images/joinmembership/profile_icon.png")}
+          imageSource={require("../../assets/images/joinmembership/profile_icon.png")}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
           <Text
