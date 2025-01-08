@@ -39,6 +39,13 @@ export default function TestPage({ navigation, route }) {
         >
           <Text style={styles.buttonText}>회원가입-은이</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          onPress={() => navigation.push("PostChat")}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>게시글 채팅 목록</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );

@@ -9,9 +9,10 @@ import SelectClub from "./screens/SelectClub"; // Import the new screen
 import HomeScreen from "./screens/HomeScreen";
 import MainScreen from "./screens/MainScreen";
 import NoticeScreen from "./screens/NoticeScreen";
-import JoinMemberPassword from "./screens/JoinMemberPassword";
-import JoinMemberProfile from "./screens/JoinMemberProfile";
-import JoinMemberTerms from "./screens/JoinMemberTerms";
+import JoinMemberPassword from "./screens/JoinMember/JoinMemberPassword";
+import JoinMemberProfile from "./screens/JoinMember/JoinMemberProfile";
+import JoinMemberTerms from "./screens/JoinMember/JoinMemberTerms";
+import PostChatScreen from "./screens/Chat/PostChatScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -86,6 +87,14 @@ export default function App() {
           component={JoinMemberTerms}
           options={{
             headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="PostChat"
+          component={PostChatScreen}
+          options={{
+            headerShown: false,
+            animation: "slide_from_right",
           }}
         />
       </Stack.Navigator>
