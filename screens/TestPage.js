@@ -60,6 +60,13 @@ export default function TestPage({ navigation, route }) {
         >
           <Text style={styles.buttonText}>회원가입-지윤</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          onPress={() => navigation.push("Chat")}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>채팅창</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );

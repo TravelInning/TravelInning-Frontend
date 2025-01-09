@@ -15,7 +15,8 @@ import JoinMemberTerms from "./screens/JoinMember/JoinMemberTerms";
 import PostChatScreen from "./screens/Chat/PostChatScreen";
 import LoginScreen from "./screens/LoginScreen";
 import JoinMemberPhoneNumber from "./screens/JoinMember/JoinMemberPhoneNumber";
-import JoinMemberEmail from "./screens/JoinMember/JoinMemberEmail"; // Import 추가
+import JoinMemberEmail from "./screens/JoinMember/JoinMemberEmail";
+import ChatScreen from "./screens/Chat/ChatScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -115,9 +116,16 @@ export default function App() {
           }}
         />
         <Stack.Screen
-          name="JoinMemberEmail" 
+          name="JoinMemberEmail"
           component={JoinMemberEmail}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Chat" // ChatScreen 추가
+          component={ChatScreen}
+          options={{
+            headerShown: false,
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>
