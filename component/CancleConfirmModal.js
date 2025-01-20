@@ -7,11 +7,14 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import Reject from "../assets/icon/reject.svg";
-import Share from "../assets/icon/share.svg";
 import { theme } from "../colors/color";
 
-export default function CheckAllModal({ visible, onClose }) {
+export default function CancleConfirmModal({
+  visible,
+  onClose,
+  text,
+  onClick,
+}) {
   return (
     <Modal transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.modalBackground}>
@@ -27,8 +30,7 @@ export default function CheckAllModal({ visible, onClose }) {
               borderColor: "#EDEDED",
             }}
           >
-            <Text style={styles.text}>읽지 않은 알림이 있습니다.</Text>
-            <Text style={styles.text}>모두 확인 처리를 하시겠습니까?</Text>
+            <Text style={styles.text}>{text}</Text>
           </View>
           <View style={{ flex: 1, flexDirection: "row" }}>
             <TouchableOpacity
@@ -48,7 +50,7 @@ export default function CheckAllModal({ visible, onClose }) {
                 취소
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.btnContainer}>
+            <TouchableOpacity onClick={onClick} style={styles.btnContainer}>
               <Text
                 style={{
                   fontSize: 18,
@@ -86,6 +88,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Pretendard-Medium",
     color: "#000",
+    textAlign: "center",
+    lineHeight: 22,
   },
   btnContainer: {
     flex: 1,
