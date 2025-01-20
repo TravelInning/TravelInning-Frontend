@@ -5,7 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TestPage from "./screens/TestPage";
 import SelectPhotoScreen from "./screens/SelectPhotoScreen";
-import SelectClub from "./screens/SelectClub"; // Import the new screen
+import SelectClub from "./screens/SelectClub";
 import HomeScreen from "./screens/HomeScreen";
 import MainScreen from "./screens/MainScreen";
 import NoticeScreen from "./screens/NoticeScreen";
@@ -13,6 +13,10 @@ import JoinMemberPassword from "./screens/JoinMember/JoinMemberPassword";
 import JoinMemberProfile from "./screens/JoinMember/JoinMemberProfile";
 import JoinMemberTerms from "./screens/JoinMember/JoinMemberTerms";
 import PostChatScreen from "./screens/Chat/PostChatScreen";
+import LoginScreen from "./screens/LoginScreen";
+import JoinMemberPhoneNumber from "./screens/JoinMember/JoinMemberPhoneNumber";
+import JoinMemberEmail from "./screens/JoinMember/JoinMemberEmail";
+import ChatScreen from "./screens/Chat/ChatScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -30,7 +34,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Main"
+        initialRouteName="Main" // 초기 화면 설정
         screenOptions={{
           animation: "fade",
         }}
@@ -95,6 +99,32 @@ export default function App() {
           options={{
             headerShown: false,
             animation: "slide_from_right",
+          }}
+        />
+        <Stack.Screen
+          name="LoginScreen"
+          component={LoginScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="JoinMemberPhoneNumber"
+          component={JoinMemberPhoneNumber}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="JoinMemberEmail"
+          component={JoinMemberEmail}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Chat" // ChatScreen 추가
+          component={ChatScreen}
+          options={{
+            headerShown: false,
           }}
         />
       </Stack.Navigator>
