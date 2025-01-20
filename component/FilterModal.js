@@ -226,7 +226,9 @@ const FilterModal = ({ visible, onClose }) => {
                     style={{
                       ...styles.modalText,
                       color: !keywordFilterToggle ? "#f00" : theme.main_blue,
-                      fontFamily: keywordFilterToggle && "Pretendard-SemiBold",
+                      fontFamily: keywordFilterToggle
+                        ? "Pretendard-SemiBold"
+                        : "Pretendard-Regular",
                     }}
                   >
                     {!keywordFilterToggle ? "취소" : "완료"}

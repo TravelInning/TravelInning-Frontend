@@ -12,16 +12,23 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import CancleConfirmModal from "../../component/CancleConfirmModal";
 
 const { width } = Dimensions.get("window");
 
-export default function ChatScreen() {
+export default function ChatScreen({ navigation }) {
   const [messages, setMessages] = useState([
     { id: 1, sender: "상대 닉네임", text: "안녕하세요!", time: "12:35" },
-    { id: 2, sender: "상대 닉네임", text: "같이 여행가고 싶어서 연락드렸어요~", time: "12:35" },
+    {
+      id: 2,
+      sender: "상대 닉네임",
+      text: "같이 여행가고 싶어서 연락드렸어요~",
+      time: "12:35",
+    },
     { id: 3, sender: "me", text: "아, 네~ 안녕하세요!", time: "12:45" },
   ]);
   const [newMessage, setNewMessage] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
 
   const getCurrentTime = () => {
     const now = new Date();
@@ -34,7 +41,12 @@ export default function ChatScreen() {
     if (newMessage.trim()) {
       setMessages([
         ...messages,
-        { id: messages.length + 1, sender: "me", text: newMessage, time: getCurrentTime() },
+        {
+          id: messages.length + 1,
+          sender: "me",
+          text: newMessage,
+          time: getCurrentTime(),
+        },
       ]);
       setNewMessage("");
     }
@@ -44,17 +56,19 @@ export default function ChatScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header Section */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.pop()}>
           <Image
             source={require("../../assets/images/chat/back_arrow.png")}
             style={styles.backIcon}
           />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>상대 닉네임</Text>
-        <Image
-          source={require("../../assets/images/chat/out.png")}
-          style={styles.shareIcon}
-        />
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <Image
+            source={require("../../assets/images/chat/out.png")}
+            style={styles.shareIcon}
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Chat Messages */}
@@ -68,7 +82,9 @@ export default function ChatScreen() {
             key={message.id}
             style={[
               styles.messageContainer,
-              message.sender === "me" ? styles.myMessageContainer : styles.otherMessageContainer,
+              message.sender === "me"
+                ? styles.myMessageContainer
+                : styles.otherMessageContainer,
             ]}
           >
             {message.sender !== "me" && (
@@ -80,13 +96,17 @@ export default function ChatScreen() {
             <View
               style={[
                 styles.messageBubble,
-                message.sender === "me" ? styles.myMessageBubble : styles.otherMessageBubble,
+                message.sender === "me"
+                  ? styles.myMessageBubble
+                  : styles.otherMessageBubble,
               ]}
             >
               <Text
                 style={[
                   styles.messageText,
-                  message.sender === "me" ? styles.myMessageText : styles.otherMessageText,
+                  message.sender === "me"
+                    ? styles.myMessageText
+                    : styles.otherMessageText,
                 ]}
               >
                 {message.text}
@@ -115,6 +135,12 @@ export default function ChatScreen() {
           />
         </TouchableOpacity>
       </KeyboardAvoidingView>
+      <CancleConfirmModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        text={`방을 나가는 동시에${"\n"}모든 대화 기록이 삭제됩니다.`}
+        onClick={() => {}}
+      />
     </SafeAreaView>
   );
 }

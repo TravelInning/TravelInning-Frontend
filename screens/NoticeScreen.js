@@ -11,7 +11,7 @@ import Left from "../assets/icon/left_arrow.svg";
 import { theme } from "../colors/color";
 import { useState } from "react";
 import NoticeCard from "../component/NoticeCard";
-import CheckAllModal from "../component/CheckAllModal";
+import CancleConfirmModal from "../component/CancleConfirmModal";
 
 export default function NoticeScreen({ navigation }) {
   const [selectedCategory, setSelectedCategory] = useState("알림");
@@ -104,9 +104,11 @@ export default function NoticeScreen({ navigation }) {
           return <NoticeCard isRead={item} />;
         }}
       />
-      <CheckAllModal
+      <CancleConfirmModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
+        text={`읽지 않은 알림이 있습니다.${"\n"}모두 확인 처리를 하시겠습니까?`}
+        onClick={() => {}}
       />
     </SafeAreaView>
   );
