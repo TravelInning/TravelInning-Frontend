@@ -7,13 +7,10 @@ import {
   TouchableWithoutFeedback,
   Modal,
   StyleSheet,
-  Dimensions,
 } from "react-native";
-import { theme } from "../colors/color";
+import { theme, SCREEN_WIDTH } from "../colors/color";
 import Right from "../assets/icon/right_arrow.svg";
 import Check from "../assets/icon/check_blue.svg";
-
-const SCREEN_WIDTH = Dimensions.get("window").width;
 
 const FilterModal = ({ visible, onClose }) => {
   const slideAnim = useRef(new Animated.Value(300)).current;
