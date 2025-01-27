@@ -20,12 +20,9 @@ import GameInfoGray from "../assets/icon/tabBarIcon/game_info_gray.svg";
 import OnlineTourGray from "../assets/icon/tabBarIcon/online_tour_gray.svg";
 import HomeScreen from "./HomeScreen";
 import TestPage from "./TestPage";
+import GoWithNav from "./GoWith/GoWithNav";
 
 const Tab = createBottomTabNavigator();
-
-const SvgIcon = ({ asset }) => (
-  <WithLocalSvg width="25" height="25" asset={asset} />
-);
 
 export default function MainScreen({ route }) {
   // const { user_code, ipnumber } = route.params;
@@ -78,7 +75,7 @@ export default function MainScreen({ route }) {
       />
       <Tab.Screen
         name="GoWith"
-        component={NullScreen}
+        component={GoWithNav}
         options={{
           title: "동행찾기",
           tabBarIcon: ({ color }) =>

@@ -41,14 +41,14 @@ export default function TestPage({ navigation, route }) {
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => navigation.push("PostChat")}
+          onPress={() => navigation.push("ChatListDetail")}
           style={styles.button}
         >
           <Text style={styles.buttonText}>게시글 채팅 목록</Text>
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => navigation.push("LoginScreen")} 
+          onPress={() => navigation.push("LoginScreen")}
           style={styles.button}
         >
           <Text style={styles.buttonText}>로그인 테스트</Text>

@@ -7,11 +7,8 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Dimensions,
   Animated,
   FlatList,
-  Platform,
-  StatusBar,
 } from "react-native";
 import Location from "../assets/icon/location.svg";
 import Notice from "../assets/icon/notification.svg";
@@ -19,7 +16,6 @@ import NewNotice from "../assets/icon/notification_new.svg";
 import DropDown from "../assets/icon/dropdown.svg";
 import Filter from "../assets/icon/filter.svg";
 import { theme, SCREEN_WIDTH } from "../colors/color";
-import { Shadow } from "react-native-shadow-2";
 import PlaceCard from "../component/PlaceCard";
 import FilterModal from "../component/FilterModal";
 

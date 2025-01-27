@@ -8,7 +8,7 @@ import {
   Modal,
   StyleSheet,
 } from "react-native";
-import { theme, SCREEN_WIDTH } from "../colors/color";
+import { theme, SCREEN_WIDTH, SCREEN_HEIGHT } from "../colors/color";
 import Right from "../assets/icon/right_arrow.svg";
 import Check from "../assets/icon/check_blue.svg";
 
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     backgroundColor: "#00000090",
     paddingHorizontal: 20,
-    paddingBottom: 80,
+    paddingBottom: SCREEN_HEIGHT / 20,
   },
   modal: {
     width: "100%",
