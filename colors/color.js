@@ -10,6 +10,10 @@ export const theme = {
     backgroundColor: "#fff",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
+  rowContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
 };
 
 export const SCREEN_WIDTH = Dimensions.get("window").width;

@@ -6,12 +6,13 @@ import {
   Text,
   TouchableOpacity,
   FlatList,
+  Pressable,
 } from "react-native";
-import { theme } from "../../colors/color";
+import { SCREEN_HEIGHT, theme } from "../../colors/color";
 import { LinearGradient } from "expo-linear-gradient";
 import { AloneChatBox, GroupChatBox } from "../../component/ChatComp";
 
-export default function PostChatScreen() {
+export default function ChatListDetailScreen() {
   return (
     <SafeAreaView style={theme.container}>
       <ImageBackground
@@ -26,18 +27,35 @@ export default function PostChatScreen() {
           end={{ x: 0.5, y: 1 }}
         />
         <View style={styles.postContainer}>
-          <View>
+          <View style={{ flex: 3 }}>
             <Text style={styles.smallText}>작성일 | 2024년 12월 31일</Text>
             <Text numberOfLines={1} style={styles.title}>
               게시글 제목 | 영역은 표시해놓음요를레이후
             </Text>
-            <Text style={styles.smallText}>
+            <Text numberOfLines={5} style={styles.postText}>
               {
-                "안녕하세요\n저는 25살 여성 이아무개입니다.\n어쩌구ㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜ"
+                "안녕하세요\n저는 25살 여성 이아무개입니다.\n어쩌구ㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜ"
               }
             </Text>
+            <Pressable
+              style={({ pressed }) => [
+                styles.showPostButton,
+                { borderColor: !pressed ? "#69B7FF" : theme.main_blue }, // 눌렀을 때 색상 변경
+              ]}
+              onPress={() => console.log("Pressed!")}
+            >
+              <Text style={styles.showPostButtonText}>
+                {"해당 게시글 보러가기 >"}
+              </Text>
+            </Pressable>
           </View>
-          <View style={{ alignSelf: "center", alignItems: "center" }}>
+          <View
+            style={{
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "flex-end",
+            }}
+          >
             <Text style={styles.smallText}>단체 채팅방 초대 코드</Text>
             <View style={styles.rowContainer}>
               <Text style={styles.codeText}>QZEJRnp1</Text>
@@ -88,7 +106,7 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "space-between",
     paddingHorizontal: 30,
-    paddingTop: 60,
+    paddingTop: SCREEN_HEIGHT / 20,
     paddingBottom: 24,
     borderBottomWidth: 1,
     borderColor: "#F4F4F4",
@@ -111,11 +129,16 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#313131",
   },
+  postText: {
+    fontFamily: "Pretendard-Medium",
+    fontSize: 14,
+    color: theme.main_black,
+    marginVertical: 10,
+  },
   title: {
     fontFamily: "Pretendard-ExtraBold",
     fontSize: 24,
     marginTop: 10,
-    marginBottom: 24,
   },
   codeText: {
     fontFamily: "Pretendard-Bold",
@@ -137,5 +160,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#EDEDED",
     backgroundColor: "#fff",
+  },
+  showPostButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 24,
+    borderWidth: 1,
+    alignSelf: "flex-start",
+    marginTop: 8,
+  },
+  showPostButtonText: {
+    fontFamily: "Pretendard-Medium",
+    fontSize: 11,
+    color: theme.main_blue,
   },
 });

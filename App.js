@@ -12,11 +12,13 @@ import NoticeScreen from "./screens/NoticeScreen";
 import JoinMemberPassword from "./screens/JoinMember/JoinMemberPassword";
 import JoinMemberProfile from "./screens/JoinMember/JoinMemberProfile";
 import JoinMemberTerms from "./screens/JoinMember/JoinMemberTerms";
-import PostChatScreen from "./screens/Chat/PostChatScreen";
 import LoginScreen from "./screens/LoginScreen";
 import JoinMemberPhoneNumber from "./screens/JoinMember/JoinMemberPhoneNumber";
 import JoinMemberEmail from "./screens/JoinMember/JoinMemberEmail";
 import ChatScreen from "./screens/Chat/ChatScreen";
+import GoWithNav from "./screens/GoWith/GoWithNav";
+import ChatListScreen from "./screens/Chat/ChatListScreen";
+import ChatListDetailScreen from "./screens/Chat/ChatListDetailScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -94,11 +96,11 @@ export default function App() {
           }}
         />
         <Stack.Screen
-          name="PostChat"
-          component={PostChatScreen}
+          name="ChatListDetail"
+          component={ChatListDetailScreen}
           options={{
             headerShown: false,
-            animation: "slide_from_right",
+            animation: "fade_from_bottom",
           }}
         />
         <Stack.Screen
@@ -121,8 +123,22 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="Chat" // ChatScreen 추가
+          name="Chat"
           component={ChatScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="ChatList"
+          component={ChatListScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="GoWithNav"
+          component={GoWithNav}
           options={{
             headerShown: false,
           }}
