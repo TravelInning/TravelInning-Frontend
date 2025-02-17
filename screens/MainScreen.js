@@ -46,7 +46,7 @@ export default function MainScreen({ route }) {
           alignItems: "center",
           justifyContent: "center",
           paddingBottom: 19,
-          paddingTop: 12,
+          paddingTop: 4,
           paddingHorizontal: 10,
         },
         tabBarActiveTintColor: theme.main_black,

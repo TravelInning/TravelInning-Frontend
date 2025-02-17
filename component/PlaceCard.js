@@ -107,9 +107,9 @@ export default function PlaceCard() {
         >
           <TouchableOpacity onPress={() => setClipState(!clipState)}>
             {clipState ? (
-              <ClipTrue width={10} height={13} />
+              <ClipTrue width={11} height={14} />
             ) : (
-              <ClipFalse width={11} height={14} />
+              <ClipFalse width={12} height={15} />
             )}
           </TouchableOpacity>
         </View>
@@ -117,6 +117,7 @@ export default function PlaceCard() {
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
           buttonPosition={buttonPosition}
+          from="home"
         />
       </View>
     </Shadow>
