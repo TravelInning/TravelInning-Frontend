@@ -85,7 +85,11 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
           {/* 채팅, 알림 아이콘 */}
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <TouchableOpacity onPress={() => console.log("채팅")}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.jumpTo("GoWith", { screen: "채팅내역" })
+              }
+            >
               <Image
                 source={require("../assets/icon/chat.png")}
                 style={styles.chatImage}

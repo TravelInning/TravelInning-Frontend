@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -13,10 +13,14 @@ import NewNotice from "../../assets/icon/notification_new.svg";
 import { theme } from "../../colors/color";
 import ChatListScreen from "../Chat/ChatListScreen";
 import GoWithScreen from "./GoWithScreen";
+import { useRoute } from "@react-navigation/native";
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function GoWithNav({ navigation }) {
+  const route = useRoute();
+  const defaultTab = route.params?.screen || "직관동행";
+
   return (
     <SafeAreaView style={theme.container}>
       {/* 헤더 */}
@@ -38,7 +42,9 @@ export default function GoWithNav({ navigation }) {
         </View>
         {/* 채팅, 알림 아이콘 */}
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <TouchableOpacity onPress={() => console.log("채팅")}>
+          <TouchableOpacity
+            onPress={() => navigation.jumpTo("GoWith", { screen: "채팅내역" })}
+          >
             <Image
               source={require("../../assets/icon/chat.png")}
               style={styles.chatImage}
@@ -78,7 +84,7 @@ export default function GoWithNav({ navigation }) {
         }}
       >
         <Tab.Navigator
-          initialRouteName="직관동행"
+          initialRouteName={defaultTab}
           screenOptions={{
             tabBarActiveTintColor: theme.main_blue,
             tabBarInactiveTintColor: "#C2C2C2",
