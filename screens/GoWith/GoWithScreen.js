@@ -156,8 +156,9 @@ export default function GoWithScreen() {
         onClose={() => setFilterVisible(false)}
         buttonPosition={buttonPosition}
         selectedFilter={selectedFilter}
-        setFilter1State={setFilter1State}
-        setFilter2State={setFilter2State}
+        setFilterState={
+          selectedFilter === "filter1" ? setFilter1State : setFilter2State
+        }
       />
       {/* content */}
       <FlatList
