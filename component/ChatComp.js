@@ -11,14 +11,22 @@ import { theme } from "../colors/color";
 import { useNavigation } from "@react-navigation/native";
 
 export function AloneChatBox() {
+  const navigation = useNavigation();
+
   return (
     <Shadow
       distance={2}
       startColor="rgba(0, 0, 0, 0.1)"
       finalColor="rgba(0, 0, 0, 0)"
-      style={{ marginBottom: 20 }}
+      style={{ marginBottom: 20, borderRadius: 20 }}
     >
-      <View style={styles.boxContainer}>
+      <Pressable
+        onPress={() => navigation.navigate("Chat")}
+        style={({ pressed }) => [
+          styles.boxContainer,
+          { backgroundColor: !pressed ? "#FFF" : theme.gray50 },
+        ]}
+      >
         <Image
           source={require("../assets/images/selectphoto/photo1.png")}
           style={styles.aloneImg}
@@ -35,7 +43,7 @@ export function AloneChatBox() {
             <Text style={styles.chatNumberText}>2</Text>
           </View>
         </View>
-      </View>
+      </Pressable>
     </Shadow>
   );
 }
@@ -48,14 +56,22 @@ export function GroupChatBox() {
     require("../assets/images/selectphoto/photo1.png"),
   ];
 
+  const navigation = useNavigation();
+
   return (
     <Shadow
       distance={2}
       startColor="rgba(0, 0, 0, 0.1)"
       finalColor="rgba(0, 0, 0, 0)"
-      style={{ marginBottom: 20 }}
+      style={{ marginBottom: 20, borderRadius: 20 }}
     >
-      <View style={styles.boxContainer}>
+      <Pressable
+        onPress={() => navigation.navigate("Chat")}
+        style={({ pressed }) => [
+          styles.boxContainer,
+          { backgroundColor: !pressed ? "#FFF" : theme.gray50 },
+        ]}
+      >
         <View style={styles.imageGrid}>
           {images.map((image, index) => (
             <Image key={index} source={image} style={styles.groupImg} />
@@ -73,7 +89,7 @@ export function GroupChatBox() {
             <Text style={styles.chatNumberText}>2</Text>
           </View>
         </View>
-      </View>
+      </Pressable>
     </Shadow>
   );
 }
@@ -95,7 +111,7 @@ export const ChatListBox = ({
       }}
       style={({ pressed }) => [
         styles.chatContainer,
-        { backgroundColor: !pressed ? "#FFF" : "#F7F8FA" },
+        { backgroundColor: !pressed ? "#FFF" : theme.gray50 },
       ]}
     >
       <View>

@@ -69,10 +69,10 @@ export default function TestPage({ navigation, route }) {
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => navigation.push("FindCompanionForm")}
+          onPress={() => navigation.push("GoWithPostDetail")}
           style={styles.button}
         >
-          <Text style={styles.buttonText}>동행찾기글쓰기</Text>
+          <Text style={styles.buttonText}>동행찾기화면-지윤</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

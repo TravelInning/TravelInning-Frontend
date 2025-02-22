@@ -19,7 +19,8 @@ import ChatScreen from "./screens/Chat/ChatScreen";
 import GoWithNav from "./screens/GoWith/GoWithNav";
 import ChatListScreen from "./screens/Chat/ChatListScreen";
 import ChatListDetailScreen from "./screens/Chat/ChatListDetailScreen";
-import FindCompanionForm from "./screens/Companions/FindCompanionForm";
+import GoWithPostDetail from "./screens/GoWith/GoWithPostDetail";
+import GoWithForm from "./screens/GoWith/GoWithForm";
 
 const Stack = createNativeStackNavigator();
 
@@ -145,11 +146,18 @@ export default function App() {
           }}
         />
          <Stack.Screen
-          name="FindCompanionForm"
-          component={FindCompanionForm}
+          name="GoWithPostDetail"
+          component={GoWithPostDetail}
           options={{
             headerShown: false,
             // animation: "slide_from_right",
+          }}
+        />
+         <Stack.Screen
+          name="GoWithForm"
+          component={GoWithForm}
+          options={{
+            headerShown: false,
           }}
         />
       </Stack.Navigator>
