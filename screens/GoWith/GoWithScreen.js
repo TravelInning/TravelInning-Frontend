@@ -9,29 +9,32 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
-import { theme } from "../../colors/color";
-import { Shadow } from "react-native-shadow-2";
-import Search from "../../assets/icon/gowith/search.svg";
-import Scrap from "../../assets/icon/bookmark_true.svg";
+} from 'react-native';
+import { theme } from '../../colors/color';
+import { Shadow } from 'react-native-shadow-2';
+import Search from '../../assets/icon/gowith/search.svg';
+import Scrap from '../../assets/icon/bookmark_true.svg';
 import {
   PostCard,
   Story,
   FilterDropDown,
-} from "../../component/GoWith/GoWithComp";
-import DropDown from "../../assets/icon/dropdown.svg";
-import DropDowBlue from "../../assets/icon/gowith/dropdown.svg";
-import { useRef, useState } from "react";
-import CancleConfirmModal from "../../component/CancleConfirmModal";
-import Pen from "../../assets/icon/gowith/pen.svg";
+} from '../../component/GoWith/GoWithComp';
+import DropDown from '../../assets/icon/dropdown.svg';
+import DropDowBlue from '../../assets/icon/gowith/dropdown.svg';
+import { useRef, useState } from 'react';
+import CancleConfirmModal from '../../component/CancleConfirmModal';
+import Pen from '../../assets/icon/gowith/pen.svg';
+import { useNavigation } from '@react-navigation/native';
 
 export default function GoWithScreen() {
+  const navigation = useNavigation();
+
   const [modalVisible, setModalVisible] = useState(false);
-  const [filter1State, setFilter1State] = useState("전체");
-  const [filter2State, setFilter2State] = useState("전체 조건");
+  const [filter1State, setFilter1State] = useState('전체');
+  const [filter2State, setFilter2State] = useState('전체 조건');
   const [filterVisible, setFilterVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
-  const [selectedFilter, setSelectedFilter] = useState(null); // 선택된 필터 상태 추가
+  const [selectedFilter, setSelectedFilter] = useState(null);
 
   const filter1ButtonRef = useRef(null);
   const filter2ButtonRef = useRef(null);
@@ -55,7 +58,7 @@ export default function GoWithScreen() {
             distance={2}
             startColor="rgba(0, 0, 0, 0.1)"
             finalColor="rgba(0, 0, 0, 0)"
-            style={{ width: "100%", marginBottom: 20 }}
+            style={{ width: '100%', marginBottom: 20 }}
           >
             <View style={styles.searchContainer}>
               <Search width={12} height={12} style={{ marginRight: 4 }} />
@@ -69,12 +72,12 @@ export default function GoWithScreen() {
         {/* story */}
         <View
           style={{
-            flexDirection: "row",
-            alignItems: "center",
+            flexDirection: 'row',
+            alignItems: 'center',
             paddingLeft: 20,
           }}
         >
-          <View style={{ alignItems: "center" }}>
+          <View style={{ alignItems: 'center' }}>
             <View style={styles.circle}>
               <Scrap width={16} height={21} />
             </View>
@@ -100,51 +103,51 @@ export default function GoWithScreen() {
           {/* filter1 */}
           <TouchableOpacity
             ref={filter1ButtonRef}
-            onPress={() => openModal(filter1ButtonRef, "filter1")}
+            onPress={() => openModal(filter1ButtonRef, 'filter1')}
             style={theme.rowContainer}
           >
             <Text
               style={[
                 styles.filterText,
-                filter1State !== "전체" && { color: theme.main_blue },
+                filter1State !== '전체' && { color: theme.main_blue },
               ]}
             >
               {filter1State}
             </Text>
-            {filter1State !== "전체" ? <DropDowBlue /> : <DropDown />}
+            {filter1State !== '전체' ? <DropDowBlue /> : <DropDown />}
           </TouchableOpacity>
           {/* filter2 */}
           <TouchableOpacity
             ref={filter2ButtonRef}
-            onPress={() => openModal(filter2ButtonRef, "filter2")}
+            onPress={() => openModal(filter2ButtonRef, 'filter2')}
             style={{ ...theme.rowContainer, marginLeft: 18 }}
           >
             <Text
               style={[
                 styles.filterText,
-                filter2State !== "전체 조건" && { color: theme.main_blue },
+                filter2State !== '전체 조건' && { color: theme.main_blue },
               ]}
             >
               {filter2State}
             </Text>
-            {filter2State !== "전체 조건" ? <DropDowBlue /> : <DropDown />}
+            {filter2State !== '전체 조건' ? <DropDowBlue /> : <DropDown />}
           </TouchableOpacity>
         </View>
         {/* filter reset */}
-        {filter1State === "전체" && filter2State === "전체 조건" ? (
+        {filter1State === '전체' && filter2State === '전체 조건' ? (
           <Image
-            source={require("../../assets/images/gowith/filter_reset.png")}
+            source={require('../../assets/images/gowith/filter_reset.png')}
             style={styles.filterImage}
           />
         ) : (
           <TouchableOpacity
             onPress={() => {
-              setFilter1State("전체");
-              setFilter2State("전체 조건");
+              setFilter1State('전체');
+              setFilter2State('전체 조건');
             }}
           >
             <Image
-              source={require("../../assets/images/gowith/filter_reset_on.png")}
+              source={require('../../assets/images/gowith/filter_reset_on.png')}
               style={styles.filterImage}
             />
           </TouchableOpacity>
@@ -157,7 +160,7 @@ export default function GoWithScreen() {
         buttonPosition={buttonPosition}
         selectedFilter={selectedFilter}
         setFilterState={
-          selectedFilter === "filter1" ? setFilter1State : setFilter2State
+          selectedFilter === 'filter1' ? setFilter1State : setFilter2State
         }
       />
       {/* content */}
@@ -171,8 +174,7 @@ export default function GoWithScreen() {
         renderItem={({ item }) => (
           <PostCard
             title="게시글 제목 예를 들면 동행 2명 구해요"
-            content="삼성 vs KIA 경기 보러갑니다. 같은 성별(남성)만 원합니다. 어쩌구
-          저쩌구 저쩌구 저쩌구어쩌구저"
+            content="삼성 vs KIA 경기 보러갑니다. 같은 성별(남성)만 원합니다. 어쩌구 저쩌구 저쩌구 저쩌구어쩌구저"
             date="11.01"
             club="최강삼성"
             isDone={item.isdone}
@@ -184,15 +186,15 @@ export default function GoWithScreen() {
       <CancleConfirmModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        text={`한 번 삭제한 글은 복구할 수 없습니다.${"\n"}정말 삭제하시겠습니까?`}
+        text={`한 번 삭제한 글은 복구할 수 없습니다.\n정말 삭제하시겠습니까?`}
         onClick={() => {}}
       />
       {/* write button */}
       <Pressable
-        onPress={() => console.log("작성하기")}
+        onPress={() => navigation.navigate('GoWithForm')}
         style={({ pressed }) => [
           styles.writeButton,
-          { backgroundColor: pressed ? theme.gray50 : "#FFF" },
+          { backgroundColor: pressed ? theme.gray50 : '#FFF' },
         ]}
       >
         <Pen />
