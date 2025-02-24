@@ -12,45 +12,35 @@ import { theme } from "../colors/color";
 import { useState } from "react";
 import NoticeCard from "../component/NoticeCard";
 import CancleConfirmModal from "../component/CancleConfirmModal";
+import { Header } from "../component/Header/Header";
 
 export default function NoticeScreen({ navigation }) {
   const [selectedCategory, setSelectedCategory] = useState("알림");
   const [modalVisible, setModalVisible] = useState(false);
 
+  const right = () => {
+    return (
+      <TouchableOpacity
+        onPress={() => setModalVisible(true)}
+        style={{ width: 40 }}
+      >
+        <Text style={[styles.smallBoldText, { color: theme.main_blue }]}>
+          모두 확인
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <SafeAreaView style={theme.container}>
-      {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.pop()}
-          style={{ width: 40 }}
-        >
-          <Left width={8} height={15} />
-        </TouchableOpacity>
-        <Text
-          style={{
-            fontSize: 18,
-            fontFamily: "Pretendard-SemiBold",
-            color: theme.main_black,
-          }}
-        >
-          알림센터
-        </Text>
-        <TouchableOpacity
-          onPress={() => setModalVisible(true)}
-          style={{ width: 40 }}
-        >
-          <Text style={[styles.smallBoldText, { color: theme.main_blue }]}>
-            모두 확인
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {/* header */}
+      <Header title="알림센터" right={right} />
       {/* 카테고리 */}
       <View
         style={{
-          ...styles.header,
+          ...theme.header,
           paddingHorizontal: 30,
-          borderColor: "#F4F4F4",
+          borderColor: theme.borderColor,
         }}
       >
         {["알림", "공지사항", "이벤트"].map((category, index) => {
@@ -115,16 +105,6 @@ export default function NoticeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    width: "100%",
-    height: 48,
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderColor: "#D6D6D6",
-  },
   smallBoldText: {
     fontSize: 10,
     fontFamily: "Pretendard-SemiBold",

@@ -74,6 +74,13 @@ export default function TestPage({ navigation, route }) {
         >
           <Text style={styles.buttonText}>동행찾기화면-지윤</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          onPress={() => navigation.push("StoryEdit")}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>이야기방 작성</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
