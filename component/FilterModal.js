@@ -73,6 +73,7 @@ const FilterModal = ({ visible, onClose }) => {
             <Animated.View
               style={{ width: "100%", transform: [{ translateY: slideAnim }] }}
             >
+              <View style={styles.bar} />
               <Animated.View
                 style={{
                   width: "100%",
@@ -283,6 +284,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.main_black,
     borderRadius: 4,
+  },
+  bar: {
+    width: 54,
+    height: 4,
+    borderRadius: 30,
+    backgroundColor: theme.gray100,
+    marginBottom: 14,
+    alignSelf: "center",
   },
 });
 

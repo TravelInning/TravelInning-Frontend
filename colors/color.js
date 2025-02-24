@@ -9,6 +9,7 @@ export const theme = {
   gray200: "#eaebee",
   gray300: "#dcdee3",
   gray400: "#d1d3d8",
+  gray500: "#9C9C9C",
   borderColor: "#F4F4F4",
 
   container: {

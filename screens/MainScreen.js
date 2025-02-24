@@ -12,12 +12,12 @@ import { theme } from "../colors/color";
 import Home from "../assets/icon/tabBarIcon/home.svg";
 import GoWith from "../assets/icon/tabBarIcon/go_with.svg";
 import GameInfo from "../assets/icon/tabBarIcon/game_info.svg";
-import OnlineTour from "../assets/icon/tabBarIcon/online_tour.svg";
+import Story from "../assets/icon/tabBarIcon/story.svg";
 import My from "../assets/icon/tabBarIcon/my.svg";
 import HomeGray from "../assets/icon/tabBarIcon/home_gray.svg";
 import GoWithGray from "../assets/icon/tabBarIcon/go_with_gray.svg";
 import GameInfoGray from "../assets/icon/tabBarIcon/game_info_gray.svg";
-import OnlineTourGray from "../assets/icon/tabBarIcon/online_tour_gray.svg";
+import StoryGray from "../assets/icon/tabBarIcon/story_gray.svg";
 import HomeScreen from "./HomeScreen";
 import TestPage from "./TestPage";
 import GoWithNav from "./GoWith/GoWithNav";
@@ -90,7 +90,7 @@ export default function MainScreen({ route }) {
         name="GameInfo"
         component={TestPage}
         options={{
-          title: "경기정보",
+          title: "테스트",
           tabBarIcon: ({ color }) =>
             color == theme.main_black ? (
               <GameInfo width={18} height={18} />
@@ -100,15 +100,15 @@ export default function MainScreen({ route }) {
         }}
       />
       <Tab.Screen
-        name="OnlineTour"
+        name="Story"
         component={NullScreen}
         options={{
-          title: "랜선투어",
+          title: "이야기방",
           tabBarIcon: ({ color }) =>
             color == theme.main_black ? (
-              <OnlineTour width={26} height={18} />
+              <Story width={22} height={20} />
             ) : (
-              <OnlineTourGray width={26} height={18} />
+              <StoryGray width={22} height={20} />
             ),
         }}
       />
@@ -117,7 +117,7 @@ export default function MainScreen({ route }) {
         component={NullScreen}
         options={{
           title: "내 정보",
-          tabBarIcon: () => <My width={18} height={18} />,
+          tabBarIcon: () => <My width={19} height={19} />,
         }}
       />
     </Tab.Navigator>
@@ -133,6 +133,5 @@ const styles = StyleSheet.create({
   tabBarText: {
     fontSize: 9,
     fontFamily: "Pretendard-Regular",
-    marginTop: 4,
   },
 });
