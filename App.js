@@ -19,6 +19,7 @@ import ChatScreen from "./screens/Chat/ChatScreen";
 import GoWithNav from "./screens/GoWith/GoWithNav";
 import ChatListScreen from "./screens/Chat/ChatListScreen";
 import ChatListDetailScreen from "./screens/Chat/ChatListDetailScreen";
+import StoryEditScreen from "./screens/Story/StoryEditScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -139,6 +140,13 @@ export default function App() {
         <Stack.Screen
           name="GoWithNav"
           component={GoWithNav}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="StoryEdit"
+          component={StoryEditScreen}
           options={{
             headerShown: false,
           }}
