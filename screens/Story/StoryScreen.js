@@ -3,7 +3,6 @@ import { WriteButton } from "../../component/GoWith/GoWithComp";
 import { SCREEN_WIDTH, theme } from "../../colors/color";
 import { useEffect, useRef, useState } from "react";
 import { StoryBox } from "../../component/Story/StoryComp";
-import Carousel from "react-native-snap-carousel";
 
 export default function StoryScreen({ navigation }) {
   const [activeSlide, setActiveSlide] = useState(0);
