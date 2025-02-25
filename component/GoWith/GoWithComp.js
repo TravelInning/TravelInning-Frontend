@@ -18,6 +18,7 @@ import { useEffect, useRef, useState } from "react";
 import SeeMoreModal from "../SeeMoreModal";
 import Check from "../../assets/icon/gowith/filter_check.svg";
 import Progress from "../../assets/icon/gowith/filter_progress.svg";
+import Pen from "../../assets/icon/gowith/pen.svg";
 
 export const Story = ({ text, state }) => {
   return (
@@ -239,6 +240,21 @@ export const FilterDropDown = ({
   );
 };
 
+export const WriteButton = ({ onClick }) => {
+  return (
+    <Pressable
+      onPress={onClick}
+      style={({ pressed }) => [
+        styles.writeButton,
+        { backgroundColor: pressed ? theme.gray50 : "#FFF" },
+      ]}
+    >
+      <Pen />
+      <Text style={styles.buttonText}>작성하기</Text>
+    </Pressable>
+  );
+};
+
 const styles = StyleSheet.create({
   circle: {
     width: 55,
@@ -342,5 +358,35 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Pretendard-Regular",
     color: "#545454",
+  },
+
+  // write button
+  writeButton: {
+    flexDirection: "row",
+    width: 120,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 30,
+    position: "absolute",
+    bottom: 20,
+    left: "50%",
+    transform: [{ translateX: -60 }],
+    borderWidth: 1,
+    borderColor: theme.borderColor,
+
+    // android shadow
+    elevation: 2,
+    // ios shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+  },
+  buttonText: {
+    fontFamily: "Pretendard-SemiBold",
+    fontSize: 16,
+    color: theme.main_black,
+    marginLeft: 6,
   },
 });
