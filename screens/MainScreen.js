@@ -21,6 +21,7 @@ import StoryGray from "../assets/icon/tabBarIcon/story_gray.svg";
 import HomeScreen from "./HomeScreen";
 import TestPage from "./TestPage";
 import GoWithNav from "./GoWith/GoWithNav";
+import StoryNav from "./Story/StoryNav";
 
 const Tab = createBottomTabNavigator();
 
@@ -101,7 +102,7 @@ export default function MainScreen({ route }) {
       />
       <Tab.Screen
         name="Story"
-        component={NullScreen}
+        component={StoryNav}
         options={{
           title: "이야기방",
           tabBarIcon: ({ color }) =>

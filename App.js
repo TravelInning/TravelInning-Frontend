@@ -22,6 +22,8 @@ import ChatListDetailScreen from "./screens/Chat/ChatListDetailScreen";
 import GoWithPostDetail from "./screens/GoWith/GoWithPostDetail";
 import GoWithForm from "./screens/GoWith/GoWithForm";
 import StoryEditScreen from "./screens/Story/StoryEditScreen";
+import StoryNav from "./screens/Story/StoryNav";
+import StoryScreen from "./screens/Story/StoryScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -162,8 +164,22 @@ export default function App() {
           }}
         />
         <Stack.Screen
+          name="StoryNav"
+          component={StoryNav}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
           name="StoryEdit"
           component={StoryEditScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="Story"
+          component={StoryScreen}
           options={{
             headerShown: false,
           }}

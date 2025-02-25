@@ -28,7 +28,10 @@ export default function SeeMoreModal({
       <View style={styles.modalBackground}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View
-          style={[styles.container, { top: buttonPosition.top + 4, right: 20 }]}
+          style={[
+            styles.container,
+            { top: buttonPosition.top + 4, right: from === "gowith" ? 20 : 30 },
+          ]}
         >
           {/* share */}
           <TouchableOpacity
@@ -60,22 +63,36 @@ export default function SeeMoreModal({
                 더 이상 추천받지 않음
               </Text>
             </TouchableOpacity>
-          ) : isWriter ? (
+          ) : from === "gowith" ? (
+            isWriter ? (
+              <TouchableOpacity
+                onPress={() => {
+                  onClose();
+                  setDeleteModalVisible(true);
+                }}
+                style={styles.rowContainer}
+              >
+                <Reject width={10} height={10} />
+                <Text style={{ ...styles.text, color: "#f00" }}>삭제하기</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={styles.rowContainer}>
+                <Reject width={10} height={10} />
+                <Text style={{ ...styles.text, color: "#f00" }}>
+                  이 게시글 차단하기
+                </Text>
+              </TouchableOpacity>
+            )
+          ) : (
             <TouchableOpacity
               onPress={() => {
                 onClose();
-                setDeleteModalVisible(true);
               }}
               style={styles.rowContainer}
             >
               <Reject width={10} height={10} />
-              <Text style={{ ...styles.text, color: "#f00" }}>삭제하기</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={styles.rowContainer}>
-              <Reject width={10} height={10} />
               <Text style={{ ...styles.text, color: "#f00" }}>
-                이 게시글 차단하기
+                이 게시글 신고하기
               </Text>
             </TouchableOpacity>
           )}
