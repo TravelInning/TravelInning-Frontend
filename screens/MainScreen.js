@@ -22,20 +22,13 @@ import HomeScreen from "./HomeScreen";
 import TestPage from "./TestPage";
 import GoWithNav from "./GoWith/GoWithNav";
 import StoryNav from "./Story/StoryNav";
+import MyPageMainScreen from "./MyPage/MyPageMainScreen";
 
 const Tab = createBottomTabNavigator();
 
 export default function MainScreen({ route }) {
   // const { user_code, ipnumber } = route.params;
   // console.log(user_code, ipnumber);
-
-  function NullScreen() {
-    return (
-      <SafeAreaView>
-        <Text>빈화면</Text>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <Tab.Navigator
@@ -115,7 +108,7 @@ export default function MainScreen({ route }) {
       />
       <Tab.Screen
         name="MyPage"
-        component={NullScreen}
+        component={MyPageMainScreen}
         options={{
           title: "내 정보",
           tabBarIcon: () => <My width={19} height={19} />,

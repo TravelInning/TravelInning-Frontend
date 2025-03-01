@@ -24,6 +24,7 @@ import GoWithForm from "./screens/GoWith/GoWithForm";
 import StoryEditScreen from "./screens/Story/StoryEditScreen";
 import StoryNav from "./screens/Story/StoryNav";
 import StoryScreen from "./screens/Story/StoryScreen";
+import MyPageMainScreen from "./screens/MyPage/MyPageMainScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -180,6 +181,13 @@ export default function App() {
         <Stack.Screen
           name="Story"
           component={StoryScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="MyPageMain"
+          component={MyPageMainScreen}
           options={{
             headerShown: false,
           }}

@@ -14,14 +14,14 @@ import { AloneChatBox, GroupChatBox } from "../../component/ChatComp";
 
 export default function ChatListDetailScreen() {
   return (
-    <SafeAreaView style={theme.container}>
+    <SafeAreaView style={styles.container}>
       <ImageBackground
         source={require("../../assets/images/chat/chat_background.png")}
         resizeMode="cover"
-        style={styles.background}
+        style={[theme.container, styles.background]}
       >
         <LinearGradient
-          colors={["#0084FF20", "transparent"]}
+          colors={["#0084FF18", "transparent"]}
           style={styles.gradient}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
@@ -89,6 +89,7 @@ export default function ChatListDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#FFF" },
   background: {
     flex: 1,
     alignItems: "center",
@@ -115,6 +116,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     padding: 20,
+    paddingBottom: 0,
     backgroundColor: "#fff",
   },
   rowContainer: {

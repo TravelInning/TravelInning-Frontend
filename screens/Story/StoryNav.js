@@ -102,6 +102,7 @@ export default function StoryNav({ navigation }) {
               height: 3,
               marginLeft: 18,
             },
+            swipeEnabled: false,
           }}
         >
           <Tab.Screen
