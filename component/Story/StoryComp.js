@@ -1,4 +1,12 @@
-import { Image, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  Modal,
+  Pressable,
+  TouchableOpacity,
+} from "react-native";
 import { theme } from "../../colors/color";
 import { Shadow } from "react-native-shadow-2";
 import ClipFalse from "../../assets/icon/bookmark_false.svg";
@@ -7,6 +15,8 @@ import SeeMore from "../../assets/icon/see_more.svg";
 import SeeMoreActivate from "../../assets/icon/see_more_activate.svg";
 import { useEffect, useRef, useState } from "react";
 import SeeMoreModal from "../SeeMoreModal";
+import Check from "../../assets/icon/gowith/filter_check.svg";
+import Progress from "../../assets/icon/gowith/filter_progress.svg";
 
 export const StoryBox = ({ category, time, content, photo, limitedTime }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -111,6 +121,53 @@ export const StoryBox = ({ category, time, content, photo, limitedTime }) => {
   );
 };
 
+// storyscreen filter
+export const FilterDropDown = ({
+  visible,
+  onClose,
+  buttonPosition,
+  selectedFilter,
+  setFilterState,
+}) => {
+  const FILTER_OPTIONS = {
+    filter1: ["최신순", "스크랩"],
+    filter2: ["이야기해요", "끝난이야기"],
+    filter3: ["야구", "기사/뉴스", "일상", "성/연애"],
+  };
+
+  return (
+    <Modal transparent visible={visible} onRequestClose={onClose}>
+      <View style={styles.modalBackground}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        <View
+          style={[
+            styles.dropdownContainer,
+            { top: buttonPosition.top - 20, left: buttonPosition.left },
+          ]}
+        >
+          {FILTER_OPTIONS[selectedFilter]?.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => {
+                setFilterState(item);
+                console.log("클릭");
+                onClose();
+              }}
+              style={[
+                index < FILTER_OPTIONS[selectedFilter].length - 1 && {
+                  marginBottom: 14,
+                },
+              ]}
+            >
+              <Text style={styles.text}>{item}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
 const styles = StyleSheet.create({
   boxContainer: {
     flexDirection: "row",
@@ -160,5 +217,28 @@ const styles = StyleSheet.create({
     fontFamily: "Pretendard-SemiBold",
     fontSize: 8,
     color: theme.main_blue,
+  },
+
+  // filter modal(dropdown)
+  dropdownContainer: {
+    minHeight: 74,
+    justifyContent: "space-between",
+    backgroundColor: "#fff",
+    borderRadius: 3,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: theme.borderColor,
+    position: "absolute",
+    zIndex: 10,
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: "red",
+  },
+  modalText: {
+    fontSize: 14,
+    fontFamily: "Pretendard-Regular",
+    color: "#545454",
   },
 });
