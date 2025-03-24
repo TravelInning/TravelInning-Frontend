@@ -1,5 +1,3 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -25,6 +23,8 @@ import StoryEditScreen from "./screens/Story/StoryEditScreen";
 import StoryNav from "./screens/Story/StoryNav";
 import StoryScreen from "./screens/Story/StoryScreen";
 import MyPageMainScreen from "./screens/MyPage/MyPageMainScreen";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "./component/Toast";
 
 const Stack = createNativeStackNavigator();
 
@@ -193,12 +193,7 @@ export default function App() {
           }}
         />
       </Stack.Navigator>
+      <Toast config={toastConfig} />
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

@@ -15,6 +15,7 @@ import Carousel from "react-native-reanimated-carousel";
 import DropDown from "../../assets/icon/dropdown.svg";
 import DropDowBlue from "../../assets/icon/gowith/dropdown.svg";
 import { FilterDropDown } from "../../component/Story/StoryComp";
+import { StoryCarousel } from "../../component/Story/StoryComp";
 
 export default function StoryScreen({ navigation }) {
   const [activeSlide, setActiveSlide] = useState(0);
@@ -40,10 +41,43 @@ export default function StoryScreen({ navigation }) {
     }
   };
 
+  const DATA = [
+    {
+      id: "1",
+      category: "야구",
+      time: "11분 전",
+      content:
+        "한화는 언제쯤 우승해볼 수 있을까? 좋은 선수들은 많이 가지고 있으니까 앞으로 잘 하면 될거같은데",
+      limitedTime: "14:59",
+      photo: require("../../assets/images/gowith/logo.png"),
+    },
+    {
+      id: "2",
+      category: "농구",
+      time: "5분 전",
+      content: "어제 경기 미쳤다.. 마지막 3점슛 대박",
+      limitedTime: "13:20",
+      photo: require("../../assets/images/gowith/logo.png"),
+    },
+    {
+      id: "3",
+      category: "축구",
+      time: "20분 전",
+      content: "이번 시즌 손흥민 폼 장난 아닌 듯",
+      limitedTime: "12:45",
+      photo: require("../../assets/images/gowith/logo.png"),
+    },
+  ];
+
   return (
     <SafeAreaView style={styles.container}>
       {/* top3 */}
-      <View style={styles.topContainer}>
+      <View
+        style={{
+          ...styles.topContainer,
+          pointerEvents: filterVisible ? "none" : "auto",
+        }}
+      >
         {/* story box */}
         <Carousel
           loop
@@ -85,6 +119,7 @@ export default function StoryScreen({ navigation }) {
             />
           ))}
         </View>
+        {/* <StoryCarousel data={DATA} /> */}
       </View>
       {/* filter */}
       <View style={styles.filterContainer}>
@@ -121,6 +156,22 @@ export default function StoryScreen({ navigation }) {
             </Text>
             {filter2State !== "전체 조건" ? <DropDowBlue /> : <DropDown />}
           </TouchableOpacity>
+          {/* filter3 */}
+          <TouchableOpacity
+            ref={filter3ButtonRef}
+            onPress={() => openModal(filter3ButtonRef, "filter3")}
+            style={{ ...theme.rowContainer, marginLeft: 18 }}
+          >
+            <Text
+              style={[
+                styles.filterText,
+                filter3State !== "전체 조건" && { color: theme.main_blue },
+              ]}
+            >
+              {filter3State}
+            </Text>
+            {filter3State !== "전체 조건" ? <DropDowBlue /> : <DropDown />}
+          </TouchableOpacity>
         </View>
         {/* filter reset */}
         {filter1State === "전체" && filter2State === "전체 조건" ? (
@@ -149,7 +200,11 @@ export default function StoryScreen({ navigation }) {
         buttonPosition={buttonPosition}
         selectedFilter={selectedFilter}
         setFilterState={
-          selectedFilter === "filter1" ? setFilter1State : setFilter2State
+          selectedFilter === "filter1"
+            ? setFilter1State
+            : selectedFilter === "filter2"
+            ? setFilter2State
+            : setFilter3State
         }
       />
       {/* list */}

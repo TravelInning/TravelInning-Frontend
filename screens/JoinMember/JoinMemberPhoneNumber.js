@@ -10,6 +10,9 @@ import {
   Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // 내비게이션 import
+import axios from "axios";
+import { API_URL } from "@env";
+import { showToast } from "../../component/Toast";
 
 const { width, height } = Dimensions.get("window");
 
@@ -17,6 +20,7 @@ export default function JoinMemberPhoneNumber() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [isRequestSent, setIsRequestSent] = useState(false);
+  const [isRequesting, setIsRequesting] = useState(false);
   const navigation = useNavigation(); // 내비게이션 훅
 
   const handlePhoneNumberChange = (text) => {
@@ -27,16 +31,55 @@ export default function JoinMemberPhoneNumber() {
     setPhoneNumber(formattedText);
   };
 
-  const handleRequestCode = () => {
-    if (phoneNumber.length === 13) {
+  const handleRequestCode = async () => {
+    if (isRequesting || phoneNumber.length !== 13) return; // 연속 요청 방지
+    setIsRequesting(true);
+
+    const isSuccess = await sendSMScode();
+    if (isSuccess) {
       setIsRequestSent(true);
-      alert("인증번호가 발송되었습니다!");
+      showToast("인증번호가 발송되었습니다!");
+    } else {
+      showToast("인증번호 요청에 실패했습니다. 다시 시도해주세요.");
     }
+
+    setIsRequesting(false);
   };
 
   const handleVerificationCodeChange = (text) => {
     const formattedCode = text.replace(/[^0-9]/g, "").slice(0, 6);
     setVerificationCode(formattedCode);
+  };
+
+  // SMS request
+  const sendSMScode = async () => {
+    try {
+      await axios.post(`${API_URL}/api/members/sms/auth`, {
+        phoneNumber: phoneNumber,
+      });
+      return true;
+    } catch (error) {
+      console.log("send SMScode error: ", error);
+      return false;
+    }
+  };
+
+  // SMS code verify
+  const verifySMScode = async () => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/members/sms/auth/verify`,
+        {
+          phoneNumber: phoneNumber,
+          code: verificationCode,
+        }
+      );
+      console.log("response ", response.data);
+      return response.data?.isSuccess || false;
+    } catch (error) {
+      console.log("verify SMScode error: ", error);
+      return false;
+    }
   };
 
   return (
@@ -110,13 +153,23 @@ export default function JoinMemberPhoneNumber() {
             styles.nextButton,
             verificationCode.length === 6 ? styles.nextButtonActive : null,
           ]}
-          onPress={() => navigation.navigate("JoinMemberEmail")} // 페이지 이동
+          onPress={async () => {
+            const isSuccess = await verifySMScode();
+            if (isSuccess) {
+              navigation.navigate("JoinMemberEmail");
+            } else {
+              showToast("인증번호를 확인해주세요.");
+            }
+            //navigation.navigate("JoinMemberEmail");
+          }}
           disabled={verificationCode.length !== 6}
         >
           <Text
             style={[
               styles.nextButtonText,
-              verificationCode.length === 6 ? styles.nextButtonTextActive : null,
+              verificationCode.length === 6
+                ? styles.nextButtonTextActive
+                : null,
             ]}
           >
             {"다음"}
@@ -129,7 +182,6 @@ export default function JoinMemberPhoneNumber() {
     </SafeAreaView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
