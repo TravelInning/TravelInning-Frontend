@@ -10,6 +10,9 @@ import {
   Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // 내비게이션 import
+import axios from "axios";
+import { API_URI } from "@env";
+import { showToast } from "../../component/Toast";
 
 const { width, height } = Dimensions.get("window");
 
@@ -17,22 +20,81 @@ export default function JoinMemberEmail() {
   const [email, setEmail] = useState(""); // 이메일 입력 상태
   const [verificationCode, setVerificationCode] = useState(""); // 인증번호 입력 상태
   const [isRequestSent, setIsRequestSent] = useState(false); // 인증요청 여부
+  const [isRequesting, setIsRequesting] = useState(false);
+  const [isEmailDuplicated, setIsEmailDuplicated] = useState(false);
+  const [isValidEmail, setIsValidEmail] = useState(false);
   const navigation = useNavigation(); // 내비게이션 훅
 
   const handleEmailChange = (text) => {
-    setEmail(text); // 이메일 입력 상태 업데이트
+    setEmail(text);
+
+    validateEmailFormat(text) ? setIsValidEmail(true) : setIsValidEmail(false);
   };
 
-  const handleRequestCode = () => {
-    if (email.length > 0) {
-      setIsRequestSent(true); // 인증번호 요청 후 상태 변경
-      alert("인증번호가 이메일로 발송되었습니다!");
-    }
+  const validateEmailFormat = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const handleVerificationCodeChange = (text) => {
     const formattedCode = text.replace(/[^0-9]/g, "").slice(0, 6); // 인증번호는 숫자 6자리 제한
     setVerificationCode(formattedCode);
+  };
+
+  const handleRequestCode = async () => {
+    if (isRequesting || email.length <= 0) return; // 연속 요청 방지
+    setIsRequesting(true);
+
+    const isDuplicated = await checkEmailCode();
+    if (isDuplicated) {
+      setIsRequesting(false);
+      return;
+    }
+
+    const isSuccess = await sendEmailCode();
+    if (isSuccess) {
+      setIsRequestSent(true);
+      showToast("인증번호가 이메일로 발송되었습니다!");
+    }
+
+    setIsRequesting(false);
+  };
+
+  const checkEmailCode = async () => {
+    try {
+      const response = await axios.post(
+        `${API_URI}/api/members/email/duplicate`,
+        {
+          email: email,
+        }
+      );
+      console.log("response:", response);
+      if (response.data?.checkLoginId) {
+        // true -> 중복 X
+        setIsEmailDuplicated(false);
+        return false;
+      } else {
+        setIsEmailDuplicated(true);
+        return true;
+      }
+    } catch (error) {
+      console.log("check email error: ", error);
+      showToast("이메일 중복 확인에 실패했습니다. 다시 시도해주세요.");
+      return true;
+    }
+  };
+
+  const sendEmailCode = async () => {
+    try {
+      await axios.post(`${API_URI}/api/members/email/auth`, {
+        email: email,
+      });
+      return true;
+    } catch (error) {
+      console.log("send email code: ", error);
+      showToast("인증 번호 전송에 실패했습니다. 다시 시도해주세요.");
+      return false;
+    }
   };
 
   return (
@@ -68,21 +130,35 @@ export default function JoinMemberEmail() {
           <TouchableOpacity
             style={[
               styles.requestCodeButton,
-              email.length > 0 ? styles.requestCodeButtonActive : null,
+              isValidEmail ? styles.requestCodeButtonActive : null,
             ]}
-            onPress={handleRequestCode}
-            disabled={email.length === 0}
+            onPress={async () => {
+              await handleRequestCode();
+            }}
+            disabled={!isValidEmail}
           >
             <Text
               style={[
                 styles.requestCodeText,
-                email.length > 0 ? styles.requestCodeTextActive : null,
+                isValidEmail ? styles.requestCodeTextActive : null,
               ]}
             >
               {isRequestSent ? "재요청" : "인증요청"}
             </Text>
           </TouchableOpacity>
         </View>
+        {email && isEmailDuplicated && (
+          <Text
+            style={{
+              marginTop: 4,
+              fontFamily: "Pretendard-Medium",
+              fontSize: 12,
+              color: "#F00",
+            }}
+          >
+            이미 가입된 이메일입니다.
+          </Text>
+        )}
       </View>
 
       {/* Verification Code Input Section */}
@@ -112,7 +188,9 @@ export default function JoinMemberEmail() {
           <Text
             style={[
               styles.nextButtonText,
-              verificationCode.length === 6 ? styles.nextButtonTextActive : null,
+              verificationCode.length === 6
+                ? styles.nextButtonTextActive
+                : null,
             ]}
           >
             {"다음"}

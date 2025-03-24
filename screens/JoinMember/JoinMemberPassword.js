@@ -76,7 +76,7 @@ export default function JoinMemberPassword({ navigation }) {
             비밀번호
           </Text>
           <TextInput
-            placeholder="사용할 비밀번호 입력"
+            placeholder="사용할 비밀번호 입력(영문+숫자 6자 이상)"
             placeholderTextColor={"#919191"}
             onChangeText={validatePassword}
             keyboardType="default"
@@ -112,7 +112,9 @@ export default function JoinMemberPassword({ navigation }) {
       {!isKeyboardVisible && (
         <JoinMemberBtn
           nextCondition={isValid && isCorrect}
-          nextFunction={() => navigation.push("JoinMemberProfile")}
+          nextFunction={() =>
+            navigation.push("JoinMemberProfile", { password: password })
+          }
           backText={"뒤로"}
         />
       )}

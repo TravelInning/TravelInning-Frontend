@@ -15,13 +15,17 @@ import {
   JoinMemberStyle,
   JoinMemberBtn,
 } from "../../component/JoinMemberComp";
+import axios from "axios";
+import { API_URI } from "@env";
 
-export default function JoinMemberProfile({ navigation }) {
+export default function JoinMemberProfile({ navigation, route }) {
   const [nickname, setNickname] = useState("");
+  const [nicknameisValid, setNicknameisValid] = useState(false);
   const [gender, setGender] = useState(null);
   const [introMessage, setIntroMessage] = useState("");
   const [focused, setFocused] = useState("");
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [isNextClicked, setIsNextClicked] = useState(false);
 
   // keyboard detect
   useEffect(() => {
@@ -43,6 +47,25 @@ export default function JoinMemberProfile({ navigation }) {
       keyboardDidHideListener.remove();
     };
   }, []);
+
+  const checkNickname = async () => {
+    try {
+      const response = await axios.post(
+        `${API_URI}/api/members/nickname/duplicate`,
+        {
+          nickname: nickname,
+        }
+      );
+
+      if (response.data?.checkNickname) {
+        setNicknameisValid(true);
+      } else {
+        setNicknameisValid(false);
+      }
+    } catch (error) {
+      console.log("nickname check: ", error);
+    }
+  };
 
   return (
     <SafeAreaView style={theme.container}>
@@ -73,13 +96,26 @@ export default function JoinMemberProfile({ navigation }) {
             autoFocus={true}
             style={{
               ...JoinMemberStyle.textInputStyle,
+              marginBottom: 0,
               borderColor: focused === "nickname" ? theme.main_blue : "#EDEDED",
             }}
           />
+          {!nicknameisValid && nickname.length > 0 && isNextClicked && (
+            <Text
+              style={{
+                marginTop: 4,
+                fontFamily: "Pretendard-Medium",
+                fontSize: 12,
+                color: "#F00",
+              }}
+            >
+              중복된 닉네임입니다.
+            </Text>
+          )}
           <Text
             style={[
               JoinMemberStyle.subText_black,
-              { fontFamily: "Pretendard-SemiBold" },
+              { marginTop: 20, fontFamily: "Pretendard-SemiBold" },
             ]}
           >
             성별
@@ -158,7 +194,13 @@ export default function JoinMemberProfile({ navigation }) {
       {!isKeyboardVisible && (
         <JoinMemberBtn
           nextCondition={nickname && gender && introMessage}
-          nextFunction={() => navigation.push("JoinMemberTerms")}
+          nextFunction={async () => {
+            setIsNextClicked(true);
+            await checkNickname();
+            if (nicknameisValid) {
+              navigation.push("JoinMemberTerms");
+            }
+          }}
           backText={"뒤로"}
         />
       )}

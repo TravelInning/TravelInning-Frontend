@@ -6,8 +6,9 @@ import {
   Modal,
   Pressable,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
-import { theme } from "../../colors/color";
+import { theme, SCREEN_WIDTH } from "../../colors/color";
 import { Shadow } from "react-native-shadow-2";
 import ClipFalse from "../../assets/icon/bookmark_false.svg";
 import ClipTrue from "../../assets/icon/bookmark_true.svg";
@@ -15,8 +16,6 @@ import SeeMore from "../../assets/icon/see_more.svg";
 import SeeMoreActivate from "../../assets/icon/see_more_activate.svg";
 import { useEffect, useRef, useState } from "react";
 import SeeMoreModal from "../SeeMoreModal";
-import Check from "../../assets/icon/gowith/filter_check.svg";
-import Progress from "../../assets/icon/gowith/filter_progress.svg";
 
 export const StoryBox = ({ category, time, content, photo, limitedTime }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -132,7 +131,7 @@ export const FilterDropDown = ({
   const FILTER_OPTIONS = {
     filter1: ["최신순", "스크랩"],
     filter2: ["이야기해요", "끝난이야기"],
-    filter3: ["야구", "기사/뉴스", "일상", "성/연애"],
+    filter3: ["야구", "연애", "일상"],
   };
 
   return (
@@ -142,7 +141,7 @@ export const FilterDropDown = ({
         <View
           style={[
             styles.dropdownContainer,
-            { top: buttonPosition.top - 20, left: buttonPosition.left },
+            { top: buttonPosition.top - 26, left: buttonPosition.left },
           ]}
         >
           {FILTER_OPTIONS[selectedFilter]?.map((item, index) => (
@@ -165,6 +164,63 @@ export const FilterDropDown = ({
         </View>
       </View>
     </Modal>
+  );
+};
+
+export const StoryCarousel = ({ data }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const flatListRef = useRef(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => {
+        const nextIndex = (prevIndex + 1) % data.length;
+        flatListRef.current?.scrollToIndex({
+          index: nextIndex,
+          animated: true,
+        });
+        return nextIndex;
+      });
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <View>
+      <FlatList
+        ref={flatListRef}
+        data={data}
+        horizontal
+        pagingEnabled
+        scrollEnabled={false}
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View
+            style={{
+              width: SCREEN_WIDTH,
+              paddingHorizontal: 20,
+              paddingTop: 16,
+              paddingBottom: 12,
+            }}
+          >
+            <StoryBox {...item} />
+          </View>
+        )}
+      />
+      <View style={{ flexDirection: "row", marginBottom: 16 }}>
+        {[0, 1, 2].map((num) => (
+          <View
+            key={num}
+            style={[
+              styles.dot,
+              num === currentIndex && { backgroundColor: theme.main_blue },
+            ]}
+          />
+        ))}
+      </View>
+    </View>
   );
 };
 
@@ -234,11 +290,17 @@ const styles = StyleSheet.create({
   },
   modalBackground: {
     flex: 1,
-    backgroundColor: "red",
   },
   modalText: {
     fontSize: 14,
     fontFamily: "Pretendard-Regular",
     color: "#545454",
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 30,
+    backgroundColor: "#EDEDED",
+    marginHorizontal: 5,
   },
 });

@@ -17,6 +17,7 @@ import Pen from "../../assets/icon/gowith/pen.svg";
 import Bookmark from "../../assets/icon/mypage/bookmark_true.svg";
 import Plus from "../../assets/icon/mypage/plus.svg";
 import Arrow from "../../assets/icon/mypage/right_arrow.svg";
+import { API_URL } from "@env";
 
 export default function MyPageMainScreen({ navigation }) {
   const activitys = [

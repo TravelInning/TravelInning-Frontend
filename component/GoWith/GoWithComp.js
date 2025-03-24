@@ -202,7 +202,7 @@ export const FilterDropDown = ({
         <View
           style={[
             styles.dropdownContainer,
-            { top: buttonPosition.top - 20, left: buttonPosition.left },
+            { top: buttonPosition.top - 26, left: buttonPosition.left },
           ]}
         >
           {FILTER_OPTIONS[selectedFilter]?.map((item, index) => (

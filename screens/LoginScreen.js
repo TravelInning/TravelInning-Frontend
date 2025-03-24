@@ -8,17 +8,33 @@ import {
   Image,
   StyleSheet,
   Dimensions,
+  Platform,
+  StatusBar,
 } from "react-native";
+import { API_URL } from "@env";
+import axios from "axios";
 
 const { width, height } = Dimensions.get("window");
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
   const [idInput, setIdInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
+  };
+
+  const login = async () => {
+    try {
+      const response = await axios.post(`${API_URL}/api/members/login`, {
+        email: idInput,
+        password: passwordInput,
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.log("login error: ", error);
+    }
   };
 
   return (
@@ -59,7 +75,13 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.loginButton} onPress={() => alert("로그인 버튼 클릭!")}>
+        <TouchableOpacity
+          style={styles.loginButton}
+          onPress={async () => {
+            await login();
+            // navigation
+          }}
+        >
           <Text style={styles.loginButtonText}>{"로그인"}</Text>
         </TouchableOpacity>
       </View>
@@ -100,7 +122,9 @@ export default function LoginScreen() {
 
       {/* Sign-Up Section */}
       <View style={styles.signupContainer}>
-        <Text style={styles.signupText}>{"아직 트래블이닝 회원이 아니신가요?"}</Text>
+        <Text style={styles.signupText}>
+          {"아직 트래블이닝 회원이 아니신가요?"}
+        </Text>
         <TouchableOpacity>
           <Text style={styles.signupButton}>{"회원가입"}</Text>
         </TouchableOpacity>
@@ -116,6 +140,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: height * 0.05,
+    // marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   logoContainer: {
     alignItems: "center",
