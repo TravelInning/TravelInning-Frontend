@@ -25,6 +25,8 @@ import StoryScreen from "./screens/Story/StoryScreen";
 import MyPageMainScreen from "./screens/MyPage/MyPageMainScreen";
 import Toast from "react-native-toast-message";
 import { toastConfig } from "./component/Toast";
+import MyTravelinningScreen from "./screens/MyPage/MyTravelinningScreen";
+import PrivacySettingsScreen from "./screens/MyPage/PrivacySettingsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -188,6 +190,20 @@ export default function App() {
         <Stack.Screen
           name="MyPageMain"
           component={MyPageMainScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="MyTravelinning"
+          component={MyTravelinningScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="PrivacySettings"
+          component={PrivacySettingsScreen}
           options={{
             headerShown: false,
           }}

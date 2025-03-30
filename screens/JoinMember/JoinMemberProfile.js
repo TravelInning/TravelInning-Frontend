@@ -16,11 +16,11 @@ import {
   JoinMemberBtn,
 } from "../../component/JoinMemberComp";
 import axios from "axios";
-import { API_URI } from "@env";
+import { API_URL } from "@env";
 
 export default function JoinMemberProfile({ navigation, route }) {
   const [nickname, setNickname] = useState("");
-  const [nicknameisValid, setNicknameisValid] = useState(false);
+  const [nicknameisValid, setNicknameisValid] = useState(null);
   const [gender, setGender] = useState(null);
   const [introMessage, setIntroMessage] = useState("");
   const [focused, setFocused] = useState("");
@@ -51,17 +51,20 @@ export default function JoinMemberProfile({ navigation, route }) {
   const checkNickname = async () => {
     try {
       const response = await axios.post(
-        `${API_URI}/api/members/nickname/duplicate`,
+        `${API_URL}/api/members/nickname/duplicate`,
         {
           nickname: nickname,
         }
       );
 
-      if (response.data?.checkNickname) {
+      // UI 변경용
+      if (response.data?.result.checkNickname) {
         setNicknameisValid(true);
       } else {
         setNicknameisValid(false);
       }
+
+      return response.data?.result.checkNickname || false;
     } catch (error) {
       console.log("nickname check: ", error);
     }
@@ -195,10 +198,11 @@ export default function JoinMemberProfile({ navigation, route }) {
         <JoinMemberBtn
           nextCondition={nickname && gender && introMessage}
           nextFunction={async () => {
-            setIsNextClicked(true);
-            await checkNickname();
-            if (nicknameisValid) {
+            const isValid = await checkNickname();
+            if (isValid) {
               navigation.push("JoinMemberTerms");
+            } else {
+              setIsNextClicked(true);
             }
           }}
           backText={"뒤로"}

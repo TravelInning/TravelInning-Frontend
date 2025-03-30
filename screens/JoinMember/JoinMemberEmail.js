@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // 내비게이션 import
 import axios from "axios";
-import { API_URI } from "@env";
+import { API_URL } from "@env";
 import { showToast } from "../../component/Toast";
 
 const { width, height } = Dimensions.get("window");
@@ -45,7 +45,7 @@ export default function JoinMemberEmail() {
     if (isRequesting || email.length <= 0) return; // 연속 요청 방지
     setIsRequesting(true);
 
-    const isDuplicated = await checkEmailCode();
+    const isDuplicated = await checkEmail();
     if (isDuplicated) {
       setIsRequesting(false);
       return;
@@ -60,16 +60,15 @@ export default function JoinMemberEmail() {
     setIsRequesting(false);
   };
 
-  const checkEmailCode = async () => {
+  const checkEmail = async () => {
     try {
       const response = await axios.post(
-        `${API_URI}/api/members/email/duplicate`,
+        `${API_URL}/api/members/email/duplicate`,
         {
           email: email,
         }
       );
-      console.log("response:", response);
-      if (response.data?.checkLoginId) {
+      if (response.data?.result.checkLoginId) {
         // true -> 중복 X
         setIsEmailDuplicated(false);
         return false;
@@ -86,13 +85,28 @@ export default function JoinMemberEmail() {
 
   const sendEmailCode = async () => {
     try {
-      await axios.post(`${API_URI}/api/members/email/auth`, {
+      const response = await axios.post(`${API_URL}/api/members/email/auth`, {
         email: email,
+      });
+      console.log("이메일 코드:", response.data);
+      return true;
+    } catch (error) {
+      console.log("send email code error : ", error);
+      showToast("인증 번호 전송에 실패했습니다. 다시 시도해주세요.");
+      return false;
+    }
+  };
+
+  const verifyEmailCode = async () => {
+    try {
+      await axios.post(`${API_URL}/api/members/email/auth/verify`, {
+        email: email,
+        code: verificationCode,
       });
       return true;
     } catch (error) {
-      console.log("send email code: ", error);
-      showToast("인증 번호 전송에 실패했습니다. 다시 시도해주세요.");
+      console.log("verify email code error: ", error);
+      showToast("인증 번호가 올바르지 않습니다.");
       return false;
     }
   };
@@ -182,7 +196,12 @@ export default function JoinMemberEmail() {
             styles.nextButton,
             verificationCode.length === 6 ? styles.nextButtonActive : null,
           ]}
-          onPress={() => navigation.navigate("JoinMemberProfile")} // 다음 페이지로 이동
+          onPress={async () => {
+            const isVaild = await verifyEmailCode();
+            if (isVaild) {
+              navigation.navigate("JoinMemberProfile");
+            }
+          }} // 다음 페이지로 이동
           disabled={verificationCode.length !== 6}
         >
           <Text

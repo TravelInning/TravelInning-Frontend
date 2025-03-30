@@ -54,8 +54,13 @@ export default function JoinMemberPhoneNumber() {
   // SMS request
   const sendSMScode = async () => {
     try {
+      console.log(
+        `${API_URL}/api/members/sms/auth`,
+        " phoneNumber: ",
+        phoneNumber.replace(/-/g, "")
+      );
       await axios.post(`${API_URL}/api/members/sms/auth`, {
-        phoneNumber: phoneNumber,
+        phoneNumber: phoneNumber.replace(/-/g, ""),
       });
       return true;
     } catch (error) {

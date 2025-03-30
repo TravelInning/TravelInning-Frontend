@@ -10,18 +10,19 @@ import {
 } from "react-native";
 import BottomBtn from "../component/BottomBtn";
 
-export default function SelectClub() {
+export default function SelectClub({ navigation, route }) {
   const [selectedTeam, setSelectedTeam] = useState(null);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>
-          {"어디 "}
-          <Text style={styles.highlightedText}>{"응원"}</Text>
-          {"하세요?"}
+          <Text style={styles.highlightedText}>{"응원하는 구단"}</Text>
+          {"이 어디인지\n알려주세요"}
         </Text>
-        <Text style={styles.noTeamText}>{"응원하는 구단이 없어요 >"}</Text>
+        <Text style={styles.noTeamText}>
+          {"해당 구단의 경기에 맞춰 장소를 추천해드릴게요"}
+        </Text>
 
         <View style={styles.row}>
           <TeamCard
@@ -94,24 +95,20 @@ export default function SelectClub() {
             onPress={() => setSelectedTeam("NC")}
           />
         </View>
-        {/* <TouchableOpacity
-        style={[styles.nextButton, selectedTeam && styles.nextButtonActive]}
-        disabled={!selectedTeam}
-      >
-        <Text
-          style={[
-            styles.nextButtonText,
-            selectedTeam && styles.nextButtonTextActive,
-          ]}
-        >
-          {"다음"}
-        </Text>
-      </TouchableOpacity> */}
       </ScrollView>
       {/* 버튼 */}
       <BottomBtn
         text="다음"
-        onPress={() => console.log("다음")}
+        onPress={() => {
+          if (route.params.from === "mypage") {
+            navigation.goBack();
+          } else if (route.params.from === "myTravelInning") {
+            route.params.setRivalClub(selectedTeam);
+            navigation.goBack();
+          } else {
+            console.log("다음");
+          }
+        }}
         isDisabled={!selectedTeam}
       />
     </SafeAreaView>
@@ -147,19 +144,20 @@ const styles = StyleSheet.create({
     color: "#000000",
     fontSize: 28,
     fontFamily: "Pretendard-Bold",
-    marginBottom: 47,
-    textAlign: "center",
+    marginBottom: 8,
+    textAlign: "left",
+    marginHorizontal: 20,
   },
   highlightedText: {
     color: "#0084FF",
   },
   noTeamText: {
-    color: "#ACACAC",
-    fontSize: 12,
-    fontFamily: "Pretendard-SemiBold",
-    marginBottom: 26,
-    textAlign: "right",
-    marginRight: 28,
+    color: "#545454",
+    fontSize: 13,
+    fontFamily: "Pretendard-Medium",
+    marginBottom: 30,
+    textAlign: "left",
+    marginHorizontal: 20,
   },
   row: {
     flexDirection: "row",
@@ -181,8 +179,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingTop: 21,
     paddingBottom: 15,
-    shadowColor: "#00000040",
-    shadowOpacity: 0.3,
+    shadowColor: "#00000070",
+    shadowOpacity: 0.4,
     shadowOffset: {
       width: 0,
       height: 0,
