@@ -6,7 +6,7 @@ export const showToast = (messsage) => {
   Toast.show({
     type: "success",
     text1: messsage,
-    visibilityTime: 1500,
+    visibilityTime: 2000,
   });
 };
 

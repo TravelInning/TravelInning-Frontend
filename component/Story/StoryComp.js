@@ -167,62 +167,62 @@ export const FilterDropDown = ({
   );
 };
 
-export const StoryCarousel = ({ data }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const flatListRef = useRef(null);
+// export const StoryCarousel = ({ data }) => {
+//   const [currentIndex, setCurrentIndex] = useState(0);
+//   const flatListRef = useRef(null);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => {
-        const nextIndex = (prevIndex + 1) % data.length;
-        flatListRef.current?.scrollToIndex({
-          index: nextIndex,
-          animated: true,
-        });
-        return nextIndex;
-      });
-    }, 3000);
+//   useEffect(() => {
+//     const interval = setInterval(() => {
+//       setCurrentIndex((prevIndex) => {
+//         const nextIndex = (prevIndex + 1) % data.length;
+//         flatListRef.current?.scrollToIndex({
+//           index: nextIndex,
+//           animated: true,
+//         });
+//         return nextIndex;
+//       });
+//     }, 3000);
 
-    return () => clearInterval(interval);
-  }, []);
+//     return () => clearInterval(interval);
+//   }, []);
 
-  return (
-    <View>
-      <FlatList
-        ref={flatListRef}
-        data={data}
-        horizontal
-        pagingEnabled
-        scrollEnabled={false}
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View
-            style={{
-              width: SCREEN_WIDTH,
-              paddingHorizontal: 20,
-              paddingTop: 16,
-              paddingBottom: 12,
-            }}
-          >
-            <StoryBox {...item} />
-          </View>
-        )}
-      />
-      <View style={{ flexDirection: "row", marginBottom: 16 }}>
-        {[0, 1, 2].map((num) => (
-          <View
-            key={num}
-            style={[
-              styles.dot,
-              num === currentIndex && { backgroundColor: theme.main_blue },
-            ]}
-          />
-        ))}
-      </View>
-    </View>
-  );
-};
+//   return (
+//     <View>
+//       <FlatList
+//         ref={flatListRef}
+//         data={data}
+//         horizontal
+//         pagingEnabled
+//         scrollEnabled={false}
+//         showsHorizontalScrollIndicator={false}
+//         keyExtractor={(item) => item.id}
+//         renderItem={({ item }) => (
+//           <View
+//             style={{
+//               width: SCREEN_WIDTH,
+//               paddingHorizontal: 20,
+//               paddingTop: 16,
+//               paddingBottom: 12,
+//             }}
+//           >
+//             <StoryBox {...item} />
+//           </View>
+//         )}
+//       />
+//       <View style={{ flexDirection: "row", marginBottom: 16 }}>
+//         {[0, 1, 2].map((num) => (
+//           <View
+//             key={num}
+//             style={[
+//               styles.dot,
+//               num === currentIndex && { backgroundColor: theme.main_blue },
+//             ]}
+//           />
+//         ))}
+//       </View>
+//     </View>
+//   );
+// };
 
 const styles = StyleSheet.create({
   boxContainer: {
@@ -295,12 +295,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Pretendard-Regular",
     color: "#545454",
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 30,
-    backgroundColor: "#EDEDED",
-    marginHorizontal: 5,
   },
 });

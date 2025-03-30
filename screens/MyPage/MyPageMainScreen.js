@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { theme } from "../../colors/color";
+import { SCREEN_HEIGHT, theme } from "../../colors/color";
 import { LinearGradient } from "expo-linear-gradient";
 import SeeMore from "../../assets/icon/mypage/seemore.svg";
 import { Shadow } from "react-native-shadow-2";
@@ -18,18 +18,33 @@ import Bookmark from "../../assets/icon/mypage/bookmark_true.svg";
 import Plus from "../../assets/icon/mypage/plus.svg";
 import Arrow from "../../assets/icon/mypage/right_arrow.svg";
 import { API_URL } from "@env";
+import React, { useRef, useState } from "react";
+import { MyPageModal } from "../../component/MyPage/MyPageComp";
 
 export default function MyPageMainScreen({ navigation }) {
   const activitys = [
     {
       image: require("../../assets/icon/mypage/chat.png"),
       text: "나의 대화 신청 내역",
+      onPress: () => navigation.jumpTo("GoWith", { screen: "채팅내역" }),
     },
     {
       image: require("../../assets/icon/mypage/prohibit.png"),
       text: "내가 차단한 글 및 계정",
     },
   ];
+  const [modalVisible, setModalVisible] = useState(false);
+  const [buttonPosition, setButtonPosition] = useState({ top: 0, right: 0 });
+  const modalButtonRef = useRef(null);
+
+  const openModal = (ref) => {
+    if (ref.current) {
+      ref.current.measure((x, y, width, height, pageX, pageY) => {
+        setButtonPosition({ top: pageY + height, left: pageX });
+        setModalVisible(true);
+      });
+    }
+  };
 
   return (
     <SafeAreaView style={theme.container}>
@@ -47,15 +62,31 @@ export default function MyPageMainScreen({ navigation }) {
             style={styles.setting}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
-          <SeeMore width={3} height={15} />
+        <TouchableOpacity
+          ref={modalButtonRef}
+          onPress={() => openModal(modalButtonRef)}
+        >
+          <SeeMore width={6} height={15} />
         </TouchableOpacity>
       </View>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
-        <ImageBackground
-          source={require("../../assets/images/chat/chat_background.png")}
-          resizeMode="cover"
-          style={styles.background}
+      {/* modal */}
+      <MyPageModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        buttonPosition={buttonPosition}
+      />
+      <ImageBackground
+        source={require("../../assets/images/mypage/mypagebackground.png")}
+        resizeMode="stretch"
+        style={styles.background}
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            flexGrow: 1,
+            alignItems: "center",
+            paddingBottom: 20,
+          }}
         >
           {/* profile */}
           <Image
@@ -80,7 +111,9 @@ export default function MyPageMainScreen({ navigation }) {
               <View style={styles.translucentContainer}>
                 {/* club */}
                 <TouchableOpacity
-                  activeOpacity={0.5}
+                  onPress={() =>
+                    navigation.navigate("SelectClub", { from: "mypage" })
+                  }
                   style={{ alignItems: "center" }}
                 >
                   <Image
@@ -95,10 +128,7 @@ export default function MyPageMainScreen({ navigation }) {
                 </TouchableOpacity>
                 <View style={styles.line} />
                 {/* bookmark(clip) */}
-                <TouchableOpacity
-                  activeOpacity={0.5}
-                  style={{ alignItems: "center" }}
-                >
+                <TouchableOpacity style={{ alignItems: "center" }}>
                   <Shadow
                     distance={2}
                     startColor="rgba(0, 0, 0, 0.1)"
@@ -112,10 +142,7 @@ export default function MyPageMainScreen({ navigation }) {
                 </TouchableOpacity>
                 <View style={styles.line} />
                 {/* post */}
-                <TouchableOpacity
-                  activeOpacity={0.5}
-                  style={{ alignItems: "center" }}
-                >
+                <TouchableOpacity style={{ alignItems: "center" }}>
                   <Shadow
                     distance={2}
                     startColor="rgba(0, 0, 0, 0.1)"
@@ -164,7 +191,10 @@ export default function MyPageMainScreen({ navigation }) {
                   </View>
                 ) : (
                   <View>
-                    <TouchableOpacity activeOpacity={0.5}>
+                    <TouchableOpacity
+                      activeOpacity={0.5}
+                      onPress={() => navigation.navigate("MyTravelinning")}
+                    >
                       <Shadow
                         distance={2}
                         startColor="rgba(0, 0, 0, 0.1)"
@@ -175,7 +205,7 @@ export default function MyPageMainScreen({ navigation }) {
                         </View>
                       </Shadow>
                     </TouchableOpacity>
-                    <View style={styles.travelCircle} />
+                    {/* <View style={styles.travelCircle} /> */}
                   </View>
                 )
               }
@@ -199,7 +229,11 @@ export default function MyPageMainScreen({ navigation }) {
                 <View style={styles.activityContainer}>
                   {activitys.map((activity, index) => {
                     return (
-                      <TouchableOpacity key={index} style={styles.rowContainer}>
+                      <TouchableOpacity
+                        key={index}
+                        onPress={activity.onPress}
+                        style={styles.rowContainer}
+                      >
                         <View style={theme.rowContainer}>
                           <Image
                             source={activity.image}
@@ -217,8 +251,8 @@ export default function MyPageMainScreen({ navigation }) {
               </Shadow>
             </View>
           </View>
-        </ImageBackground>
-      </ScrollView>
+        </ScrollView>
+      </ImageBackground>
     </SafeAreaView>
   );
 }
@@ -227,7 +261,6 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     alignItems: "center",
-    maxHeight: 390,
   },
   gradient: {
     position: "absolute",
@@ -242,20 +275,21 @@ const styles = StyleSheet.create({
     height: 48,
     justifyContent: "flex-end",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingLeft: 20,
+    paddingRight: 24,
   },
   setting: {
     width: 17,
     height: 17,
     resizeMode: "contain",
-    marginRight: 14,
+    marginRight: 18,
   },
   profileImage: {
-    width: 107,
-    height: 107,
+    width: SCREEN_HEIGHT / 8,
+    height: SCREEN_HEIGHT / 8,
     borderRadius: 100,
     resizeMode: "cover",
-    marginTop: 20,
+    marginTop: 18,
   },
   profileText: {
     fontFamily: "Pretendard-ExtraBold",
@@ -266,7 +300,7 @@ const styles = StyleSheet.create({
   translucentContainer: {
     flexDirection: "row",
     width: "100%",
-    height: 90,
+    height: 86,
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 36,
@@ -312,8 +346,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   travelImage: {
-    width: 80,
-    height: 80,
+    width: SCREEN_HEIGHT / 10,
+    height: SCREEN_HEIGHT / 10,
+    maxWidth: 80,
+    maxHeight: 80,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 20,

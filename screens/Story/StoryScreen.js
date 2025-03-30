@@ -9,17 +9,17 @@ import {
 } from "react-native";
 import { WriteButton } from "../../component/GoWith/GoWithComp";
 import { SCREEN_WIDTH, theme } from "../../colors/color";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { StoryBox } from "../../component/Story/StoryComp";
 import Carousel from "react-native-reanimated-carousel";
 import DropDown from "../../assets/icon/dropdown.svg";
 import DropDowBlue from "../../assets/icon/gowith/dropdown.svg";
 import { FilterDropDown } from "../../component/Story/StoryComp";
-import { StoryCarousel } from "../../component/Story/StoryComp";
 
 export default function StoryScreen({ navigation }) {
+  // TOP3 carousel(swiper)
   const [activeSlide, setActiveSlide] = useState(0);
-
+  // filter
   const [filter1State, setFilter1State] = useState("전체");
   const [filter2State, setFilter2State] = useState("전체 조건");
   const [filter3State, setFilter3State] = useState("전체 조건");
@@ -72,42 +72,42 @@ export default function StoryScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       {/* top3 */}
-      <View
-        style={{
-          ...styles.topContainer,
-          pointerEvents: filterVisible ? "none" : "auto",
-        }}
-      >
+      <View style={styles.topContainer}>
         {/* story box */}
-        <Carousel
-          loop
-          width={SCREEN_WIDTH}
-          height={200}
-          autoPlay={true}
-          data={[0, 1, 2]}
-          scrollAnimationDuration={2000}
-          onSnapToItem={(index) => setActiveSlide(index)}
-          renderItem={({ item }) => (
-            <View
-              key={item}
-              style={{
-                width: "100%",
-                paddingHorizontal: 20,
-                paddingTop: 16,
-                paddingBottom: 12,
-              }}
-            >
-              <StoryBox
-                category="야구"
-                time="11분 전"
-                content="한화는 언제쯤 우승해볼 수 있을까? 좋은 선수들은 많이 가지고 있으니까 앞으로 잘 하면 될거같은데"
-                limitedTime="14:59"
-                photo={require("../../assets/images/gowith/logo.png")}
-              />
-            </View>
-          )}
-          style={{ height: 106 }}
-        />
+        {/* carousel modal 터치 방해로 눈속임 */}
+        {filterVisible ? (
+          <View style={[styles.carouselItemContainer, { marginBottom: 2 }]}>
+            <StoryBox
+              category={DATA[activeSlide].category}
+              time={DATA[activeSlide].time}
+              content={DATA[activeSlide].content}
+              limitedTime={DATA[activeSlide].limitedTime}
+              photo={DATA[activeSlide].photo}
+            />
+          </View>
+        ) : (
+          <Carousel
+            loop
+            width={SCREEN_WIDTH}
+            height={200}
+            autoPlay={true}
+            data={DATA}
+            scrollAnimationDuration={2500}
+            onSnapToItem={(index) => setActiveSlide(index)}
+            renderItem={({ item, index }) => (
+              <View key={index} style={styles.carouselItemContainer}>
+                <StoryBox
+                  category={item.category}
+                  time={item.time}
+                  content={item.content}
+                  limitedTime={item.limitedTime}
+                  photo={item.photo}
+                />
+              </View>
+            )}
+            style={{ height: 106 }}
+          />
+        )}
         <View style={{ flexDirection: "row", marginBottom: 16 }}>
           {[0, 1, 2].map((data) => (
             <View
@@ -119,7 +119,6 @@ export default function StoryScreen({ navigation }) {
             />
           ))}
         </View>
-        {/* <StoryCarousel data={DATA} /> */}
       </View>
       {/* filter */}
       <View style={styles.filterContainer}>
@@ -174,7 +173,9 @@ export default function StoryScreen({ navigation }) {
           </TouchableOpacity>
         </View>
         {/* filter reset */}
-        {filter1State === "전체" && filter2State === "전체 조건" ? (
+        {filter1State === "전체" &&
+        filter2State === "전체 조건" &&
+        filter3State === "전체 조건" ? (
           <Image
             source={require("../../assets/images/gowith/filter_reset.png")}
             style={styles.filterImage}
@@ -184,6 +185,7 @@ export default function StoryScreen({ navigation }) {
             onPress={() => {
               setFilter1State("전체");
               setFilter2State("전체 조건");
+              setFilter3State("전체 조건");
             }}
           >
             <Image
@@ -270,5 +272,11 @@ const styles = StyleSheet.create({
   filterImage: {
     width: 65,
     resizeMode: "contain",
+  },
+  carouselItemContainer: {
+    width: "100%",
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 12,
   },
 });

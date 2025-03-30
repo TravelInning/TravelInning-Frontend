@@ -4,16 +4,14 @@ import {
   View,
   Text,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { theme } from "../colors/color";
 
 export default function TestPage({ navigation, route }) {
   return (
     <SafeAreaView style={styles.container}>
-      <View
-        style={{
-          flex: 2,
+      <ScrollView
+        contentContainerStyle={{
           alignItems: "center",
           paddingVertical: 20,
         }}
@@ -74,7 +72,21 @@ export default function TestPage({ navigation, route }) {
         >
           <Text style={styles.buttonText}>동행찾기화면-지윤</Text>
         </TouchableOpacity>
-      </View>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          onPress={() => navigation.push("JoinMemberEmail")}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>이메일</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          onPress={() => navigation.push("PrivacySettings")}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>개인정보 보호</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 }
