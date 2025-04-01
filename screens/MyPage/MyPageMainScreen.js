@@ -56,7 +56,7 @@ export default function MyPageMainScreen({ navigation }) {
       />
       {/* header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
           <Image
             source={require("../../assets/icon/mypage/setting.png")}
             style={styles.setting}
@@ -127,8 +127,11 @@ export default function MyPageMainScreen({ navigation }) {
                   <Text style={styles.buttonText}>나의 구단</Text>
                 </TouchableOpacity>
                 <View style={styles.line} />
-                {/* bookmark(clip) */}
-                <TouchableOpacity style={{ alignItems: "center" }}>
+                {/* bookmark(scrap,clip) */}
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("MyScrap")}
+                  style={{ alignItems: "center" }}
+                >
                   <Shadow
                     distance={2}
                     startColor="rgba(0, 0, 0, 0.1)"
@@ -142,7 +145,10 @@ export default function MyPageMainScreen({ navigation }) {
                 </TouchableOpacity>
                 <View style={styles.line} />
                 {/* post */}
-                <TouchableOpacity style={{ alignItems: "center" }}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("MyPost")}
+                  style={{ alignItems: "center" }}
+                >
                   <Shadow
                     distance={2}
                     startColor="rgba(0, 0, 0, 0.1)"

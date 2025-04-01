@@ -81,6 +81,7 @@ export default function ChatListDetailScreen() {
           style={{ flex: 1 }}
           contentContainerStyle={{
             padding: 2,
+            gap: 20,
           }}
         />
       </View>

@@ -18,7 +18,7 @@ export function AloneChatBox() {
       distance={2}
       startColor="rgba(0, 0, 0, 0.1)"
       finalColor="rgba(0, 0, 0, 0)"
-      style={{ marginBottom: 20, borderRadius: 20 }}
+      style={{ borderRadius: 20 }}
     >
       <Pressable
         onPress={() => navigation.navigate("Chat")}
@@ -63,7 +63,7 @@ export function GroupChatBox() {
       distance={2}
       startColor="rgba(0, 0, 0, 0.1)"
       finalColor="rgba(0, 0, 0, 0)"
-      style={{ marginBottom: 20, borderRadius: 20 }}
+      style={{ borderRadius: 20 }}
     >
       <Pressable
         onPress={() => navigation.navigate("Chat")}
@@ -94,67 +94,61 @@ export function GroupChatBox() {
   );
 }
 
-export const ChatListBox = ({
-  isWriter,
-  isGroup,
-  isNewChat,
-  title,
-  content,
-  time,
-}) => {
+export const ChatListBox = ({ isReceiveCode = true, isGroup }) => {
+  const images = [
+    require("../assets/images/selectphoto/photo1.png"),
+    require("../assets/images/selectphoto/photo1.png"),
+    require("../assets/images/selectphoto/photo1.png"),
+    require("../assets/images/selectphoto/photo1.png"),
+  ];
+
   const navigation = useNavigation();
 
   return (
     <Pressable
-      onPress={() => {
-        navigation.push("ChatListDetail");
-      }}
+      onPress={() => navigation.navigate("ChatListDetail")}
       style={({ pressed }) => [
         styles.chatContainer,
         { backgroundColor: !pressed ? "#FFF" : theme.gray50 },
       ]}
     >
-      <View>
-        <View style={theme.rowContainer}>
-          <Text style={styles.title}>
-            {isWriter ? title : title.slice(0, 5) + "..에 대한 채팅내역"}
-          </Text>
-          {isNewChat ? (
-            <Image
-              source={require("../assets/icon/chat_new.png")}
-              style={styles.chatImage}
-            />
-          ) : (
-            <Image
-              source={require("../assets/icon/chat.png")}
-              style={styles.chatImage}
-            />
-          )}
+      {isGroup ? (
+        <View style={styles.imageGrid}>
+          {images.map((image, index) => (
+            <Image key={index} source={image} style={styles.groupImg} />
+          ))}
         </View>
-        <Text numberOfLines={1} style={styles.content}>
-          {content}
+      ) : (
+        <View>
+          <Image source={images[0]} style={styles.aloneImg} />
+          <View style={{ position: "absolute", right: -5, bottom: -4 }}>
+            <Shadow
+              distance={2}
+              startColor="rgba(0, 0, 0, 0.1)"
+              finalColor="rgba(0, 0, 0, 0)"
+            >
+              <View style={styles.receivedCodeContainer}>
+                <Image
+                  source={require("../assets/images/chat/receivedCode.png")}
+                  style={{ width: 12, resizeMode: "contain" }}
+                />
+              </View>
+            </Shadow>
+          </View>
+        </View>
+      )}
+
+      <View style={[styles.textContainer, { marginHorizontal: 14 }]}>
+        <Text style={styles.mediumText}>게시글 제목</Text>
+        <Text numberOfLines={1} style={styles.smallText}>
+          ㅋㅋㅋ넹 조아여(마지막 채팅 내용)
         </Text>
-        {isGroup && (
-          <Image
-            source={require("../assets/images/chat/group_chat.png")}
-            style={{ width: 19, resizeMode: "contain" }}
-          />
-        )}
       </View>
-      <View style={{ height: "100%", justifyContent: "space-between" }}>
-        <Text style={styles.time}>{time}</Text>
-        {!isWriter && (
-          <TouchableOpacity
-            onPress={() => {
-              console.log("나가기 클릭");
-            }}
-          >
-            <Image
-              source={require("../assets/images/chat/out.png")}
-              style={styles.outImage}
-            />
-          </TouchableOpacity>
-        )}
+      <View style={styles.infoContainer}>
+        <Text style={styles.timeText}>19:25</Text>
+        <View style={styles.circle}>
+          <Text style={styles.chatNumberText}>2</Text>
+        </View>
       </View>
     </Pressable>
   );
@@ -165,7 +159,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
-    padding: 14,
+    padding: 12,
     borderRadius: 20,
     backgroundColor: "#fff",
   },
@@ -191,8 +185,8 @@ const styles = StyleSheet.create({
   },
   aloneImg: {
     width: 60,
-    aspectRatio: 1,
-    borderRadius: 21,
+    height: 60,
+    borderRadius: 16,
     resizeMode: "cover",
   },
   smallText: {
@@ -207,7 +201,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   timeText: {
-    fontFamily: "Pretendard-Medium",
+    fontFamily: "Pretendard-Regular",
     fontSize: 11,
     color: "#B8B8B8",
     marginBottom: 10,
@@ -227,43 +221,20 @@ const styles = StyleSheet.create({
   },
   chatContainer: {
     flexDirection: "row",
+    alignItems: "center",
     width: "100%",
-    height: 92,
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    paddingHorizontal: 25,
-    paddingVertical: 13,
+    padding: 14,
+    borderRadius: 20,
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderColor: "#F4F4F4",
   },
-  title: {
-    fontSize: 18,
-    fontFamily: "Pretendard-Bold",
-    color: theme.main_black,
-  },
-  content: {
-    fontSize: 11,
-    fontFamily: "Pretendard-Regular",
-    color: "#313131",
-    marginTop: 4,
-    marginBottom: 8,
-  },
-  time: {
-    fontSize: 11,
-    fontFamily: "Pretendard-Medium",
-    color: "#B8B8B8",
-  },
-  chatImage: {
-    width: 16,
-    height: 16,
-    resizeMode: "contain",
-    marginLeft: 4,
-  },
-  outImage: {
-    width: 12,
-    height: 14,
-    resizeMode: "contain",
-    alignSelf: "flex-end",
-    marginBottom: 2,
+  receivedCodeContainer: {
+    width: 18,
+    height: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFF",
+    borderRadius: 30,
   },
 });

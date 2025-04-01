@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -26,10 +26,7 @@ import MyPageMainScreen from "./MyPage/MyPageMainScreen";
 
 const Tab = createBottomTabNavigator();
 
-export default function MainScreen({ route }) {
-  // const { user_code, ipnumber } = route.params;
-  // console.log(user_code, ipnumber);
-
+export default function MainScreen() {
   return (
     <Tab.Navigator
       initialRouteName="Home"
