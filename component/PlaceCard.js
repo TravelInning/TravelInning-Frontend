@@ -35,9 +35,7 @@ export default function PlaceCard() {
   return (
     <Shadow distance={2} startColor="#00000015" endColor="#00000000">
       <View style={styles.placeContainer}>
-        <TouchableOpacity
-          activeOpacity={0.5}
-          onPress={() => console.log("장소 자세히보기")}
+        <View
           style={{
             flexDirection: "row",
             flex: 1,
@@ -97,7 +95,7 @@ export default function PlaceCard() {
               )}
             </View>
           </TouchableOpacity>
-        </TouchableOpacity>
+        </View>
         <View
           style={{
             position: "absolute",
@@ -113,11 +111,11 @@ export default function PlaceCard() {
             )}
           </TouchableOpacity>
         </View>
+
         <SeeMoreModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
           buttonPosition={buttonPosition}
-          from="home"
         />
       </View>
     </Shadow>
@@ -140,7 +138,6 @@ const styles = StyleSheet.create({
     paddingLeft: 18,
     paddingRight: 13,
     paddingVertical: 16,
-    marginBottom: 20,
   },
   photo: {
     width: "100%",

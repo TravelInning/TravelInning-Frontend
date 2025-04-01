@@ -9,6 +9,8 @@ import {
   View,
   Animated,
   FlatList,
+  BackHandler,
+  Alert,
 } from "react-native";
 import Location from "../assets/icon/location.svg";
 import Notice from "../assets/icon/notification.svg";
@@ -26,6 +28,24 @@ export default function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
 
   const scrollY = useRef(new Animated.Value(0)).current; // 스크롤 위치 추적
+
+  // backHander custom
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert("앱을 종료하시겠습니까?", "", [
+        { text: "아니오", style: "cancel" },
+        { text: "예", onPress: () => BackHandler.exitApp() },
+      ]);
+      return true;
+    };
+
+    const backHandlerListener = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandlerListener.remove();
+  }, [navigation]);
 
   // 이름과 마진 높이와 투명도 조절
   const nameHeight = scrollY.interpolate({
@@ -298,6 +318,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingTop: 20,
     paddingHorizontal: 20,
+    gap: 20,
   },
   chatImage: {
     width: 16,

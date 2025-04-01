@@ -17,7 +17,13 @@ import SeeMoreActivate from "../../assets/icon/see_more_activate.svg";
 import { useEffect, useRef, useState } from "react";
 import SeeMoreModal from "../SeeMoreModal";
 
-export const StoryBox = ({ category, time, content, photo, limitedTime }) => {
+export const StoryBox = ({
+  category,
+  time,
+  content,
+  photo,
+  limitedTime = "",
+}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [clipState, setClipState] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0 });
@@ -63,9 +69,11 @@ export const StoryBox = ({ category, time, content, photo, limitedTime }) => {
           <Image source={photo} style={styles.photo} />
           <View style={styles.rowContainer}>
             <View style={styles.blueBox}>
-              <Text style={styles.limitedTime}>
-                {limitedTime} 후 입장 마감!
-              </Text>
+              {limitedTime && (
+                <Text style={styles.limitedTime}>
+                  {limitedTime} 후 입장 마감!
+                </Text>
+              )}
             </View>
             <TouchableOpacity
               onPress={() => setClipState(!clipState)}
@@ -166,63 +174,6 @@ export const FilterDropDown = ({
     </Modal>
   );
 };
-
-// export const StoryCarousel = ({ data }) => {
-//   const [currentIndex, setCurrentIndex] = useState(0);
-//   const flatListRef = useRef(null);
-
-//   useEffect(() => {
-//     const interval = setInterval(() => {
-//       setCurrentIndex((prevIndex) => {
-//         const nextIndex = (prevIndex + 1) % data.length;
-//         flatListRef.current?.scrollToIndex({
-//           index: nextIndex,
-//           animated: true,
-//         });
-//         return nextIndex;
-//       });
-//     }, 3000);
-
-//     return () => clearInterval(interval);
-//   }, []);
-
-//   return (
-//     <View>
-//       <FlatList
-//         ref={flatListRef}
-//         data={data}
-//         horizontal
-//         pagingEnabled
-//         scrollEnabled={false}
-//         showsHorizontalScrollIndicator={false}
-//         keyExtractor={(item) => item.id}
-//         renderItem={({ item }) => (
-//           <View
-//             style={{
-//               width: SCREEN_WIDTH,
-//               paddingHorizontal: 20,
-//               paddingTop: 16,
-//               paddingBottom: 12,
-//             }}
-//           >
-//             <StoryBox {...item} />
-//           </View>
-//         )}
-//       />
-//       <View style={{ flexDirection: "row", marginBottom: 16 }}>
-//         {[0, 1, 2].map((num) => (
-//           <View
-//             key={num}
-//             style={[
-//               styles.dot,
-//               num === currentIndex && { backgroundColor: theme.main_blue },
-//             ]}
-//           />
-//         ))}
-//       </View>
-//     </View>
-//   );
-// };
 
 const styles = StyleSheet.create({
   boxContainer: {

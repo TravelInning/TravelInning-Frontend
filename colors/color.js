@@ -29,7 +29,7 @@ export const theme = {
     justifyContent: "space-between",
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderColor: "#D6D6D6",
+    borderColor: "#EDEDED",
   },
 };
 

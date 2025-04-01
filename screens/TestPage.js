@@ -81,10 +81,10 @@ export default function TestPage({ navigation, route }) {
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => navigation.push("PrivacySettings")}
+          onPress={() => navigation.push("Splash")}
           style={styles.button}
         >
-          <Text style={styles.buttonText}>개인정보 보호</Text>
+          <Text style={styles.buttonText}>스플래시</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

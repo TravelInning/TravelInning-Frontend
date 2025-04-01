@@ -27,6 +27,13 @@ import Toast from "react-native-toast-message";
 import { toastConfig } from "./component/Toast";
 import MyTravelinningScreen from "./screens/MyPage/MyTravelinningScreen";
 import PrivacySettingsScreen from "./screens/MyPage/PrivacySettingsScreen";
+import PrivacySettingsDetail from "./screens/MyPage/PrivacySettingsDetail";
+import MyPostScreen from "./screens/MyPage/MyPostScreen";
+import MyScrapScreen from "./screens/MyPage/MyScrapScreen";
+import TermsInfoScreen from "./screens/MyPage/TermsInfo/TermsInfoScreen";
+import TermsInfoDetail from "./screens/MyPage/TermsInfo/TermsInfoDetail";
+import SettingScreen from "./screens/MyPage/SettingScreen";
+import SplashScreen from "./screens/SplashScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -49,6 +56,13 @@ export default function App() {
           animation: "fade",
         }}
       >
+        <Stack.Screen
+          name="Splash"
+          component={SplashScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
         <Stack.Screen
           name="Test"
           component={TestPage}
@@ -204,6 +218,48 @@ export default function App() {
         <Stack.Screen
           name="PrivacySettings"
           component={PrivacySettingsScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="PrivacySettingsDetail"
+          component={PrivacySettingsDetail}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="MyScrap"
+          component={MyScrapScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="MyPost"
+          component={MyPostScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="TermsInfo"
+          component={TermsInfoScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="TermsInfoDetail"
+          component={TermsInfoDetail}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="Setting"
+          component={SettingScreen}
           options={{
             headerShown: false,
           }}
