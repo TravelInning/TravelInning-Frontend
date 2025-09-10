@@ -10,9 +10,18 @@ import { useEffect, useState } from "react";
 import { JoinMemberStyle, JoinMemberBtn } from "../../component/JoinMemberComp";
 import { Shadow } from "react-native-shadow-2";
 import Check from "../../assets/icon/check_white.svg";
+import axios from "axios";
+import { API_URL } from "@env";
+import { showToast } from "../../component/Toast";
 
-export default function JoinMemberTerms({ navigation }) {
-  const [selectedTerms, setSelectedTerms] = useState([]);
+export default function JoinMemberTerms({ navigation, route }) {
+  const [selectedTerms, setSelectedTerms] = useState([
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]);
   const [isAgreeValid, setIsAgreeValid] = useState(false);
   const termsOfUse = [
     {
@@ -37,22 +46,49 @@ export default function JoinMemberTerms({ navigation }) {
     },
     { choice: true, text: "프로모션 정보 수신 동의", showMore: true },
   ];
+  const { nickname, password, email, gender, introduceMessage } = route.params;
 
   useEffect(() => {
     setIsAgreeValid(agreeCheck());
   }, [selectedTerms]);
 
-  const toggleAgree = (termNumber) => {
-    setSelectedTerms((prevSelected) =>
-      prevSelected.includes(termNumber)
-        ? prevSelected.filter((item) => item !== termNumber)
-        : [...prevSelected, termNumber]
-    );
+  const toggleAgree = (termIndex) => {
+    setSelectedTerms((prev) => {
+      const newSelected = [...prev];
+      newSelected[termIndex] = !newSelected[termIndex];
+      return newSelected;
+    });
   };
 
   const agreeCheck = () => {
     const requiredTerms = [0, 1, 2, 3]; // 필수 항목의 인덱스
-    return requiredTerms.every((index) => selectedTerms.includes(index));
+    return requiredTerms.every((index) => selectedTerms[index]);
+  };
+
+  const handleSignUp = async () => {
+    try {
+      console.log(
+        nickname,
+        password,
+        email,
+        gender,
+        introduceMessage,
+        selectedTerms
+      );
+      const result = await axios.post(`${API_URL}/api/members/join`, {
+        nickname: nickname,
+        password: password,
+        email: email,
+        gender: gender,
+        introduceMessage: introduceMessage,
+        memberTerm: [true],
+      });
+      console.log(result.data);
+      navigation.navigate("Main");
+    } catch (error) {
+      console.log("member join error: ", error);
+      showToast("오류가 발생했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (
@@ -71,7 +107,7 @@ export default function JoinMemberTerms({ navigation }) {
                   onPress={() => toggleAgree(index)}
                   accessibilityRole="checkbox"
                   accessibilityState={{
-                    checked: selectedTerms.includes(index),
+                    checked: selectedTerms[index],
                   }}
                 >
                   <Shadow
@@ -79,7 +115,7 @@ export default function JoinMemberTerms({ navigation }) {
                     startColor="rgba(0, 0, 0, 0.1)"
                     finalColor="rgba(0, 0, 0, 0)"
                   >
-                    {!selectedTerms.includes(index) ? (
+                    {!selectedTerms[index] ? (
                       <View style={styles.circle} />
                     ) : (
                       <View
@@ -119,7 +155,7 @@ export default function JoinMemberTerms({ navigation }) {
       </View>
       <JoinMemberBtn
         nextCondition={isAgreeValid}
-        nextFunction={() => navigation.navigate("Main")}
+        nextFunction={() => handleSignUp()}
         backText={"닫기"}
         backFunction={() => navigation.navigate("Main")}
       />

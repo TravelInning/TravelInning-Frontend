@@ -17,11 +17,6 @@ export default function PrivacySettingsScreen({ navigation }) {
       description: "",
     },
     {
-      title: "삭제",
-      subtitle: "삭제한 게시글 목록",
-      description: "",
-    },
-    {
       title: "차단",
       subtitle: "차단한 게시글 목록",
       description:

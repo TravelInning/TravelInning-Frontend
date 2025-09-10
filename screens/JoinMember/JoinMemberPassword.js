@@ -14,7 +14,7 @@ import {
   JoinMemberBtn,
 } from "../../component/JoinMemberComp";
 
-export default function JoinMemberPassword({ navigation }) {
+export default function JoinMemberPassword({ navigation, route }) {
   const [password, setPassword] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -61,11 +61,13 @@ export default function JoinMemberPassword({ navigation }) {
   return (
     <SafeAreaView style={theme.container}>
       <View style={JoinMemberStyle.subContainer}>
-        <TopLayout
-          title={"비밀번호를\n입력해주세요."}
-          subtext={"잊은 비밀번호는\n이메일로 다시 보내드릴게요."}
-          imageSource={require("../../assets/images/joinmembership/password_icon.png")}
-        />
+        {!isKeyboardVisible && (
+          <TopLayout
+            title={"비밀번호를\n입력해주세요."}
+            subtext={"잊은 비밀번호는\n이메일로 다시 보내드릴게요."}
+            imageSource={require("../../assets/images/joinmembership/password_icon.png")}
+          />
+        )}
         <ScrollView showsVerticalScrollIndicator={false}>
           <Text
             style={[
@@ -81,7 +83,6 @@ export default function JoinMemberPassword({ navigation }) {
             onChangeText={validatePassword}
             keyboardType="default"
             autoCapitalize="none"
-            autoFocus={true}
             style={{
               ...JoinMemberStyle.textInputStyle,
               borderColor: isValid ? theme.main_blue : "#EDEDED",
@@ -109,15 +110,16 @@ export default function JoinMemberPassword({ navigation }) {
           />
         </ScrollView>
       </View>
-      {!isKeyboardVisible && (
-        <JoinMemberBtn
-          nextCondition={isValid && isCorrect}
-          nextFunction={() =>
-            navigation.push("JoinMemberProfile", { password: password })
-          }
-          backText={"뒤로"}
-        />
-      )}
+      <JoinMemberBtn
+        nextCondition={isValid && isCorrect}
+        nextFunction={() =>
+          navigation.push("JoinMemberProfile", {
+            email: route.params.email,
+            password: password,
+          })
+        }
+        backText={"뒤로"}
+      />
     </SafeAreaView>
   );
 }

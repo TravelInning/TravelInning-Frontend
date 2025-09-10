@@ -10,7 +10,6 @@ import {
   Animated,
   FlatList,
   BackHandler,
-  Alert,
 } from "react-native";
 import Location from "../assets/icon/location.svg";
 import Notice from "../assets/icon/notification.svg";
@@ -20,32 +19,44 @@ import Filter from "../assets/icon/filter.svg";
 import { theme, SCREEN_WIDTH } from "../colors/color";
 import PlaceCard from "../component/PlaceCard";
 import FilterModal from "../component/FilterModal";
+import { showToast } from "../component/Toast";
 
-// 디바이스에 따라 메인 마진값 조절
-const MARGIN = SCREEN_WIDTH / 10;
+// backhandler
+const useDoubleBackExit = () => {
+  const backPressCount = useRef(0);
+
+  useEffect(() => {
+    const backAction = () => {
+      if (backPressCount.current === 0) {
+        backPressCount.current += 1;
+        showToast("한 번 더 누르면 종료됩니다");
+
+        setTimeout(() => {
+          backPressCount.current = 0;
+        }, 2000); // 2초 내에 다시 누르지 않으면 초기화
+
+        return true; // 기본 동작 막기
+      } else {
+        BackHandler.exitApp(); // 앱 종료
+        return true;
+      }
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
+};
 
 export default function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
 
   const scrollY = useRef(new Animated.Value(0)).current; // 스크롤 위치 추적
 
-  // backHander custom
-  useEffect(() => {
-    const backAction = () => {
-      Alert.alert("앱을 종료하시겠습니까?", "", [
-        { text: "아니오", style: "cancel" },
-        { text: "예", onPress: () => BackHandler.exitApp() },
-      ]);
-      return true;
-    };
-
-    const backHandlerListener = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction
-    );
-
-    return () => backHandlerListener.remove();
-  }, [navigation]);
+  useDoubleBackExit();
 
   // 이름과 마진 높이와 투명도 조절
   const nameHeight = scrollY.interpolate({
@@ -60,7 +71,7 @@ export default function HomeScreen({ navigation }) {
   });
   const marginHeight = scrollY.interpolate({
     inputRange: [0, 100], // 스크롤 범위
-    outputRange: [MARGIN, 10], // 높이가 줄어드는 범위
+    outputRange: [SCREEN_WIDTH / 10, 10], // 높이가 줄어드는 범위
     extrapolate: "clamp",
   });
 

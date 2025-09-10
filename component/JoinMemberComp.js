@@ -24,11 +24,10 @@ export function JoinMemberBtn({
   return (
     <View
       style={{
-        flex: 0.8,
         alignItems: "center",
         justifyContent: "center",
-        paddingHorizontal: 20,
-        paddingBottom: 10,
+        padding: 20,
+        paddingBottom: 20,
         borderTopWidth: 1,
         borderColor: "#EDEDED",
       }}
@@ -60,6 +59,7 @@ export function JoinMemberBtn({
             fontFamily: "Pretendard-Bold",
             color: theme.main_blue,
             fontSize: 16,
+            marginBottom: 10,
           }}
         >
           {backText}
@@ -82,9 +82,9 @@ export const JoinMemberStyle = {
     borderRadius: 9,
   },
   subContainer: {
-    flex: 3,
+    flex: 1,
     paddingHorizontal: 20,
-    paddingTop: SCREEN_WIDTH / 10,
+    paddingTop: SCREEN_WIDTH / 11,
   },
   subText_black: {
     fontFamily: "Pretendard-Medium",
@@ -119,6 +119,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: theme.main_blue,
     borderRadius: 9,
-    marginBottom: 30,
+    marginBottom: 24,
   },
 });
