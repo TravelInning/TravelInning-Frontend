@@ -17,6 +17,7 @@ import {
 } from "../../component/JoinMemberComp";
 import axios from "axios";
 import { API_URL } from "@env";
+import { showToast } from "../../component/Toast";
 
 export default function JoinMemberProfile({ navigation, route }) {
   const [nickname, setNickname] = useState("");
@@ -26,6 +27,8 @@ export default function JoinMemberProfile({ navigation, route }) {
   const [focused, setFocused] = useState("");
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [isNextClicked, setIsNextClicked] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const { email, password } = route.params;
 
   // keyboard detect
   useEffect(() => {
@@ -63,23 +66,28 @@ export default function JoinMemberProfile({ navigation, route }) {
       } else {
         setNicknameisValid(false);
       }
+      setIsError(false);
 
       return response.data?.result.checkNickname || false;
     } catch (error) {
       console.log("nickname check: ", error);
+      showToast(`닉네임 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.`);
+      setIsError(true);
     }
   };
 
   return (
     <SafeAreaView style={theme.container}>
       <View style={JoinMemberStyle.subContainer}>
-        <TopLayout
-          title={"프로필을\n작성해주세요."}
-          subtext={
-            "동행 신청 시 상대방에게 공개되며\n마이페이지에서 언제든 변경할 수 있습니다."
-          }
-          imageSource={require("../../assets/images/joinmembership/profile_icon.png")}
-        />
+        {!isKeyboardVisible && (
+          <TopLayout
+            title={"프로필을\n작성해주세요."}
+            subtext={
+              "동행 신청 시 상대방에게 공개되며\n마이페이지에서 언제든 변경할 수 있습니다."
+            }
+            imageSource={require("../../assets/images/joinmembership/profile_icon.png")}
+          />
+        )}
         <ScrollView showsVerticalScrollIndicator={false}>
           <Text
             style={[
@@ -96,25 +104,27 @@ export default function JoinMemberProfile({ navigation, route }) {
             onFocus={() => setFocused("nickname")}
             keyboardType="default"
             autoCapitalize="none"
-            autoFocus={true}
             style={{
               ...JoinMemberStyle.textInputStyle,
               marginBottom: 0,
               borderColor: focused === "nickname" ? theme.main_blue : "#EDEDED",
             }}
           />
-          {!nicknameisValid && nickname.length > 0 && isNextClicked && (
-            <Text
-              style={{
-                marginTop: 4,
-                fontFamily: "Pretendard-Medium",
-                fontSize: 12,
-                color: "#F00",
-              }}
-            >
-              중복된 닉네임입니다.
-            </Text>
-          )}
+          {!nicknameisValid &&
+            nickname.length > 0 &&
+            isNextClicked &&
+            !isError && (
+              <Text
+                style={{
+                  marginTop: 4,
+                  fontFamily: "Pretendard-Medium",
+                  fontSize: 12,
+                  color: "#F00",
+                }}
+              >
+                중복된 닉네임입니다.
+              </Text>
+            )}
           <Text
             style={[
               JoinMemberStyle.subText_black,
@@ -128,18 +138,18 @@ export default function JoinMemberProfile({ navigation, route }) {
           >
             <TouchableOpacity
               onPress={() => {
-                setGender("M");
+                setGender("MALE");
                 setFocused("gender");
               }}
               style={[
                 styles.button,
-                gender === "M" && { backgroundColor: theme.main_blue },
+                gender === "MALE" && { backgroundColor: theme.main_blue },
               ]}
             >
               <Text
                 style={[
                   styles.buttonText,
-                  gender == "M" && {
+                  gender == "MALE" && {
                     fontFamily: "Pretendard-Bold",
                     color: "#fff",
                   },
@@ -151,18 +161,18 @@ export default function JoinMemberProfile({ navigation, route }) {
             <View style={{ width: 15 }} />
             <TouchableOpacity
               onPress={() => {
-                setGender("F");
+                setGender("FEMALE");
                 setFocused("gender");
               }}
               style={[
                 styles.button,
-                gender === "F" && { backgroundColor: theme.main_blue },
+                gender === "FEMALE" && { backgroundColor: theme.main_blue },
               ]}
             >
               <Text
                 style={[
                   styles.buttonText,
-                  gender == "F" && {
+                  gender == "FEMALE" && {
                     fontFamily: "Pretendard-Bold",
                     color: "#fff",
                   },
@@ -194,20 +204,25 @@ export default function JoinMemberProfile({ navigation, route }) {
           />
         </ScrollView>
       </View>
-      {!isKeyboardVisible && (
-        <JoinMemberBtn
-          nextCondition={nickname && gender && introMessage}
-          nextFunction={async () => {
-            const isValid = await checkNickname();
-            if (isValid) {
-              navigation.push("JoinMemberTerms");
-            } else {
-              setIsNextClicked(true);
-            }
-          }}
-          backText={"뒤로"}
-        />
-      )}
+
+      <JoinMemberBtn
+        nextCondition={nickname && gender && introMessage}
+        nextFunction={async () => {
+          const isValid = await checkNickname();
+          if (isValid) {
+            navigation.push("JoinMemberTerms", {
+              nickname: nickname,
+              password: password,
+              email: email,
+              gender: gender,
+              introduceMessage: introMessage,
+            });
+          } else {
+            setIsNextClicked(true);
+          }
+        }}
+        backText={"뒤로"}
+      />
     </SafeAreaView>
   );
 }

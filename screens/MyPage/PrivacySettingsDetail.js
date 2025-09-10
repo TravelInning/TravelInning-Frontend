@@ -23,18 +23,6 @@ export default function PrivacySettingsDetail({ navigation, route }) {
           isVisibleModal={true}
         />
       );
-    } else if (title === "삭제") {
-      return (
-        <CompCard
-          title="게시글 제목 예를 들면 ㅇㅇㅇㅇ"
-          content="삼성vskia 경기 보러갈건데요.
-같은 ㄴ성별만 원하는데요. ㅇㅇㅇㅇㅇ"
-          date="11.01"
-          nickname="최강삼성"
-          photo={require("../../assets/images/gowith/logo.png")}
-          from="gowith"
-        />
-      );
     } else if (title === "차단") {
       return (
         <CompCard

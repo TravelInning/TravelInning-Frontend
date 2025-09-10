@@ -86,21 +86,19 @@ export default function StoryNav({ navigation }) {
             tabBarLabelStyle: {
               fontSize: 14,
               fontFamily: "Pretendard-Medium",
-              width: "100%",
             },
             tabBarStyle: {
-              width: "80%",
               height: 48,
-              paddingLeft: 4,
               shadowOpacity: 0,
               elevation: 0,
               backgroundColor: "transparent",
+              marginHorizontal: 20,
             },
             tabBarIndicatorStyle: {
               backgroundColor: theme.main_blue,
               width: 76,
               height: 3,
-              marginLeft: 18,
+              marginLeft: "13%",
             },
             swipeEnabled: false,
           }}
@@ -114,11 +112,6 @@ export default function StoryNav({ navigation }) {
             name="이야기해요"
             component={StoryScreen}
             options={{ tabBarLabel: "이야기해요" }}
-          />
-          <Tab.Screen
-            name="끝난 이야기"
-            component={StoryScreen}
-            options={{ tabBarLabel: "끝난 이야기" }}
           />
         </Tab.Navigator>
       </View>

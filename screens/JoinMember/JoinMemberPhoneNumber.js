@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -8,11 +8,14 @@ import {
   Image,
   StyleSheet,
   Dimensions,
+  Keyboard,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // 내비게이션 import
 import axios from "axios";
 import { API_URL } from "@env";
 import { showToast } from "../../component/Toast";
+import { theme } from "../../colors/color";
+import { JoinMemberBtn } from "../../component/JoinMemberComp";
 
 const { width, height } = Dimensions.get("window");
 
@@ -22,6 +25,28 @@ export default function JoinMemberPhoneNumber() {
   const [isRequestSent, setIsRequestSent] = useState(false);
   const [isRequesting, setIsRequesting] = useState(false);
   const navigation = useNavigation(); // 내비게이션 훅
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  // keyboard detect
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setIsKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setIsKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handlePhoneNumberChange = (text) => {
     const formattedText = text
@@ -54,14 +79,23 @@ export default function JoinMemberPhoneNumber() {
   // SMS request
   const sendSMScode = async () => {
     try {
+      console.log(`${API_URL}`);
       console.log(
         `${API_URL}/api/members/sms/auth`,
         " phoneNumber: ",
         phoneNumber.replace(/-/g, "")
       );
-      await axios.post(`${API_URL}/api/members/sms/auth`, {
-        phoneNumber: phoneNumber.replace(/-/g, ""),
-      });
+      await axios.post(
+        `https://travelinning.store/api/members/sms/auth`,
+        {
+          phoneNumber: phoneNumber.replace(/-/g, ""),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       return true;
     } catch (error) {
       console.log("send SMScode error: ", error);
@@ -72,11 +106,16 @@ export default function JoinMemberPhoneNumber() {
   // SMS code verify
   const verifySMScode = async () => {
     try {
+      console.log(
+        API_URL,
+        phoneNumber.replace(/-/g, ""),
+        String(verificationCode)
+      );
       const response = await axios.post(
         `${API_URL}/api/members/sms/auth/verify`,
         {
-          phoneNumber: phoneNumber,
-          code: verificationCode,
+          phoneNumber: phoneNumber.replace(/-/g, ""),
+          code: verificationCode.toString(),
         }
       );
       console.log("response ", response.data);
@@ -88,111 +127,95 @@ export default function JoinMemberPhoneNumber() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={theme.container}>
       {/* Header Section */}
-      <View style={styles.header}>
-        <Text style={styles.title}>{"전화번호를\n인증해주세요."}</Text>
-        <Text style={styles.subtext}>
-          {"한 번의 인증으로\n트래블이닝을 안전하게 이용해보세요."}
-        </Text>
-      </View>
-
-      {/* Icon Section */}
-      <View style={styles.iconContainer}>
-        <Image
-          source={require("../../assets/images/joinmembership/phone.png")}
-          style={styles.icon}
-        />
-      </View>
-
-      {/* Phone Number Input Section */}
-      <View style={styles.inputSection}>
-        <Text style={styles.inputLabel}>{"전화번호"}</Text>
-        <View style={styles.phoneNumberContainer}>
-          <TextInput
-            placeholder={"전화번호 입력"}
-            value={phoneNumber}
-            onChangeText={handlePhoneNumberChange}
-            keyboardType="number-pad"
-            style={styles.phoneNumberInput}
-            editable={!isRequestSent}
-          />
-          <TouchableOpacity
-            style={[
-              styles.requestCodeButton,
-              phoneNumber.length === 13 ? styles.requestCodeButtonActive : null,
-            ]}
-            onPress={handleRequestCode}
-            disabled={phoneNumber.length !== 13}
-          >
-            <Text
-              style={[
-                styles.requestCodeText,
-                phoneNumber.length === 13 ? styles.requestCodeTextActive : null,
-              ]}
-            >
-              {isRequestSent ? "재요청" : "인증번호 요청"}
+      {!isKeyboardVisible && (
+        <>
+          <View style={styles.header}>
+            <Text style={styles.title}>{"전화번호를\n인증해주세요."}</Text>
+            <Text style={styles.subtext}>
+              {"한 번의 인증으로\n트래블이닝을 안전하게 이용해보세요."}
             </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+          </View>
 
-      {/* Verification Code Input Section */}
-      {isRequestSent && (
-        <View style={styles.verificationSection}>
-          <Text style={styles.inputLabel}>{"인증번호"}</Text>
-          <TextInput
-            placeholder={"문자로 전송된 인증번호를 입력해주세요."}
-            value={verificationCode}
-            onChangeText={handleVerificationCodeChange}
-            keyboardType="number-pad"
-            style={styles.verificationInput}
-          />
-        </View>
+          {/* Icon Section */}
+          <View style={styles.iconContainer}>
+            <Image
+              source={require("../../assets/images/joinmembership/phone.png")}
+              style={styles.icon}
+            />
+          </View>
+        </>
       )}
+      <View style={{ flex: 1 }}>
+        {/* Phone Number Input Section */}
+        <View style={styles.inputSection}>
+          <Text style={styles.inputLabel}>{"전화번호"}</Text>
+          <View style={styles.phoneNumberContainer}>
+            <TextInput
+              placeholder={"전화번호 입력"}
+              value={phoneNumber}
+              onChangeText={handlePhoneNumberChange}
+              keyboardType="number-pad"
+              style={styles.phoneNumberInput}
+              editable={!isRequestSent}
+            />
+            <TouchableOpacity
+              style={[
+                styles.requestCodeButton,
+                phoneNumber.length === 13
+                  ? styles.requestCodeButtonActive
+                  : null,
+              ]}
+              onPress={handleRequestCode}
+              disabled={phoneNumber.length !== 13}
+            >
+              <Text
+                style={[
+                  styles.requestCodeText,
+                  phoneNumber.length === 13
+                    ? styles.requestCodeTextActive
+                    : null,
+                ]}
+              >
+                {isRequestSent ? "재요청" : "인증번호 요청"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-      {/* Footer Section */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={[
-            styles.nextButton,
-            verificationCode.length === 6 ? styles.nextButtonActive : null,
-          ]}
-          onPress={async () => {
-            const isSuccess = await verifySMScode();
-            if (isSuccess) {
-              navigation.navigate("JoinMemberEmail");
-            } else {
-              showToast("인증번호를 확인해주세요.");
-            }
-            //navigation.navigate("JoinMemberEmail");
-          }}
-          disabled={verificationCode.length !== 6}
-        >
-          <Text
-            style={[
-              styles.nextButtonText,
-              verificationCode.length === 6
-                ? styles.nextButtonTextActive
-                : null,
-            ]}
-          >
-            {"다음"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => alert("닫기 클릭!")}>
-          <Text style={styles.closeButton}>{"닫기"}</Text>
-        </TouchableOpacity>
+        {/* Verification Code Input Section */}
+        {isRequestSent && (
+          <View style={styles.verificationSection}>
+            <Text style={styles.inputLabel}>{"인증번호"}</Text>
+            <TextInput
+              placeholder={"문자로 전송된 인증번호를 입력해주세요."}
+              value={verificationCode}
+              onChangeText={handleVerificationCodeChange}
+              keyboardType="number-pad"
+              style={styles.verificationInput}
+            />
+          </View>
+        )}
       </View>
+      {/* Footer Section */}
+      <JoinMemberBtn
+        nextCondition={verificationCode.length === 6}
+        nextFunction={async () => {
+          const isSuccess = await verifySMScode();
+          if (isSuccess) {
+            navigation.navigate("JoinMemberEmail");
+          } else {
+            showToast("인증번호를 확인해주세요.");
+          }
+        }}
+        backText={"닫기"}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
   header: {
     marginTop: height * 0.05,
     width: width * 0.9,
@@ -201,8 +224,7 @@ const styles = StyleSheet.create({
   title: {
     color: "#1B1D28",
     fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: 12,
     fontFamily: "Pretendard-ExtraBold",
   },
   subtext: {
@@ -226,8 +248,8 @@ const styles = StyleSheet.create({
   inputLabel: {
     color: "#1B1D28",
     fontSize: 16,
-    fontWeight: "bold",
     marginBottom: 12,
+    fontFamily: "Pretendard-SemiBold",
   },
   phoneNumberContainer: {
     flexDirection: "row",

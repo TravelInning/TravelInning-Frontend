@@ -71,7 +71,7 @@ export const StoryBox = ({
             <View style={styles.blueBox}>
               {limitedTime && (
                 <Text style={styles.limitedTime}>
-                  {limitedTime} 후 입장 마감!
+                  {limitedTime}에 입장 마감!
                 </Text>
               )}
             </View>
