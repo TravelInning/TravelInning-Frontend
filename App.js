@@ -7,12 +7,12 @@ import SelectClub from "./screens/SelectClub";
 import HomeScreen from "./screens/HomeScreen";
 import MainScreen from "./screens/MainScreen";
 import NoticeScreen from "./screens/NoticeScreen";
-import JoinMemberPassword from "./screens/JoinMember/JoinMemberPassword";
-import JoinMemberProfile from "./screens/JoinMember/JoinMemberProfile";
-import JoinMemberTerms from "./screens/JoinMember/JoinMemberTerms";
-import LoginScreen from "./screens/LoginScreen";
-import JoinMemberPhoneNumber from "./screens/JoinMember/JoinMemberPhoneNumber";
-import JoinMemberEmail from "./screens/JoinMember/JoinMemberEmail";
+import SignUpPassword from "./screens/SignUp/SignUpPassword";
+import SignUpProfile from "./screens/SignUp/SignUpProfile";
+import SignUpTerms from "./screens/SignUp/SignUpTerms";
+import LoginScreen from "./screens/Login/LoginScreen";
+import SignUpPhoneNumber from "./screens/SignUp/SignUpPhoneNumber";
+import SignUpEmail from "./screens/SignUp/SignUpEmail";
 import ChatScreen from "./screens/Chat/ChatScreen";
 import GoWithNav from "./screens/GoWith/GoWithNav";
 import ChatListScreen from "./screens/Chat/ChatListScreen";
@@ -34,6 +34,9 @@ import TermsInfoScreen from "./screens/MyPage/TermsInfo/TermsInfoScreen";
 import TermsInfoDetail from "./screens/MyPage/TermsInfo/TermsInfoDetail";
 import SettingScreen from "./screens/MyPage/SettingScreen";
 import SplashScreen from "./screens/SplashScreen";
+import FindPasswordScreen from "./screens/Login/FindPasswordScreen";
+import FindEmailScreen from "./screens/Login/FindEmailScreen";
+import SuccessScreen from "./screens/Login/SuccessScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -89,6 +92,34 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="LoginScreen"
+          component={LoginScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="FindEmail"
+          component={FindEmailScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="FindPassword"
+          component={FindPasswordScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="Success"
+          component={SuccessScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
           name="Notice"
           component={NoticeScreen}
           options={{
@@ -97,22 +128,22 @@ export default function App() {
           }}
         />
         <Stack.Screen
-          name="JoinMemberPassword"
-          component={JoinMemberPassword}
+          name="SignUpPassword"
+          component={SignUpPassword}
           options={{
             headerShown: false,
           }}
         />
         <Stack.Screen
-          name="JoinMemberProfile"
-          component={JoinMemberProfile}
+          name="SignUpProfile"
+          component={SignUpProfile}
           options={{
             headerShown: false,
           }}
         />
         <Stack.Screen
-          name="JoinMemberTerms"
-          component={JoinMemberTerms}
+          name="SignUpTerms"
+          component={SignUpTerms}
           options={{
             headerShown: false,
           }}
@@ -126,22 +157,15 @@ export default function App() {
           }}
         />
         <Stack.Screen
-          name="LoginScreen"
-          component={LoginScreen}
+          name="SignUpPhoneNumber"
+          component={SignUpPhoneNumber}
           options={{
             headerShown: false,
           }}
         />
         <Stack.Screen
-          name="JoinMemberPhoneNumber"
-          component={JoinMemberPhoneNumber}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="JoinMemberEmail"
-          component={JoinMemberEmail}
+          name="SignUpEmail"
+          component={SignUpEmail}
           options={{ headerShown: false }}
         />
         <Stack.Screen

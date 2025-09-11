@@ -10,16 +10,10 @@ import {
 } from "react-native";
 import { theme } from "../../colors/color";
 import { useEffect, useState } from "react";
-import {
-  TopLayout,
-  JoinMemberStyle,
-  JoinMemberBtn,
-} from "../../component/JoinMemberComp";
-import axios from "axios";
-import { API_URL } from "@env";
-import { showToast } from "../../component/Toast";
+import { TopLayout, SignUpStyle, SignUpBtn } from "../../component/SignUpComp";
+import { handleNickname } from "../../api/signup/signup";
 
-export default function JoinMemberProfile({ navigation, route }) {
+export default function SignUpProfile({ navigation, route }) {
   const [nickname, setNickname] = useState("");
   const [nicknameisValid, setNicknameisValid] = useState(null);
   const [gender, setGender] = useState(null);
@@ -51,47 +45,32 @@ export default function JoinMemberProfile({ navigation, route }) {
     };
   }, []);
 
-  const checkNickname = async () => {
-    try {
-      const response = await axios.post(
-        `${API_URL}/api/members/nickname/duplicate`,
-        {
-          nickname: nickname,
-        }
-      );
-
-      // UI 변경용
-      if (response.data?.result.checkNickname) {
-        setNicknameisValid(true);
-      } else {
-        setNicknameisValid(false);
-      }
-      setIsError(false);
-
-      return response.data?.result.checkNickname || false;
-    } catch (error) {
-      console.log("nickname check: ", error);
-      showToast(`닉네임 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.`);
-      setIsError(true);
+  const checkNickname = () => {
+    const isValid = handleNickname(nickname, setIsError);
+    // UI 변경용
+    if (isValid) {
+      setNicknameisValid(true);
+    } else {
+      setNicknameisValid(false);
     }
   };
 
   return (
     <SafeAreaView style={theme.container}>
-      <View style={JoinMemberStyle.subContainer}>
+      <View style={SignUpStyle.subContainer}>
         {!isKeyboardVisible && (
           <TopLayout
             title={"프로필을\n작성해주세요."}
             subtext={
               "동행 신청 시 상대방에게 공개되며\n마이페이지에서 언제든 변경할 수 있습니다."
             }
-            imageSource={require("../../assets/images/joinmembership/profile_icon.png")}
+            imageSource={require("../../assets/images/signup/profile_icon.png")}
           />
         )}
         <ScrollView showsVerticalScrollIndicator={false}>
           <Text
             style={[
-              JoinMemberStyle.subText_black,
+              SignUpStyle.subText_black,
               { fontFamily: "Pretendard-SemiBold" },
             ]}
           >
@@ -105,7 +84,7 @@ export default function JoinMemberProfile({ navigation, route }) {
             keyboardType="default"
             autoCapitalize="none"
             style={{
-              ...JoinMemberStyle.textInputStyle,
+              ...SignUpStyle.textInputStyle,
               marginBottom: 0,
               borderColor: focused === "nickname" ? theme.main_blue : "#EDEDED",
             }}
@@ -127,7 +106,7 @@ export default function JoinMemberProfile({ navigation, route }) {
             )}
           <Text
             style={[
-              JoinMemberStyle.subText_black,
+              SignUpStyle.subText_black,
               { marginTop: 20, fontFamily: "Pretendard-SemiBold" },
             ]}
           >
@@ -184,7 +163,7 @@ export default function JoinMemberProfile({ navigation, route }) {
           </View>
           <Text
             style={[
-              JoinMemberStyle.subText_black,
+              SignUpStyle.subText_black,
               { fontFamily: "Pretendard-SemiBold" },
             ]}
           >
@@ -198,19 +177,19 @@ export default function JoinMemberProfile({ navigation, route }) {
             keyboardType="default"
             autoCapitalize="none"
             style={{
-              ...JoinMemberStyle.textInputStyle,
+              ...SignUpStyle.textInputStyle,
               borderColor: focused === "message" ? theme.main_blue : "#EDEDED",
             }}
           />
         </ScrollView>
       </View>
 
-      <JoinMemberBtn
+      <SignUpBtn
         nextCondition={nickname && gender && introMessage}
         nextFunction={async () => {
           const isValid = await checkNickname();
           if (isValid) {
-            navigation.push("JoinMemberTerms", {
+            navigation.push("SignUpTerms", {
               nickname: nickname,
               password: password,
               email: email,

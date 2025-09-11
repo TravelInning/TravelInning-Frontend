@@ -12,9 +12,10 @@ export function TopLayout({ title, subtext, imageSource }) {
   );
 }
 
-export function JoinMemberBtn({
+export function SignUpBtn({
   nextCondition,
   nextFunction,
+  nextText = "다음",
   backText,
   backFunction,
 }) {
@@ -27,7 +28,7 @@ export function JoinMemberBtn({
         alignItems: "center",
         justifyContent: "center",
         padding: 20,
-        paddingBottom: 20,
+        paddingBottom: 40,
         borderTopWidth: 1,
         borderColor: "#EDEDED",
       }}
@@ -50,7 +51,7 @@ export function JoinMemberBtn({
             },
           ]}
         >
-          다음
+          {nextText}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={handleBack}>
@@ -69,7 +70,7 @@ export function JoinMemberBtn({
   );
 }
 
-export const JoinMemberStyle = {
+export const SignUpStyle = {
   textInputStyle: {
     height: 45,
     fontFamily: "Pretendard-Regular",

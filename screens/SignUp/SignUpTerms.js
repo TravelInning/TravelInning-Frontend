@@ -7,14 +7,13 @@ import {
 } from "react-native";
 import { theme } from "../../colors/color";
 import { useEffect, useState } from "react";
-import { JoinMemberStyle, JoinMemberBtn } from "../../component/JoinMemberComp";
+import { SignUpStyle } from "../../component/SignUpComp";
 import { Shadow } from "react-native-shadow-2";
 import Check from "../../assets/icon/check_white.svg";
-import axios from "axios";
-import { API_URL } from "@env";
-import { showToast } from "../../component/Toast";
+import { SignUpBtn } from "../../component/SignUpComp";
+import { handleSignUp } from "../../api/signup/signup";
 
-export default function JoinMemberTerms({ navigation, route }) {
+export default function SignUpTerms({ navigation, route }) {
   const [selectedTerms, setSelectedTerms] = useState([
     false,
     false,
@@ -65,35 +64,9 @@ export default function JoinMemberTerms({ navigation, route }) {
     return requiredTerms.every((index) => selectedTerms[index]);
   };
 
-  const handleSignUp = async () => {
-    try {
-      console.log(
-        nickname,
-        password,
-        email,
-        gender,
-        introduceMessage,
-        selectedTerms
-      );
-      const result = await axios.post(`${API_URL}/api/members/join`, {
-        nickname: nickname,
-        password: password,
-        email: email,
-        gender: gender,
-        introduceMessage: introduceMessage,
-        memberTerm: [true],
-      });
-      console.log(result.data);
-      navigation.navigate("Main");
-    } catch (error) {
-      console.log("member join error: ", error);
-      showToast("오류가 발생했습니다. 다시 시도해주세요.");
-    }
-  };
-
   return (
     <SafeAreaView style={theme.container}>
-      <View style={JoinMemberStyle.subContainer}>
+      <View style={SignUpStyle.subContainer}>
         <Text style={styles.title}>
           {"트래블이닝 사용을 위해\n동의해주세요."}
         </Text>
@@ -153,9 +126,21 @@ export default function JoinMemberTerms({ navigation, route }) {
           ))}
         </View>
       </View>
-      <JoinMemberBtn
+      <SignUpBtn
         nextCondition={isAgreeValid}
-        nextFunction={() => handleSignUp()}
+        nextFunction={() => {
+          const isSuccess = handleSignUp(
+            nickname,
+            password,
+            email,
+            gender,
+            introduceMessage,
+            selectedTerms
+          );
+          if (isSuccess) {
+            navigation.replace("LoginScreen");
+          }
+        }}
         backText={"닫기"}
         backFunction={() => navigation.navigate("Main")}
       />
