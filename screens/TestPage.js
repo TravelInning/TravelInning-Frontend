@@ -32,14 +32,14 @@ export default function TestPage({ navigation, route }) {
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => navigation.push("JoinMemberPhoneNumber")}
+          onPress={() => navigation.push("SignUpPhoneNumber")}
           style={styles.button}
         >
           <Text style={styles.buttonText}>회원가입</Text>
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => navigation.push("JoinMemberPassword")}
+          onPress={() => navigation.push("SignUpPassword")}
           style={styles.button}
         >
           <Text style={styles.buttonText}>회원가02입</Text>
@@ -74,7 +74,7 @@ export default function TestPage({ navigation, route }) {
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => navigation.push("JoinMemberEmail")}
+          onPress={() => navigation.push("SignUpEmail")}
           style={styles.button}
         >
           <Text style={styles.buttonText}>이메일</Text>
