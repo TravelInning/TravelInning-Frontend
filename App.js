@@ -25,11 +25,11 @@ import StoryScreen from "./screens/Story/StoryScreen";
 import MyPageMainScreen from "./screens/MyPage/MyPageMainScreen";
 import Toast from "react-native-toast-message";
 import { toastConfig } from "./component/Toast";
-import MyTravelinningScreen from "./screens/MyPage/MyTravelinningScreen";
-import PrivacySettingsScreen from "./screens/MyPage/PrivacySettingsScreen";
-import PrivacySettingsDetail from "./screens/MyPage/PrivacySettingsDetail";
-import MyPostScreen from "./screens/MyPage/MyPostScreen";
-import MyScrapScreen from "./screens/MyPage/MyScrapScreen";
+import MyTravelinningScreen from "./screens/MyPage/MyTravelInning/MyTravelinningScreen";
+import PrivacySettingsScreen from "./screens/MyPage/Privacy/PrivacySettingsScreen";
+import PrivacySettingsDetail from "./screens/MyPage/Privacy/PrivacySettingsDetail";
+import MyPostScreen from "./screens/MyPage/Post/MyPostScreen";
+import MyScrapScreen from "./screens/MyPage/Scrap/MyScrapScreen";
 import TermsInfoScreen from "./screens/MyPage/TermsInfo/TermsInfoScreen";
 import TermsInfoDetail from "./screens/MyPage/TermsInfo/TermsInfoDetail";
 import SettingScreen from "./screens/MyPage/SettingScreen";
@@ -37,6 +37,8 @@ import SplashScreen from "./screens/SplashScreen";
 import FindPasswordScreen from "./screens/Login/FindPasswordScreen";
 import FindEmailScreen from "./screens/Login/FindEmailScreen";
 import SuccessScreen from "./screens/Login/SuccessScreen";
+import EditProfile from "./screens/MyPage/Profile/EditProfile";
+import EditDetail from "./screens/MyPage/Profile/EditDetail";
 
 const Stack = createNativeStackNavigator();
 
@@ -284,6 +286,20 @@ export default function App() {
         <Stack.Screen
           name="Setting"
           component={SettingScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="EditProfile"
+          component={EditProfile}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="EditDetail"
+          component={EditDetail}
           options={{
             headerShown: false,
           }}

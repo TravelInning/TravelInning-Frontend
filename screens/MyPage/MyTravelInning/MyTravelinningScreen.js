@@ -8,11 +8,11 @@ import {
   TextInput,
   Keyboard,
 } from "react-native";
-import { theme } from "../../colors/color";
-import DropDown from "../../assets/icon/story/dropdown.svg";
+import { theme } from "../../../colors/color";
+import DropDown from "../../../assets/icon/story/dropdown.svg";
 import { useEffect, useRef, useState } from "react";
-import { DateModal } from "../../component/MyPage/MyPageComp";
-import Plus from "../../assets/icon/mypage/plus.svg";
+import { DateModal } from "../../../component/MyPage/MyPageComp";
+import Plus from "../../../assets/icon/mypage/plus.svg";
 import { Shadow } from "react-native-shadow-2";
 import * as ImagePicker from "expo-image-picker";
 
@@ -26,16 +26,16 @@ export default function MyTravelinningScreen({ navigation }) {
   const [memo, setMemo] = useState("");
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const imageMap = {
-    KIA: require("../../assets/images/clubs/kia.png"),
-    삼성: require("../../assets/images/clubs/samsung.jpg"),
-    LG: require("../../assets/images/clubs/lg.png"),
-    두산: require("../../assets/images/clubs/doosan.png"),
-    KT: require("../../assets/images/clubs/kt.png"),
-    SSG: require("../../assets/images/clubs/ssg.png"),
-    롯데: require("../../assets/images/clubs/lotte.png"),
-    한화: require("../../assets/images/clubs/hanwha.png"),
-    키움: require("../../assets/images/clubs/kiwoom.png"),
-    NC: require("../../assets/images/clubs/nc.png"),
+    KIA: require("../../../assets/images/clubs/kia.png"),
+    삼성: require("../../../assets/images/clubs/samsung.jpg"),
+    LG: require("../../../assets/images/clubs/lg.png"),
+    두산: require("../../../assets/images/clubs/doosan.png"),
+    KT: require("../../../assets/images/clubs/kt.png"),
+    SSG: require("../../../assets/images/clubs/ssg.png"),
+    롯데: require("../../../assets/images/clubs/lotte.png"),
+    한화: require("../../../assets/images/clubs/hanwha.png"),
+    키움: require("../../../assets/images/clubs/kiwoom.png"),
+    NC: require("../../../assets/images/clubs/nc.png"),
   };
 
   // modal
@@ -190,7 +190,7 @@ export default function MyTravelinningScreen({ navigation }) {
           {/* my */}
           <View style={{ alignItems: "center" }}>
             <Image
-              source={require("../../assets/images/clubs/lotte.png")}
+              source={require("../../../assets/images/clubs/lotte.png")}
               style={styles.clubImage}
             />
             <Text style={styles.myclubText}>나의 구단</Text>

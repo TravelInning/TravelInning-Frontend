@@ -9,7 +9,6 @@ import {
   View,
   Animated,
   FlatList,
-  BackHandler,
 } from "react-native";
 import Location from "../assets/icon/location.svg";
 import Notice from "../assets/icon/notification.svg";
@@ -19,46 +18,18 @@ import Filter from "../assets/icon/filter.svg";
 import { theme, SCREEN_WIDTH } from "../colors/color";
 import PlaceCard from "../component/PlaceCard";
 import FilterModal from "../component/FilterModal";
-import { showToast } from "../component/Toast";
-
-// backhandler
-const useDoubleBackExit = () => {
-  const backPressCount = useRef(0);
-
-  useEffect(() => {
-    const backAction = () => {
-      if (backPressCount.current === 0) {
-        backPressCount.current += 1;
-        showToast("한 번 더 누르면 종료됩니다");
-
-        setTimeout(() => {
-          backPressCount.current = 0;
-        }, 2000); // 2초 내에 다시 누르지 않으면 초기화
-
-        return true; // 기본 동작 막기
-      } else {
-        BackHandler.exitApp(); // 앱 종료
-        return true;
-      }
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction
-    );
-
-    return () => backHandler.remove();
-  }, []);
-};
+import { useDoubleBackExit } from "../hooks/useDoubleBackExit";
+import { loadHeader } from "../api/home/home";
 
 export default function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
+  const [headerData, setHeaderData] = useState(null);
 
-  const scrollY = useRef(new Animated.Value(0)).current; // 스크롤 위치 추적
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   useDoubleBackExit();
 
-  // 이름과 마진 높이와 투명도 조절
+  // animation
   const nameHeight = scrollY.interpolate({
     inputRange: [0, 100], // 스크롤 범위
     outputRange: [40, 0], // 높이가 줄어드는 범위
@@ -74,6 +45,15 @@ export default function HomeScreen({ navigation }) {
     outputRange: [SCREEN_WIDTH / 10, 10], // 높이가 줄어드는 범위
     extrapolate: "clamp",
   });
+
+  useEffect(() => {
+    const handleHeader = async () => {
+      const data = await loadHeader(1);
+      setHeaderData(data);
+    };
+
+    handleHeader();
+  }, []);
 
   return (
     <SafeAreaView style={theme.container}>

@@ -1,10 +1,10 @@
 import { SafeAreaView, StyleSheet, View, Text, FlatList } from "react-native";
-import { theme } from "../../colors/color";
-import { Header } from "../../component/Header/Header";
+import { theme } from "../../../colors/color";
+import { Header } from "../../../component/Header/Header";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useState } from "react";
 import { useRoute } from "@react-navigation/native";
-import { CompCard } from "../../component/MyPage/PrivacySettingComp";
+import { CompCard } from "../../../component/MyPage/PrivacySettingComp";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -69,7 +69,7 @@ const ScrapScreen = () => {
   같은 ㄴ성별만 원하는데요. ㅇㅇㅇㅇㅇ"
           date="11.01"
           nickname="최강삼성"
-          photo={require("../../assets/images/gowith/logo.png")}
+          photo={require("../../../assets/images/gowith/logo.png")}
           from="gowith"
           isMyPost={true}
         />
@@ -80,7 +80,7 @@ const ScrapScreen = () => {
           category="야구"
           content="한화는 언제쯤 우승해볼 수 있을까? 좋은 선수들은 많이 가지고 있으니니닌까ㅏ깎 "
           date="25.02.28"
-          photo={require("../../assets/images/gowith/logo.png")}
+          photo={require("../../../assets/images/gowith/logo.png")}
           from="story"
           isMyPost={true}
         />

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SCREEN_HEIGHT, theme } from "../../colors/color";
+import { theme } from "../../colors/color";
 import { Header } from "../../component/Header/Header";
 import { useEffect, useState } from "react";
 
@@ -15,7 +15,13 @@ export default function SettingScreen({ navigation }) {
     require("../../assets/icon/mypage/setting/account.png")
   );
   const contents = [
-    { title: "프로필", icon: profileImg, onPress: () => {} },
+    {
+      title: "프로필",
+      icon: profileImg,
+      onPress: () => {
+        navigation.navigate("EditProfile");
+      },
+    },
     {
       title: "계정",
       icon: require("../../assets/icon/mypage/setting/account.png"),
