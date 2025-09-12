@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { theme } from "../../colors/color";
+import { SCREEN_HEIGHT, theme } from "../../colors/color";
 import ScrollPicker from "react-native-wheel-scrollview-picker";
 
 export const MyPageModal = ({ visible, onClose, buttonPosition }) => {

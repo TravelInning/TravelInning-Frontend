@@ -1,8 +1,8 @@
 import { FlatList, SafeAreaView, StyleSheet, Text, View } from "react-native";
-import { theme } from "../../colors/color";
-import { Header } from "../../component/Header/Header";
+import { theme } from "../../../colors/color";
+import { Header } from "../../../component/Header/Header";
 import React, { useState } from "react";
-import { CompCard } from "../../component/MyPage/PrivacySettingComp";
+import { CompCard } from "../../../component/MyPage/PrivacySettingComp";
 
 export default function PrivacySettingsDetail({ navigation, route }) {
   const { title, subtitle } = route.params;
@@ -18,7 +18,7 @@ export default function PrivacySettingsDetail({ navigation, route }) {
           title="용호만 유람선 터미널"
           content="광안대교나 오륙도를 구경하는 코스로 요트를 타볼 수ㅜ 있느느느느느느느느느ㅡㄴㄴ"
           distance="13"
-          photo={require("../../assets/images/selectphoto/photo1.png")}
+          photo={require("../../../assets/images/selectphoto/photo1.png")}
           from="place"
           isVisibleModal={true}
         />
@@ -31,7 +31,7 @@ export default function PrivacySettingsDetail({ navigation, route }) {
 같은 ㄴ성별만 원하는데요. ㅇㅇㅇㅇㅇ"
           date="11.01"
           nickname="최강삼성"
-          photo={require("../../assets/images/gowith/logo.png")}
+          photo={require("../../../assets/images/gowith/logo.png")}
           from="gowith"
           isVisibleModal={true}
         />
@@ -42,7 +42,7 @@ export default function PrivacySettingsDetail({ navigation, route }) {
           category="야구"
           content="한화는 언제쯤 우승해볼 수 있을까? 좋은 선수들은 많이 가지고 있으니니닌까ㅏ깎 "
           date="25.02.28"
-          photo={require("../../assets/images/gowith/logo.png")}
+          photo={require("../../../assets/images/gowith/logo.png")}
           from="story"
         />
       );

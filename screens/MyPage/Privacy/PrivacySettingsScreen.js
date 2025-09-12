@@ -5,9 +5,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { theme } from "../../colors/color";
-import { Header } from "../../component/Header/Header";
-import Arrow from "../../assets/icon/mypage/right_arrow_gray.svg";
+import { theme } from "../../../colors/color";
+import { Header } from "../../../component/Header/Header";
+import Arrow from "../../../assets/icon/mypage/right_arrow_gray.svg";
 
 export default function PrivacySettingsScreen({ navigation }) {
   const contents = [
