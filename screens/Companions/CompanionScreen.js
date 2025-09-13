@@ -11,21 +11,21 @@ import {
 } from "react-native";
 import { theme } from "../../colors/color";
 import { Shadow } from "react-native-shadow-2";
-import Search from "../../assets/icon/gowith/search.svg";
+import Search from "../../assets/icon/companion/search.svg";
 import Scrap from "../../assets/icon/bookmark_true.svg";
 import {
   PostCard,
   Story,
   FilterDropDown,
   WriteButton,
-} from "../../component/GoWith/GoWithComp";
+} from "../../component/Companion/CompanionComp";
 import DropDown from "../../assets/icon/dropdown.svg";
-import DropDowBlue from "../../assets/icon/gowith/dropdown.svg";
+import DropDowBlue from "../../assets/icon/companion/dropdown.svg";
 import { useRef, useState } from "react";
 import CancleConfirmModal from "../../component/CancleConfirmModal";
 import { useNavigation } from "@react-navigation/native";
 
-export default function GoWithScreen() {
+export default function CompanionScreen() {
   const navigation = useNavigation();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -135,7 +135,7 @@ export default function GoWithScreen() {
         {/* filter reset */}
         {filter1State === "전체" && filter2State === "전체 조건" ? (
           <Image
-            source={require("../../assets/images/gowith/filter_reset.png")}
+            source={require("../../assets/images/companion/filter_reset.png")}
             style={styles.filterImage}
           />
         ) : (
@@ -146,7 +146,7 @@ export default function GoWithScreen() {
             }}
           >
             <Image
-              source={require("../../assets/images/gowith/filter_reset_on.png")}
+              source={require("../../assets/images/companion/filter_reset_on.png")}
               style={styles.filterImage}
             />
           </TouchableOpacity>
@@ -189,7 +189,7 @@ export default function GoWithScreen() {
         onClick={() => {}}
       />
       {/* write button */}
-      <WriteButton onClick={() => navigation.navigate("GoWithForm")} />
+      <WriteButton onClick={() => navigation.navigate("CompanionForm")} />
     </SafeAreaView>
   );
 }

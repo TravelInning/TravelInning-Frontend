@@ -21,7 +21,7 @@ export default function EditProfile({ navigation }) {
       <Header title="프로필 변경" />
       <ScrollView contentContainerStyle={styles.container}>
         <Image
-          source={require("../../../assets/images/gowith/logo.png")}
+          source={require("../../../assets/images/companion/logo.png")}
           style={styles.profileImage}
         />
         <TouchableOpacity>

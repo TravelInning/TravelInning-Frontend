@@ -43,7 +43,7 @@ export const CompCard = ({
 
   const handleReset = (from, id) => {
     if (from === "place") {
-    } else if (from === "gowith") {
+    } else if (from === "companion") {
     } else {
     }
   };

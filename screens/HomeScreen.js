@@ -153,7 +153,7 @@ export default function HomeScreen({ navigation }) {
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <TouchableOpacity
               onPress={() =>
-                navigation.jumpTo("GoWith", { screen: "채팅내역" })
+                navigation.jumpTo("Companion", { screen: "채팅내역" })
               }
             >
               <Image

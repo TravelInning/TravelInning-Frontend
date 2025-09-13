@@ -10,17 +10,17 @@ import {
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { theme } from "../colors/color";
 import Home from "../assets/icon/tabBarIcon/home.svg";
-import GoWith from "../assets/icon/tabBarIcon/go_with.svg";
+import Companion from "../assets/icon/tabBarIcon/go_with.svg";
 import GameInfo from "../assets/icon/tabBarIcon/game_info.svg";
 import Story from "../assets/icon/tabBarIcon/story.svg";
 import My from "../assets/icon/tabBarIcon/my.svg";
 import HomeGray from "../assets/icon/tabBarIcon/home_gray.svg";
-import GoWithGray from "../assets/icon/tabBarIcon/go_with_gray.svg";
+import CompanionGray from "../assets/icon/tabBarIcon/go_with_gray.svg";
 import GameInfoGray from "../assets/icon/tabBarIcon/game_info_gray.svg";
 import StoryGray from "../assets/icon/tabBarIcon/story_gray.svg";
 import HomeScreen from "./HomeScreen";
 import TestPage from "./TestPage";
-import GoWithNav from "./GoWith/GoWithNav";
+import CompanionNav from "./Companion/CompanionNav";
 import StoryNav from "./Story/StoryNav";
 import MyPageMainScreen from "./MyPage/MyPageMainScreen";
 
@@ -65,15 +65,15 @@ export default function MainScreen() {
         }
       />
       <Tab.Screen
-        name="GoWith"
-        component={GoWithNav}
+        name="Companion"
+        component={CompanionNav}
         options={{
           title: "동행찾기",
           tabBarIcon: ({ color }) =>
             color === theme.main_black ? (
-              <GoWith width={21} height={18} />
+              <Companion width={21} height={18} />
             ) : (
-              <GoWithGray width={21} height={18} />
+              <CompanionGray width={21} height={18} />
             ),
         }}
       />

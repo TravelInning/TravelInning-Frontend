@@ -13,7 +13,7 @@ import { SCREEN_HEIGHT, theme } from "../../colors/color";
 import { LinearGradient } from "expo-linear-gradient";
 import SeeMore from "../../assets/icon/mypage/seemore.svg";
 import { Shadow } from "react-native-shadow-2";
-import Pen from "../../assets/icon/gowith/pen.svg";
+import Pen from "../../assets/icon/companion/pen.svg";
 import Bookmark from "../../assets/icon/mypage/bookmark_true.svg";
 import Plus from "../../assets/icon/mypage/plus.svg";
 import Arrow from "../../assets/icon/mypage/right_arrow.svg";
@@ -26,7 +26,7 @@ export default function MyPageMainScreen({ navigation }) {
     {
       image: require("../../assets/icon/mypage/chat.png"),
       text: "나의 대화 신청 내역",
-      onPress: () => navigation.jumpTo("GoWith", { screen: "채팅내역" }),
+      onPress: () => navigation.jumpTo("Companion", { screen: "채팅내역" }),
     },
     {
       image: require("../../assets/icon/mypage/prohibit.png"),
@@ -90,7 +90,7 @@ export default function MyPageMainScreen({ navigation }) {
         >
           {/* profile */}
           <Image
-            source={require("../../assets/images/gowith/logo.png")}
+            source={require("../../assets/images/companion/logo.png")}
             style={styles.profileImage}
           />
           <Text style={styles.profileText}>Jihye</Text>
@@ -183,7 +183,7 @@ export default function MyPageMainScreen({ navigation }) {
                           finalColor="rgba(0, 0, 0, 0)"
                         >
                           <Image
-                            source={require("../../assets/images/gowith/logo.png")}
+                            source={require("../../assets/images/companion/logo.png")}
                             style={styles.travelImage}
                           />
                         </Shadow>
