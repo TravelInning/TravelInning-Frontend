@@ -3,24 +3,46 @@ import { theme } from "../../../colors/color";
 import { Header } from "../../../component/Header/Header";
 import React, { useState } from "react";
 import { CompCard } from "../../../component/MyPage/PrivacySettingComp";
+import PlaceCard from "../../../component/Home/PlaceCard";
+import { loadBlockedPlaces } from "../../../api/block/place";
 
 export default function PrivacySettingsDetail({ navigation, route }) {
   const { title, subtitle } = route.params;
-  const [list, setList] = useState([1, 2, 3]);
+  const [list, setList] = useState([]);
 
-  // title에 따라 api 호출해서 list 세팅
-  useState(() => {}, []);
+  useState(() => {
+    if (title === "추천") {
+      loadPlaces();
+    } else if (title === "차단") {
+    } else {
+    }
+  }, []);
+
+  async function loadPlaces() {
+    const data = await loadBlockedPlaces();
+    if (data) {
+      setList(data);
+    }
+  }
+
+  const handleCancelPlaceBlock = async (id) => {
+    await cancelPlaceBlock(id);
+  };
 
   const renderItem = ({ item }) => {
     if (title === "추천") {
       return (
-        <CompCard
-          title="용호만 유람선 터미널"
-          content="광안대교나 오륙도를 구경하는 코스로 요트를 타볼 수ㅜ 있느느느느느느느느느ㅡㄴㄴ"
-          distance="13"
-          photo={require("../../../assets/images/selectphoto/photo1.png")}
-          from="place"
-          isVisibleModal={true}
+        <PlaceCard
+          place={item}
+          isHaveScrap={false}
+          modalOptions={[
+            {
+              type: "reset",
+              text: "다시 추천받기",
+              color: theme.main_blue,
+              onPress: handleCancelPlaceBlock(item.id),
+            },
+          ]}
         />
       );
     } else if (title === "차단") {

@@ -1,26 +1,37 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Right from "../assets/icon/right_arrow.svg";
-import ClipFalse from "../assets/icon/bookmark_false.svg";
-import ClipTrue from "../assets/icon/bookmark_true.svg";
-import SeeMore from "../assets/icon/see_more.svg";
-import SeeMoreActivate from "../assets/icon/see_more_activate.svg";
-import { theme } from "../colors/color";
+import ClipFalse from "../../assets/icon/bookmark_false.svg";
+import ClipTrue from "../../assets/icon/bookmark_true.svg";
+import SeeMore from "../../assets/icon/see_more.svg";
+import SeeMoreActivate from "../../assets/icon/see_more_activate.svg";
 import { Shadow } from "react-native-shadow-2";
-import SeeMoreModal from "./SeeMoreModal";
+import SeeMoreModal from "../SeeMoreModal";
 import { useEffect, useRef, useState } from "react";
+import {
+  addPlaceScrap,
+  cancelPlaceScrap,
+  loadPlaceScrap,
+} from "../../api/scrap/place";
 
-export default function PlaceCard() {
+export default function PlaceCard({ place, isHaveScrap = true, modalOptions }) {
+  const { id, imageUrl, name } = place;
   const [modalVisible, setModalVisible] = useState(false);
-  const [clipState, setClipState] = useState(false); // 스크랩
+  const [isScrap, setIsScrap] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0 });
   const buttonRef = useRef(null);
 
   useEffect(() => {
-    //console.log(clipState);
-    handleClip();
-  }, [clipState]);
+    const fetchScrap = async () => {
+      try {
+        const data = await loadPlaceScrap(id);
+        setIsScrap(data);
+      } catch (e) {
+        console.log("load scrap error", e);
+      }
+    };
 
-  // 알림 모달 열기
+    if (isHaveScrap) fetchScrap();
+  }, []);
+
   const openModal = () => {
     buttonRef.current.measure((x, y, width, height, pageX, pageY) => {
       setButtonPosition({ top: pageY - 10 });
@@ -28,8 +39,17 @@ export default function PlaceCard() {
     setModalVisible(!modalVisible);
   };
 
-  const handleClip = () => {
-    // 나중에 저장 상태변경 코드
+  const toggleScrap = async () => {
+    try {
+      if (isScrap) {
+        await cancelPlaceScrap(id);
+      } else {
+        await addPlaceScrap(id);
+      }
+      setIsScrap(!isScrap);
+    } catch (e) {
+      showToast("스크랩 오류! 다시 시도해주세요.");
+    }
   };
 
   return (
@@ -45,22 +65,10 @@ export default function PlaceCard() {
             style={{
               flex: 2,
               height: 71,
-              justifyContent: "space-between",
               marginRight: 14,
             }}
           >
-            <View>
-              <Text style={styles.placeTitle}>용호만 유람선 터미널</Text>
-              <Text
-                numberOfLines={2}
-                ellipsizeMode="tail"
-                style={styles.placeContent}
-              >
-                광안대교나 오륙도를 구경하는 코스로 요트를 타볼 수 있는
-                관광명소입니다.
-              </Text>
-            </View>
-            <Text style={styles.placeDistance}>• 12km</Text>
+            <Text style={styles.placeTitle}>{name}</Text>
           </View>
           <View
             style={{
@@ -69,7 +77,11 @@ export default function PlaceCard() {
             }}
           >
             <Image
-              source={require("../assets/images/selectphoto/photo1.png")}
+              source={
+                imageUrl
+                  ? { uri: imageUrl }
+                  : require("../../assets/images/gowith/logo.png")
+              }
               style={styles.photo}
             />
           </View>
@@ -96,26 +108,29 @@ export default function PlaceCard() {
             </View>
           </TouchableOpacity>
         </View>
-        <View
-          style={{
-            position: "absolute",
-            right: 43,
-            bottom: 11,
-          }}
-        >
-          <TouchableOpacity onPress={() => setClipState(!clipState)}>
-            {clipState ? (
-              <ClipTrue width={11} height={14} />
-            ) : (
-              <ClipFalse width={12} height={15} />
-            )}
-          </TouchableOpacity>
-        </View>
+        {isHaveScrap && (
+          <View
+            style={{
+              position: "absolute",
+              right: 43,
+              bottom: 11,
+            }}
+          >
+            <TouchableOpacity onPress={toggleScrap}>
+              {isScrap ? (
+                <ClipTrue width={11} height={14} />
+              ) : (
+                <ClipFalse width={12} height={15} />
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
 
         <SeeMoreModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
           buttonPosition={buttonPosition}
+          options={modalOptions}
         />
       </View>
     </Shadow>
@@ -149,15 +164,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Pretendard-Bold",
     color: "#000",
-  },
-  placeContent: {
-    fontSize: 12,
-    fontFamily: "Pretendard-Regular",
-    color: "#545454",
-  },
-  placeDistance: {
-    fontSize: 10,
-    fontFamily: "Pretendard-Medium",
-    color: theme.gray,
   },
 });

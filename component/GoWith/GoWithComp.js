@@ -175,8 +175,22 @@ export const PostCard = ({
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         buttonPosition={buttonPosition}
-        from="gowith"
         setDeleteModalVisible={setDeleteModalVisible}
+        options={[
+          { type: "share", text: "공유하기", onPress: () => {} },
+          {
+            type: "change",
+            text: "상태 변경하기",
+            color: theme.main_blue,
+            onPress: () => {},
+          },
+          {
+            type: "reject",
+            text: "삭제하기",
+            color: "#f00",
+            onPress: () => setDeleteModalVisible(true),
+          },
+        ]}
       />
     </View>
   );

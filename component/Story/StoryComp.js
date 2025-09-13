@@ -121,7 +121,15 @@ export const StoryBox = ({
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
           buttonPosition={buttonPosition}
-          from="story"
+          options={[
+            { type: "share", text: "공유하기", onPress: () => {} },
+            {
+              type: "reject",
+              text: "이 게시글 신고하기",
+              color: "#f00",
+              onPress: () => {},
+            },
+          ]}
         />
       </View>
     </Shadow>

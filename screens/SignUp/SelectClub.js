@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ScrollView,
   View,
@@ -8,10 +8,48 @@ import {
   StyleSheet,
   SafeAreaView,
 } from "react-native";
-import BottomBtn from "../component/BottomBtn";
+import BottomBtn from "../../component/BottomBtn";
+import { selectClub } from "../../api/club/club";
+import { showToast } from "../../component/Toast";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SelectClub({ navigation, route }) {
   const [selectedTeam, setSelectedTeam] = useState(null);
+  const [teamId, setTeamId] = useState(null);
+
+  useEffect(() => {
+    const loadTeamId = async () => {
+      const data = await AsyncStorage("teamId");
+      const parsedData = data ? parseInt(data, 10) : null;
+      setSelectedTeam(parsedData);
+      setTeamId(parsedData);
+    };
+    loadTeamId();
+  }, []);
+
+  const handleClub = async () => {
+    if (route.params && route.params.from === "myTravelInning") {
+      route.params.setRivalClub(selectedTeam);
+      navigation.goBack();
+    } else {
+      const isSucccess = await selectClub(teamId);
+      await AsyncStorage.setItem("teamId", String(teamId));
+      if (route.params && route.params.from === "mypage") {
+        if (isSucccess) {
+          showToast("저장 완료!");
+        } else {
+          showToast("다음에 다시 시도해주세요.");
+        }
+        navigation.goBack();
+      } else {
+        if (isSucccess) {
+          navigation.navigate("SelectPhoto");
+        } else {
+          showToast("오류가 발생했습니다. 다시 시도해주세요.");
+        }
+      }
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -27,90 +65,107 @@ export default function SelectClub({ navigation, route }) {
         <View style={styles.row}>
           <TeamCard
             teamName="KIA"
-            imageSource={require("../assets/images/clubs/kia.png")}
+            imageSource={require("../../assets/images/clubs/kia.png")}
             isSelected={selectedTeam === "KIA"}
-            onPress={() => setSelectedTeam("KIA")}
+            onPress={() => {
+              setSelectedTeam("KIA");
+              setTeamId(9);
+            }}
           />
           <TeamCard
             teamName="삼성"
-            imageSource={require("../assets/images/clubs/samsung.jpg")}
+            imageSource={require("../../assets/images/clubs/samsung.jpg")}
             isSelected={selectedTeam === "삼성"}
-            onPress={() => setSelectedTeam("삼성")}
+            onPress={() => {
+              setSelectedTeam("삼성");
+              setTeamId(7);
+            }}
           />
           <TeamCard
             teamName="LG"
-            imageSource={require("../assets/images/clubs/lg.png")}
+            imageSource={require("../../assets/images/clubs/lg.png")}
             isSelected={selectedTeam === "LG"}
-            onPress={() => setSelectedTeam("LG")}
+            onPress={() => {
+              setSelectedTeam("LG");
+              setTeamId(2);
+            }}
           />
         </View>
 
         <View style={styles.row}>
           <TeamCard
             teamName="두산"
-            imageSource={require("../assets/images/clubs/doosan.png")}
+            imageSource={require("../../assets/images/clubs/doosan.png")}
             isSelected={selectedTeam === "두산"}
-            onPress={() => setSelectedTeam("두산")}
+            onPress={() => {
+              setSelectedTeam("두산");
+              setTeamId(1);
+            }}
           />
           <TeamCard
             teamName="KT"
-            imageSource={require("../assets/images/clubs/kt.png")}
+            imageSource={require("../../assets/images/clubs/kt.png")}
             isSelected={selectedTeam === "KT"}
-            onPress={() => setSelectedTeam("KT")}
+            onPress={() => {
+              setSelectedTeam("KT");
+              setTeamId(6);
+            }}
           />
           <TeamCard
             teamName="SSG"
-            imageSource={require("../assets/images/clubs/ssg.png")}
+            imageSource={require("../../assets/images/clubs/ssg.png")}
             isSelected={selectedTeam === "SSG"}
-            onPress={() => setSelectedTeam("SSG")}
+            onPress={() => {
+              setSelectedTeam("SSG");
+              setTeamId(3);
+            }}
           />
         </View>
 
         <View style={styles.row}>
           <TeamCard
             teamName="롯데"
-            imageSource={require("../assets/images/clubs/lotte.png")}
+            imageSource={require("../../assets/images/clubs/lotte.png")}
             isSelected={selectedTeam === "롯데"}
-            onPress={() => setSelectedTeam("롯데")}
+            onPress={() => {
+              setSelectedTeam("롯데");
+              setTeamId(8);
+            }}
           />
           <TeamCard
             teamName="한화"
-            imageSource={require("../assets/images/clubs/hanwha.png")}
+            imageSource={require("../../assets/images/clubs/hanwha.png")}
             isSelected={selectedTeam === "한화"}
-            onPress={() => setSelectedTeam("한화")}
+            onPress={() => {
+              setSelectedTeam("한화");
+              setTeamId(10);
+            }}
           />
           <TeamCard
             teamName="키움"
-            imageSource={require("../assets/images/clubs/kiwoom.png")}
+            imageSource={require("../../assets/images/clubs/kiwoom.png")}
             isSelected={selectedTeam === "키움"}
-            onPress={() => setSelectedTeam("키움")}
+            onPress={() => {
+              setSelectedTeam("키움");
+              setTeamId("5");
+            }}
           />
         </View>
 
         <View style={styles.singleRow}>
           <TeamCard
             teamName="NC"
-            imageSource={require("../assets/images/clubs/nc.png")}
+            imageSource={require("../../assets/images/clubs/nc.png")}
             isSelected={selectedTeam === "NC"}
-            onPress={() => setSelectedTeam("NC")}
+            onPress={() => {
+              setSelectedTeam("NC");
+              setTeamId(4);
+            }}
           />
         </View>
       </ScrollView>
       {/* 버튼 */}
-      <BottomBtn
-        text="다음"
-        onPress={() => {
-          if (route.params.from === "mypage") {
-            navigation.goBack();
-          } else if (route.params.from === "myTravelInning") {
-            route.params.setRivalClub(selectedTeam);
-            navigation.goBack();
-          } else {
-            console.log("다음");
-          }
-        }}
-        isDisabled={!selectedTeam}
-      />
+      <BottomBtn text="다음" onPress={handleClub} isDisabled={!selectedTeam} />
     </SafeAreaView>
   );
 }
@@ -210,30 +265,4 @@ const styles = StyleSheet.create({
     color: "#0084FF",
     fontWeight: "bold",
   },
-  // nextButton: {
-  //   alignItems: "center",
-  //   backgroundColor: "#F2F2F2",
-  //   borderRadius: 9,
-  //   paddingVertical: 19,
-  //   marginHorizontal: 22,
-  //   shadowColor: "#00000040",
-  //   shadowOpacity: 0.3,
-  //   shadowOffset: {
-  //     width: 0,
-  //     height: 0,
-  //   },
-  //   shadowRadius: 2,
-  //   elevation: 2,
-  // },
-  // nextButtonActive: {
-  //   backgroundColor: "#0084FF",
-  // },
-  // nextButtonText: {
-  //   color: "#B8B8B8",
-  //   fontSize: 20,
-  //   fontWeight: "bold",
-  // },
-  // nextButtonTextActive: {
-  //   color: "#FFFFFF",
-  // },
 });

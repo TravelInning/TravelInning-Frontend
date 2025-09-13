@@ -1,15 +1,7 @@
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Text,
-  Dimensions,
-} from "react-native";
-import { theme } from "../colors/color";
+import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
+import { SCREEN_HEIGHT, theme } from "../colors/color";
 
-// 디바이스에 따라 메인 마진값 조절
-const SCREEN_HEIGHT = Dimensions.get("window").height;
-const MARGIN = SCREEN_HEIGHT / 20;
+const MARGIN = SCREEN_HEIGHT / 10;
 
 export default function BottomBtn({ text, onPress, isDisabled }) {
   return (

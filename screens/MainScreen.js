@@ -33,10 +33,10 @@ export default function MainScreen() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          height: 67,
+          height: 70,
           alignItems: "center",
           justifyContent: "center",
-          paddingBottom: 19,
+          paddingBottom: 22,
           paddingTop: 4,
           paddingHorizontal: 10,
         },
@@ -116,11 +116,6 @@ export default function MainScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingVertical: 80,
-    justifyContent: "space-between",
-  },
   tabBarText: {
     fontSize: 9,
     fontFamily: "Pretendard-Regular",

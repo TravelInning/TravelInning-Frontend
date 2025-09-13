@@ -16,14 +16,32 @@ import NewNotice from "../assets/icon/notification_new.svg";
 import DropDown from "../assets/icon/dropdown.svg";
 import Filter from "../assets/icon/filter.svg";
 import { theme, SCREEN_WIDTH } from "../colors/color";
-import PlaceCard from "../component/PlaceCard";
-import FilterModal from "../component/FilterModal";
+import PlaceCard from "../component/Home/PlaceCard";
+import FilterModal from "../component/Home/FilterModal";
 import { useDoubleBackExit } from "../hooks/useDoubleBackExit";
-import { loadHeader } from "../api/home/home";
+import { loadHeader, loadplace } from "../api/home/home";
+import { homeClubMapping } from "../constants/mapping";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { addPlaceBlock } from "../api/block/place";
 
 export default function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [headerData, setHeaderData] = useState(null);
+  const [teamId, setTeamId] = useState(10);
+  const [headerData, setHeaderData] = useState({
+    baseTeamName: "",
+    gameDate: "",
+    nickname: "",
+    opponentTeamName: "",
+    stadiumName: "",
+  });
+  const [filter, setFilter] = useState({
+    teamId: 1,
+    categoryCodes: "",
+    useDefaultCategory: false,
+    myScrapOnly: false,
+    sort: "popularity",
+  });
+  const [places, setPlaces] = useState([]);
 
   const scrollY = useRef(new Animated.Value(0)).current;
 
@@ -48,12 +66,49 @@ export default function HomeScreen({ navigation }) {
 
   useEffect(() => {
     const handleHeader = async () => {
-      const data = await loadHeader(1);
+      const data = await loadHeader(teamId);
       setHeaderData(data);
     };
 
-    handleHeader();
+    const loadTeamId = async () => {
+      const data = await AsyncStorage.getItem("teamId");
+      const parsedData = data ? parseInt(data, 10) : 1;
+      setTeamId(parseInt(parsedData, 10));
+    };
+
+    // handleHeader();
+    // loadTeamId();
   }, []);
+
+  useEffect(() => {
+    const loadplaces = async () => {
+      const data = await loadplace(filter);
+      setPlaces(data.result);
+    };
+    loadplaces();
+  }, [filter]);
+
+  const formattedDate = (date) => {
+    const weekMap = ["일", "월", "화", "수", "목", "금", "토"];
+    const newDate = new Date(date);
+    const year = String(newDate.getFullYear()).slice(2);
+    const month = String(newDate.getMonth() + 1).padStart(2, "0");
+    const day = String(newDate.getDate()).padStart(2, "0");
+    const week = weekMap[newDate.getDay()];
+
+    return `${year}.${month}.${day}(${week})`;
+  };
+
+  const handlePlaceBlock = async () => {
+    setPlaces((prev) => prev.filter((p) => p.id !== id));
+
+    try {
+      await addPlaceBlock(id);
+    } catch (error) {
+      showToast("차단 실패! 다시 시도해주세요.");
+      setPlaces((prev) => [...prev, place]);
+    }
+  };
 
   return (
     <SafeAreaView style={theme.container}>
@@ -91,7 +146,7 @@ export default function HomeScreen({ navigation }) {
                 color: theme.main_black,
               }}
             >
-              부산 사직구장
+              {headerData.stadiumName}
             </Text>
           </TouchableOpacity>
           {/* 채팅, 알림 아이콘 */}
@@ -155,7 +210,7 @@ export default function HomeScreen({ navigation }) {
                 color: "#000",
               }}
             >
-              Hi, Jihye
+              Hi, {headerData.nickname}
             </Text>
           </Animated.View>
           <View
@@ -165,22 +220,14 @@ export default function HomeScreen({ navigation }) {
               marginBottom: 6,
             }}
           >
-            <Text style={{ ...styles.todayTeamText, marginRight: 7 }}>
-              오늘의
+            <Text style={{ ...styles.todayTeamText }}>오늘의</Text>
+            <Image
+              source={homeClubMapping[teamId - 1].imgSrc}
+              style={styles.clubImageContainer}
+            />
+            <Text style={styles.todayTeamText}>
+              {headerData.baseTeamName} 경기
             </Text>
-            <TouchableOpacity
-              onPress={() => {
-                console.log("구단선택 클릭");
-              }}
-              style={styles.rowContainer}
-            >
-              <DropDown width={9} height={5} />
-              <Image
-                source={require("../assets/images/clubs/hanwha.png")}
-                style={styles.clubImageContainer}
-              />
-            </TouchableOpacity>
-            <Text style={styles.todayTeamText}>한화 이글스 경기</Text>
           </View>
           <View style={styles.rowContainer}>
             <Text
@@ -190,7 +237,7 @@ export default function HomeScreen({ navigation }) {
                 color: "#505050",
               }}
             >
-              {"24.10.27.(일) | "}
+              {`${formattedDate(headerData.gameDate)} | `}
             </Text>
             <Text
               style={{
@@ -199,7 +246,7 @@ export default function HomeScreen({ navigation }) {
                 color: "#000",
               }}
             >
-              vs KIA 타이거즈
+              vs {headerData.opponentTeamName}
             </Text>
           </View>
           <Animated.View style={{ height: marginHeight }} />
@@ -259,9 +306,22 @@ export default function HomeScreen({ navigation }) {
               </TouchableOpacity>
             </View>
             <FlatList
-              data={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => <PlaceCard />}
+              data={places}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <PlaceCard
+                  place={item}
+                  modalOptions={[
+                    { type: "share", text: "공유하기", onPress: () => {} },
+                    {
+                      type: "reject",
+                      text: "더 이상 추천받지 않음",
+                      color: "#f00",
+                      onPress: handlePlaceBlock,
+                    },
+                  ]}
+                />
+              )}
               contentContainerStyle={styles.scroll}
               onScroll={Animated.event(
                 [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -275,6 +335,8 @@ export default function HomeScreen({ navigation }) {
       <FilterModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
+        filter={filter}
+        setFilter={setFilter}
       />
     </SafeAreaView>
   );
