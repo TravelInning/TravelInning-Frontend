@@ -5,6 +5,9 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import { useState } from "react";
 import { useRoute } from "@react-navigation/native";
 import { CompCard } from "../../../component/MyPage/PrivacySettingComp";
+import PlaceCard from "../../../component/Home/PlaceCard";
+import { loadScrapPlaces } from "../../../api/scrap/place";
+import { showToast } from "../../../component/Toast";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -60,21 +63,36 @@ export default function MyScrapScreen({ navigation }) {
 const ScrapScreen = () => {
   const route = useRoute();
   const tabName = route.name;
-  const [list, setList] = useState([0]);
+  const [list, setList] = useState([]);
 
-  // 선택 탭에 따라 list 렌더링
-  useState(() => {}, []);
+  useState(() => {
+    try {
+      if (tabName === "추천 장소") {
+        loadPlaces();
+      } else if (tabName === "동행 구하기") {
+      } else {
+      }
+    } catch (error) {
+      console.log("load error: ", error);
+      showToast("로드 오류 발생!");
+    }
+  }, []);
+
+  async function loadPlaces() {
+    const data = await loadScrapPlaces();
+    if (data) {
+      setList(data);
+    }
+  }
 
   const renderItem = ({ item }) => {
     if (tabName === "추천 장소") {
       return (
-        <CompCard
-          title="용호만 유람선 터미널"
-          content="광안대교나 오륙도를 구경하는 코스로 요트를 타볼 수ㅜ 있느느느느느느느느느ㅡㄴㄴ"
-          distance="13"
-          photo={require("../../../assets/images/selectphoto/photo1.png")}
-          from="place"
-          isScrap={true}
+        <PlaceCard
+          place={item}
+          modalOptions={[
+            { type: "share", text: "공유하기", onPress: () => {} },
+          ]}
         />
       );
     } else if (tabName === "이야기방") {

@@ -9,37 +9,47 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
-import { theme, SCREEN_HEIGHT } from "../colors/color";
-import Check from "../assets/icon/check.svg";
+import { theme, SCREEN_HEIGHT } from "../../colors/color";
+import Check from "../../assets/icon/check.svg";
 import { useEffect, useState } from "react";
-import BottomBtn from "../component/BottomBtn";
+import BottomBtn from "../../component/BottomBtn";
+import { selectTravelStyle } from "../../api/signup/travelStyle";
 
 // 디바이스에 따라 메인 마진값 조절
 const MARGIN = SCREEN_HEIGHT / 40;
 
 export default function SelectPhotoScreen({ navigation }) {
-  const [selectedKeyword, setSelectedKeyword] = useState([]); // 선택 키워드
+  const [selectedKeyword, setSelectedKeyword] = useState([]);
   const keywords = ["자연", "인문", "레포츠", "쇼핑", "음식", "기타"];
   const imageMap = {
-    자연: require("../assets/images/selectphoto/photo1.png"),
-    인문: require("../assets/images/selectphoto/photo2.png"),
-    레포츠: require("../assets/images/selectphoto/photo3.png"),
-    쇼핑: require("../assets/images/selectphoto/photo4.png"),
-    음식: require("../assets/images/selectphoto/photo5.png"),
-    기타: require("../assets/images/selectphoto/photo6.png"),
+    자연: require("../../assets/images/selectphoto/photo1.png"),
+    인문: require("../../assets/images/selectphoto/photo2.png"),
+    레포츠: require("../../assets/images/selectphoto/photo3.png"),
+    쇼핑: require("../../assets/images/selectphoto/photo4.png"),
+    음식: require("../../assets/images/selectphoto/photo5.png"),
+    기타: require("../../assets/images/selectphoto/photo6.png"),
   };
 
-  useEffect(() => {
-    console.log(selectedKeyword);
-  }, [selectedKeyword]);
-
-  // 사진 선택 토글
   const togglePhoto = (keyword) => {
     setSelectedKeyword((preSeleted) => {
       return preSeleted.includes(keyword)
         ? preSeleted.filter((s) => s !== keyword)
         : [...preSeleted, keyword];
     });
+  };
+
+  const handleConfirm = async () => {
+    const isSucccess = await selectTravelStyle(
+      selectedKeyword[0],
+      selectedKeyword[1]
+    );
+    if (isSucccess) {
+      // 온보딩 이동으로 변동 가능성있음
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Main" }],
+      });
+    }
   };
 
   return (
@@ -151,7 +161,7 @@ export default function SelectPhotoScreen({ navigation }) {
       {/* 버튼 */}
       <BottomBtn
         text="완료"
-        onPress={() => console.log("완료")}
+        onPress={handleConfirm}
         isDisabled={selectedKeyword.length < 2}
       />
     </SafeAreaView>

@@ -8,61 +8,66 @@ import {
   Modal,
   StyleSheet,
 } from "react-native";
-import { theme, SCREEN_WIDTH, SCREEN_HEIGHT } from "../colors/color";
-import Right from "../assets/icon/right_arrow.svg";
-import Check from "../assets/icon/check_blue.svg";
+import { theme, SCREEN_WIDTH, SCREEN_HEIGHT } from "../../colors/color";
+import Right from "../../assets/icon/right_arrow.svg";
+import Check from "../../assets/icon/check_blue.svg";
 
-const FilterModal = ({ visible, onClose }) => {
+const FilterModal = ({ visible, onClose, filter, setFilter }) => {
   const slideAnim = useRef(new Animated.Value(300)).current;
   const contentAnim = useRef(new Animated.Value(0)).current;
   const [keywordFilterToggle, setKeywordFilterToggle] = useState(false);
-  const [selectedKeyword, setSelectedKeyword] = useState([]);
+  const [selectedKeyword, setSelectedKeyword] = useState(null);
 
   useEffect(() => {
-    if (visible) {
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(slideAnim, {
-        toValue: 300,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    }
+    Animated.timing(slideAnim, {
+      toValue: visible ? 0 : 300,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      if (!visible) {
+        setKeywordFilterToggle(false);
+        contentAnim.setValue(0);
+      }
+    });
   }, [visible]);
-
-  useEffect(() => {
-    if (!visible) {
-      setKeywordFilterToggle(false);
-      Animated.timing(contentAnim, {
-        toValue: 0,
-        duration: 0,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [visible]);
-
-  useEffect(() => {
-    console.log(selectedKeyword);
-  }, [selectedKeyword]);
 
   const toggleKeyword = (keyword) => {
-    setSelectedKeyword((prevSelected) =>
-      prevSelected.includes(keyword)
-        ? prevSelected.filter((s) => s !== keyword)
-        : [...prevSelected, keyword]
-    );
+    if (selectedKeyword === keyword) {
+      setSelectedKeyword(null);
+    } else {
+      setSelectedKeyword(keyword);
+    }
   };
 
   const handleKeywordToggle = () => {
+    const toValue = keywordFilterToggle ? 0 : -SCREEN_WIDTH * 1.14;
     Animated.timing(contentAnim, {
-      toValue: keywordFilterToggle ? 0 : -SCREEN_WIDTH * 1.14,
+      toValue,
       duration: 300,
       useNativeDriver: true,
     }).start(() => setKeywordFilterToggle(!keywordFilterToggle));
+  };
+
+  const clickDefaultKeyword = () => {
+    const newFilter = {
+      ...filter,
+      useDefaultCategory: !filter.useDefaultCategory,
+    };
+    setFilter(newFilter);
+  };
+  const clickCategorys = () => {
+    const newFilter = {
+      ...filter,
+      categoryCodes: selectedKeyword,
+    };
+    setFilter(newFilter);
+  };
+  const clickMyScrapOnly = () => {
+    const newFilter = {
+      ...filter,
+      myScrapOnly: !filter.myScrapOnly,
+    };
+    setFilter(newFilter);
   };
 
   return (
@@ -73,7 +78,6 @@ const FilterModal = ({ visible, onClose }) => {
             <Animated.View
               style={{ width: "100%", transform: [{ translateY: slideAnim }] }}
             >
-              <View style={styles.bar} />
               <Animated.View
                 style={{
                   width: "100%",
@@ -82,21 +86,19 @@ const FilterModal = ({ visible, onClose }) => {
                 }}
               >
                 {/* Main Filter */}
-                <View style={styles.modal}>
+                <View
+                  style={[styles.modal, { height: 190, alignSelf: "flex-end" }]}
+                >
                   <TouchableOpacity
-                    onPress={() => {}}
+                    onPress={clickDefaultKeyword}
                     style={styles.touchContainer}
                   >
-                    <Text style={styles.modalText}>
-                      구장과 가까운 순으로 보기
-                    </Text>
-                  </TouchableOpacity>
-                  <View style={styles.line} />
-                  <TouchableOpacity
-                    onPress={() => {}}
-                    style={styles.touchContainer}
-                  >
-                    <Text style={styles.modalText}>
+                    <Text
+                      style={[
+                        styles.modalText,
+                        filter.useDefaultCategory && { color: theme.main_blue },
+                      ]}
+                    >
                       내가 선택한 관광지 키워드만 보기
                     </Text>
                   </TouchableOpacity>
@@ -112,7 +114,14 @@ const FilterModal = ({ visible, onClose }) => {
                         justifyContent: "center",
                       }}
                     >
-                      <Text style={styles.modalText}>
+                      <Text
+                        style={[
+                          styles.modalText,
+                          selectedKeyword && {
+                            color: theme.main_blue,
+                          },
+                        ]}
+                      >
                         그 외 관광지 키워드 선택하기
                       </Text>
                       <Right width={7} height={12} style={{ marginLeft: 6 }} />
@@ -120,11 +129,14 @@ const FilterModal = ({ visible, onClose }) => {
                   </TouchableOpacity>
                   <View style={styles.line} />
                   <TouchableOpacity
-                    onPress={() => {}}
+                    onPress={clickMyScrapOnly}
                     style={styles.touchContainer}
                   >
                     <Text
-                      style={{ ...styles.modalText, color: theme.main_blue }}
+                      style={[
+                        styles.modalText,
+                        filter.myScrapOnly && { color: theme.main_blue },
+                      ]}
                     >
                       스크랩한 장소만 보기
                     </Text>
@@ -146,48 +158,35 @@ const FilterModal = ({ visible, onClose }) => {
                         onPress={() => toggleKeyword(item)}
                         style={styles.keywordTouchContainer}
                       >
-                        {selectedKeyword.includes(item) ? (
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                            }}
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.modalText,
+                              selectedKeyword === item && {
+                                color: theme.main_blue,
+                                fontFamily: "Pretendard-Medium",
+                              },
+                            ]}
                           >
-                            <Text
-                              style={[
-                                styles.modalText,
-                                {
-                                  color: theme.main_blue,
-                                  fontFamily: "Pretendard-Medium",
-                                },
-                              ]}
-                            >
-                              {item}
-                            </Text>
-                            <View
-                              style={[
-                                styles.checkSquare,
-                                {
-                                  borderColor: theme.main_blue,
-                                },
-                              ]}
-                            >
-                              <Check />
-                            </View>
-                          </View>
-                        ) : (
+                            {item}
+                          </Text>
                           <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                            }}
+                            style={[
+                              styles.checkSquare,
+                              selectedKeyword === item && {
+                                borderColor: theme.main_blue,
+                              },
+                            ]}
                           >
-                            <Text style={styles.modalText}>{item}</Text>
-                            <View style={styles.checkSquare} />
+                            {selectedKeyword === item && <Check />}
                           </View>
-                        )}
+                        </View>
                       </TouchableOpacity>
                       {index <= 2 && (
                         <View style={[styles.line, { marginTop: 18 }]} />
@@ -197,26 +196,14 @@ const FilterModal = ({ visible, onClose }) => {
                 </View>
               </Animated.View>
 
-              <View
-                style={{
-                  width: "100%",
-                  height: 55,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "#fff",
-                  borderRadius: 9,
-                  marginTop: 20,
-                }}
-              >
+              {/* 하단 버튼 */}
+              <View style={styles.bottomButton}>
                 <TouchableOpacity
                   onPress={() => {
                     if (keywordFilterToggle) {
-                      // handleKeywordToggle();
-                      setKeywordFilterToggle(false);
-                      onClose();
-                    } else {
-                      onClose();
+                      clickCategorys();
                     }
+                    onClose();
                   }}
                   style={styles.touchContainer}
                 >
@@ -285,13 +272,14 @@ const styles = StyleSheet.create({
     borderColor: theme.main_black,
     borderRadius: 4,
   },
-  bar: {
-    width: 54,
-    height: 4,
-    borderRadius: 30,
-    backgroundColor: theme.gray100,
-    marginBottom: 14,
-    alignSelf: "center",
+  bottomButton: {
+    width: "100%",
+    height: 55,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    borderRadius: 9,
+    marginTop: 20,
   },
 });
 

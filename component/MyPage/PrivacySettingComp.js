@@ -1,12 +1,4 @@
-import {
-  Image,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import SeeMore from "../../assets/icon/see_more.svg";
 import SeeMoreActivate from "../../assets/icon/see_more_activate.svg";
 import { theme } from "../../colors/color";
@@ -14,7 +6,7 @@ import { Shadow } from "react-native-shadow-2";
 import { useEffect, useRef, useState } from "react";
 import BookmarkFalse from "../../assets/icon/bookmark_false.svg";
 import BookmarkTrue from "../../assets/icon/bookmark_true.svg";
-import Reset from "../../assets/icon/mypage/reset.svg";
+import SeeMoreModal from "../SeeMoreModal";
 
 export const CompCard = ({
   title,
@@ -25,18 +17,18 @@ export const CompCard = ({
   nickname,
   category,
   from,
-  isScrap = false,
+  isHaveScrap = false,
   isMyPost = false,
   isVisibleModal = false,
 }) => {
-  const [scrapState, setScrapState] = useState(false);
+  const [isScrap, setIsScrap] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0 });
   const buttonRef = useRef(null);
 
   useEffect(() => {
     handleScrap();
-  }, [scrapState]);
+  }, [isScrap]);
 
   const handleScrap = () => {
     // 나중에 저장 상태변경 코드
@@ -47,6 +39,13 @@ export const CompCard = ({
       setButtonPosition({ top: pageY - 10 });
     });
     setModalVisible(!modalVisible);
+  };
+
+  const handleReset = (from, id) => {
+    if (from === "place") {
+    } else if (from === "gowith") {
+    } else {
+    }
   };
 
   return (
@@ -140,7 +139,7 @@ export const CompCard = ({
           )}
         </View>
         {/* scrap */}
-        {isScrap && (
+        {isHaveScrap && (
           <View
             style={{
               position: "absolute",
@@ -148,8 +147,8 @@ export const CompCard = ({
               bottom: 11,
             }}
           >
-            <TouchableOpacity onPress={() => setScrapState(!scrapState)}>
-              {scrapState ? (
+            <TouchableOpacity onPress={() => setIsScrap(!isScrap)}>
+              {isScrap ? (
                 <BookmarkTrue width={11} height={14} />
               ) : (
                 <BookmarkFalse width={12} height={15} />
@@ -157,45 +156,22 @@ export const CompCard = ({
             </TouchableOpacity>
           </View>
         )}
-        <PrivacyModal
+        <SeeMoreModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
           buttonPosition={buttonPosition}
-          from={from}
+          options={[
+            {
+              type: "reset",
+              text: from === "place" ? "다시 추천받기" : "차단 해제하기",
+              type: "reset",
+              onPress: () => handleReset(from, id),
+              color: theme.main_blue,
+            },
+          ]}
         />
       </View>
     </Shadow>
-  );
-};
-
-const PrivacyModal = ({ visible, onClose, buttonPosition, from }) => {
-  return (
-    <Modal transparent={true} visible={visible} onRequestClose={onClose}>
-      <View style={styles.modalBackground}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
-        <View
-          style={[
-            styles.modalContainer,
-            { top: buttonPosition.top + 2, right: 30 },
-          ]}
-        >
-          {/* share */}
-          <TouchableOpacity
-            style={[
-              styles.rowContainer,
-              {
-                alignItems: "center",
-              },
-            ]}
-          >
-            <Reset width={12} height={12} />
-            <Text style={styles.text}>
-              {from === "place" ? "다시 추천받기" : "차단 해제하기"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
   );
 };
 

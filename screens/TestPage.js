@@ -18,14 +18,14 @@ export default function TestPage({ navigation, route }) {
       >
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => navigation.push("SelectPhoto")}
+          onPress={() => navigation.navigate("SelectPhoto")}
           style={styles.button}
         >
           <Text style={styles.buttonText}>사진 선택</Text>
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => navigation.push("SelectClub")}
+          onPress={() => navigation.navigate("SelectClub")}
           style={styles.button}
         >
           <Text style={styles.buttonText}>구단 선택</Text>

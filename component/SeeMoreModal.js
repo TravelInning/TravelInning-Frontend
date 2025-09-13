@@ -10,92 +10,43 @@ import {
 import Reject from "../assets/icon/seemore/reject.svg";
 import Share from "../assets/icon/seemore/share.svg";
 import Change from "../assets/icon/seemore/change.svg";
-import { theme } from "../colors/color";
+import Reset from "../assets/icon/mypage/reset.svg";
+
+const icons = {
+  share: <Share width={12} height={12} />,
+  change: <Change width={11} height={12} />,
+  reject: <Reject width={10} height={10} />,
+  reset: <Reset width={12} height={12} />,
+};
 
 export default function SeeMoreModal({
   visible,
   onClose,
   buttonPosition = { top: 400 },
-  from = "home",
-  setDeleteModalVisible,
+  options,
 }) {
-  // 나중에 작성자인지 아닌지 확인하는 코드 넣기
-  // 그에 따라 버튼 내용과 동작이 달라짐
-  const isWriter = "true";
-
   return (
     <Modal transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.modalBackground}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View
-          style={[
-            styles.container,
-            { top: buttonPosition.top + 4, right: from === "gowith" ? 20 : 30 },
-          ]}
+          style={[styles.container, { top: buttonPosition.top + 4, right: 24 }]}
         >
-          {/* share */}
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              width: "100%",
-              alignItems: "center",
-            }}
-          >
-            <Share width={12} height={12} />
-            <Text style={styles.text}>공유하기</Text>
-          </TouchableOpacity>
-          {/* changeState - gowith,writer */}
-          {from === "gowith" && isWriter && (
+          {options.map((opt, idx) => (
             <TouchableOpacity
-              style={{ ...styles.rowContainer, marginVertical: 10 }}
-            >
-              <Change width={11} height={12} />
-              <Text style={{ ...styles.text, color: theme.main_blue }}>
-                상태 변경하기
-              </Text>
-            </TouchableOpacity>
-          )}
-          {/* reject */}
-          {from === "home" ? (
-            <TouchableOpacity style={styles.rowContainer}>
-              <Reject width={10} height={10} />
-              <Text style={{ ...styles.text, color: "#f00" }}>
-                더 이상 추천받지 않음
-              </Text>
-            </TouchableOpacity>
-          ) : from === "gowith" ? (
-            isWriter ? (
-              <TouchableOpacity
-                onPress={() => {
-                  onClose();
-                  setDeleteModalVisible(true);
-                }}
-                style={styles.rowContainer}
-              >
-                <Reject width={10} height={10} />
-                <Text style={{ ...styles.text, color: "#f00" }}>삭제하기</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity style={styles.rowContainer}>
-                <Reject width={10} height={10} />
-                <Text style={{ ...styles.text, color: "#f00" }}>
-                  이 게시글 차단하기
-                </Text>
-              </TouchableOpacity>
-            )
-          ) : (
-            <TouchableOpacity
+              key={idx}
+              style={styles.rowContainer}
               onPress={() => {
                 onClose();
+                opt.onPress();
               }}
-              style={styles.rowContainer}
             >
-              <Reject width={10} height={10} />
-              <Text style={{ ...styles.text, color: "#f00" }}>
-                이 게시글 신고하기
+              {icons[opt.type]}
+              <Text style={{ ...styles.text, color: opt.color || "#545454" }}>
+                {opt.text}
               </Text>
             </TouchableOpacity>
-          )}
+          ))}
         </View>
       </View>
     </Modal>
@@ -105,8 +56,7 @@ export default function SeeMoreModal({
 const styles = StyleSheet.create({
   container: {
     width: 165,
-    minHeight: 79,
-    justifyContent: "space-between",
+    gap: 12,
     backgroundColor: "#fff",
     borderRadius: 3,
     padding: 14,
