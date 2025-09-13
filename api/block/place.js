@@ -13,14 +13,10 @@ export const loadPlaceBlock = async (travelRegionId) => {
 };
 
 export const addPlaceBlock = async (travelRegionId) => {
-  try {
-    const { data } = await apiClient.post(
-      `/api/travel/regions/${travelRegionId}/block`
-    );
-    console.log(data);
-  } catch (error) {
-    console.log("add block error: ", error);
-  }
+  const { data } = await apiClient.post(
+    `/api/travel/regions/${travelRegionId}/block`
+  );
+  console.log(data);
 };
 
 export const cancelPlaceBlock = async (travelRegionId) => {

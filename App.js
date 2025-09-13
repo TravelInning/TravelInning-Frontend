@@ -14,11 +14,11 @@ import LoginScreen from "./screens/Login/LoginScreen";
 import SignUpPhoneNumber from "./screens/SignUp/SignUpPhoneNumber";
 import SignUpEmail from "./screens/SignUp/SignUpEmail";
 import ChatScreen from "./screens/Chat/ChatScreen";
-import GoWithNav from "./screens/GoWith/GoWithNav";
+import CompanionNav from "./screens/Companion/CompanionNav";
 import ChatListScreen from "./screens/Chat/ChatListScreen";
 import ChatListDetailScreen from "./screens/Chat/ChatListDetailScreen";
-import GoWithPostDetail from "./screens/GoWith/GoWithPostDetail";
-import GoWithForm from "./screens/GoWith/GoWithForm";
+import CompanionPostDetail from "./screens/Companion/CompanionPostDetail";
+import CompanionForm from "./screens/Companion/CompanionForm";
 import StoryEditScreen from "./screens/Story/StoryEditScreen";
 import StoryNav from "./screens/Story/StoryNav";
 import StoryScreen from "./screens/Story/StoryScreen";
@@ -185,23 +185,23 @@ export default function App() {
           }}
         />
         <Stack.Screen
-          name="GoWithNav"
-          component={GoWithNav}
+          name="CompanionNav"
+          component={CompanionNav}
           options={{
             headerShown: false,
           }}
         />
         <Stack.Screen
-          name="GoWithPostDetail"
-          component={GoWithPostDetail}
+          name="CompanionPostDetail"
+          component={CompanionPostDetail}
           options={{
             headerShown: false,
             // animation: "slide_from_right",
           }}
         />
         <Stack.Screen
-          name="GoWithForm"
-          component={GoWithForm}
+          name="CompanionForm"
+          component={CompanionForm}
           options={{
             headerShown: false,
           }}

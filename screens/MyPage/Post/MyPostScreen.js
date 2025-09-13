@@ -69,8 +69,8 @@ const ScrapScreen = () => {
   같은 ㄴ성별만 원하는데요. ㅇㅇㅇㅇㅇ"
           date="11.01"
           nickname="최강삼성"
-          photo={require("../../../assets/images/gowith/logo.png")}
-          from="gowith"
+          photo={require("../../../assets/images/companion/logo.png")}
+          from="companion"
           isMyPost={true}
         />
       );
@@ -80,7 +80,7 @@ const ScrapScreen = () => {
           category="야구"
           content="한화는 언제쯤 우승해볼 수 있을까? 좋은 선수들은 많이 가지고 있으니니닌까ㅏ깎 "
           date="25.02.28"
-          photo={require("../../../assets/images/gowith/logo.png")}
+          photo={require("../../../assets/images/companion/logo.png")}
           from="story"
           isMyPost={true}
         />

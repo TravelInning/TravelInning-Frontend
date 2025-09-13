@@ -80,7 +80,7 @@ export default function PlaceCard({ place, isHaveScrap = true, modalOptions }) {
               source={
                 imageUrl
                   ? { uri: imageUrl }
-                  : require("../../assets/images/gowith/logo.png")
+                  : require("../../assets/images/companion/logo.png")
               }
               style={styles.photo}
             />

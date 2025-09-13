@@ -12,12 +12,12 @@ import Notice from "../../assets/icon/notification.svg";
 import NewNotice from "../../assets/icon/notification_new.svg";
 import { theme } from "../../colors/color";
 import ChatListScreen from "../Chat/ChatListScreen";
-import GoWithScreen from "./GoWithScreen";
+import CompanionScreen from "./CompanionScreen";
 import { useRoute } from "@react-navigation/native";
 
 const Tab = createMaterialTopTabNavigator();
 
-export default function GoWithNav({ navigation }) {
+export default function CompanionNav({ navigation }) {
   const route = useRoute();
   const defaultTab = route.params?.screen || "직관동행";
 
@@ -43,7 +43,9 @@ export default function GoWithNav({ navigation }) {
         {/* 채팅, 알림 아이콘 */}
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity
-            onPress={() => navigation.jumpTo("GoWith", { screen: "채팅내역" })}
+            onPress={() =>
+              navigation.jumpTo("Companion", { screen: "채팅내역" })
+            }
           >
             <Image
               source={require("../../assets/icon/chat.png")}
@@ -111,12 +113,12 @@ export default function GoWithNav({ navigation }) {
         >
           <Tab.Screen
             name="직관동행"
-            component={GoWithScreen}
+            component={CompanionScreen}
             options={{ tabBarLabel: "직관동행" }}
           />
           <Tab.Screen
             name="여행동행"
-            component={GoWithScreen}
+            component={CompanionScreen}
             options={{ tabBarLabel: "여행동행" }}
           />
           <Tab.Screen

@@ -39,7 +39,7 @@ export default function SettingScreen({ navigation }) {
       icon: require("../../assets/icon/mypage/setting/chat.png"),
       onPress: () => {
         navigation.replace("Main", {
-          screen: "GoWith",
+          screen: "Companion",
           params: { screen: "채팅내역" },
         });
       },

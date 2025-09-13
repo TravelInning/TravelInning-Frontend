@@ -8,24 +8,24 @@ import {
   Pressable,
 } from "react-native";
 import { theme } from "../../colors/color";
-import Done from "../../assets/icon/gowith/done.svg";
-import InProgress from "../../assets/icon/gowith/inprogress.svg";
+import Done from "../../assets/icon/companion/done.svg";
+import InProgress from "../../assets/icon/companion/inprogress.svg";
 import ClipFalse from "../../assets/icon/bookmark_false.svg";
 import ClipTrue from "../../assets/icon/bookmark_true.svg";
 import SeeMore from "../../assets/icon/see_more.svg";
 import SeeMoreActivate from "../../assets/icon/see_more_activate.svg";
 import { useEffect, useRef, useState } from "react";
 import SeeMoreModal from "../SeeMoreModal";
-import Check from "../../assets/icon/gowith/filter_check.svg";
-import Progress from "../../assets/icon/gowith/filter_progress.svg";
-import Pen from "../../assets/icon/gowith/pen.svg";
+import Check from "../../assets/icon/companion/filter_check.svg";
+import Progress from "../../assets/icon/companion/filter_progress.svg";
+import Pen from "../../assets/icon/companion/pen.svg";
 
 export const Story = ({ text, state }) => {
   return (
     <View style={{ alignItems: "center", marginRight: 16 }}>
       <View>
         <Image
-          source={require("../../assets/images/gowith/logo_circle.png")}
+          source={require("../../assets/images/companion/logo_circle.png")}
           style={styles.circle}
         />
         {state === "ended" && (
@@ -126,7 +126,7 @@ export const PostCard = ({
       {/* image */}
       <View style={styles.imageContainer}>
         <Image
-          source={require("../../assets/images/gowith/logo.png")}
+          source={require("../../assets/images/companion/logo.png")}
           style={styles.image}
         />
         <TouchableOpacity
@@ -196,7 +196,7 @@ export const PostCard = ({
   );
 };
 
-// gowithscreen filter
+// companion screen filter
 export const FilterDropDown = ({
   visible,
   onClose,
