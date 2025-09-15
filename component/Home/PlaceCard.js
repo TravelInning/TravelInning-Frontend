@@ -10,10 +10,10 @@ import {
   addPlaceScrap,
   cancelPlaceScrap,
   loadPlaceScrap,
-} from "../../api/scrap/place";
+} from "../../api/place/scrap";
 
 export default function PlaceCard({ place, isHaveScrap = true, modalOptions }) {
-  const { id, imageUrl, name } = place;
+  const { id, thumbnailUrl, imageUrl, name } = place;
   const [modalVisible, setModalVisible] = useState(false);
   const [isScrap, setIsScrap] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0 });
@@ -80,6 +80,8 @@ export default function PlaceCard({ place, isHaveScrap = true, modalOptions }) {
               source={
                 imageUrl
                   ? { uri: imageUrl }
+                  : thumbnailUrl
+                  ? { uri: thumbnailUrl }
                   : require("../../assets/images/companion/logo.png")
               }
               style={styles.photo}

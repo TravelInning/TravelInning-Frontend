@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { WriteButton } from "../../component/GoWith/GoWithComp";
+import { WriteButton } from "../../component/Companion/CompanionComp";
 import { SCREEN_WIDTH, theme } from "../../colors/color";
 import { useRef, useState } from "react";
 import { StoryBox } from "../../component/Story/StoryComp";
 import Carousel from "react-native-reanimated-carousel";
 import DropDown from "../../assets/icon/dropdown.svg";
-import DropDowBlue from "../../assets/icon/gowith/dropdown.svg";
+import DropDowBlue from "../../assets/icon/companion/dropdown.svg";
 import { FilterDropDown } from "../../component/Story/StoryComp";
 
 export default function StoryScreen({ navigation }) {
@@ -49,7 +49,7 @@ export default function StoryScreen({ navigation }) {
       content:
         "한화는 언제쯤 우승해볼 수 있을까? 좋은 선수들은 많이 가지고 있으니까 앞으로 잘 하면 될거같은데",
       limitedTime: "14:59",
-      photo: require("../../assets/images/gowith/logo.png"),
+      photo: require("../../assets/images/companion/logo.png"),
     },
     {
       id: "2",
@@ -57,7 +57,7 @@ export default function StoryScreen({ navigation }) {
       time: "5분 전",
       content: "어제 경기 미쳤다.. 마지막 3점슛 대박",
       limitedTime: "13:20",
-      photo: require("../../assets/images/gowith/logo.png"),
+      photo: require("../../assets/images/companion/logo.png"),
     },
     {
       id: "3",
@@ -65,7 +65,7 @@ export default function StoryScreen({ navigation }) {
       time: "20분 전",
       content: "이번 시즌 손흥민 폼 장난 아닌 듯",
       limitedTime: "12:45",
-      photo: require("../../assets/images/gowith/logo.png"),
+      photo: require("../../assets/images/companion/logo.png"),
     },
   ];
 
@@ -177,7 +177,7 @@ export default function StoryScreen({ navigation }) {
         filter2State === "전체 조건" &&
         filter3State === "전체 조건" ? (
           <Image
-            source={require("../../assets/images/gowith/filter_reset.png")}
+            source={require("../../assets/images/companion/filter_reset.png")}
             style={styles.filterImage}
           />
         ) : (
@@ -189,7 +189,7 @@ export default function StoryScreen({ navigation }) {
             }}
           >
             <Image
-              source={require("../../assets/images/gowith/filter_reset_on.png")}
+              source={require("../../assets/images/companion/filter_reset_on.png")}
               style={styles.filterImage}
             />
           </TouchableOpacity>
@@ -220,7 +220,7 @@ export default function StoryScreen({ navigation }) {
               time="11분 전"
               content="한화는 언제쯤 우승해볼 수 있을까? 좋은 선수들은 많이 가지고 있으니까 앞으로 잘 하면 될거같은데"
               limitedTime="14:59"
-              photo={require("../../assets/images/gowith/logo.png")}
+              photo={require("../../assets/images/companion/logo.png")}
             />
           </View>
         )}

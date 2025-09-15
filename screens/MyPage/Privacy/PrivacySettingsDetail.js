@@ -4,7 +4,7 @@ import { Header } from "../../../component/Header/Header";
 import React, { useState } from "react";
 import { CompCard } from "../../../component/MyPage/PrivacySettingComp";
 import PlaceCard from "../../../component/Home/PlaceCard";
-import { loadBlockedPlaces } from "../../../api/block/place";
+import { cancelPlaceBlock, loadBlockedPlaces } from "../../../api/place/block";
 
 export default function PrivacySettingsDetail({ navigation, route }) {
   const { title, subtitle } = route.params;
@@ -26,7 +26,10 @@ export default function PrivacySettingsDetail({ navigation, route }) {
   }
 
   const handleCancelPlaceBlock = async (id) => {
-    await cancelPlaceBlock(id);
+    const success = await cancelPlaceBlock(id);
+    if (success) {
+      setList((prev) => prev.filter((item) => item.id !== id));
+    }
   };
 
   const renderItem = ({ item }) => {
@@ -40,7 +43,7 @@ export default function PrivacySettingsDetail({ navigation, route }) {
               type: "reset",
               text: "다시 추천받기",
               color: theme.main_blue,
-              onPress: handleCancelPlaceBlock(item.id),
+              onPress: () => handleCancelPlaceBlock(item.id),
             },
           ]}
         />
