@@ -19,12 +19,15 @@ import { theme, SCREEN_WIDTH } from "../colors/color";
 import PlaceCard from "../component/Home/PlaceCard";
 import FilterModal from "../component/Home/FilterModal";
 import { useDoubleBackExit } from "../hooks/useDoubleBackExit";
-import { loadHeader, loadplace } from "../api/home/home";
+import { loadHeader, loadPlace } from "../api/home/home";
 import { homeClubMapping } from "../constants/mapping";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { addPlaceBlock } from "../api/block/place";
+import { addPlaceBlock } from "../api/place/block";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function HomeScreen({ navigation }) {
+  const isFocused = useIsFocused();
+
   const [modalVisible, setModalVisible] = useState(false);
   const [teamId, setTeamId] = useState(10);
   const [headerData, setHeaderData] = useState({
@@ -76,17 +79,19 @@ export default function HomeScreen({ navigation }) {
       setTeamId(parseInt(parsedData, 10));
     };
 
-    // handleHeader();
+    handleHeader();
     // loadTeamId();
   }, []);
 
   useEffect(() => {
-    const loadplaces = async () => {
-      const data = await loadplace(filter);
-      setPlaces(data.result);
-    };
-    loadplaces();
-  }, [filter]);
+    if (isFocused) {
+      const loadplaces = async () => {
+        const data = await loadPlace(filter);
+        setPlaces(data.result);
+      };
+      loadplaces();
+    }
+  }, [filter, isFocused]);
 
   const formattedDate = (date) => {
     const weekMap = ["일", "월", "화", "수", "목", "금", "토"];
@@ -99,14 +104,12 @@ export default function HomeScreen({ navigation }) {
     return `${year}.${month}.${day}(${week})`;
   };
 
-  const handlePlaceBlock = async () => {
-    setPlaces((prev) => prev.filter((p) => p.id !== id));
-
+  const handlePlaceBlock = async (targetId) => {
     try {
-      await addPlaceBlock(id);
+      await addPlaceBlock(targetId);
+      setPlaces((prev) => prev.filter((p) => p.id !== targetId));
     } catch (error) {
       showToast("차단 실패! 다시 시도해주세요.");
-      setPlaces((prev) => [...prev, place]);
     }
   };
 
@@ -317,7 +320,7 @@ export default function HomeScreen({ navigation }) {
                       type: "reject",
                       text: "더 이상 추천받지 않음",
                       color: "#f00",
-                      onPress: handlePlaceBlock,
+                      onPress: () => handlePlaceBlock(item.id),
                     },
                   ]}
                 />
@@ -369,7 +372,7 @@ const styles = StyleSheet.create({
   },
   scroll: {
     width: "100%",
-    paddingTop: 20,
+    paddingVertical: 20,
     paddingHorizontal: 20,
     gap: 20,
   },

@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   View,
   Text,
-  Pressable,
   TextInput,
   ScrollView,
   Image,
@@ -13,26 +12,24 @@ import {
 import { theme } from "../../colors/color";
 import { Header } from "../../component/Header/Header";
 import Close from "../../assets/icon/story/close_blue.svg";
-import DropDown from "../../assets/icon/story/dropdown.svg";
 import { useEffect, useLayoutEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { Shadow } from "react-native-shadow-2";
-import CheckFilterModal from "../../component/CheckFilterModal";
+import CancleConfirmModal from "../../component/CancleConfirmModal";
 
 export default function StoryEditScreen() {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [titleText, setTitleText] = useState("");
   const [contentText, setContentText] = useState("");
   const [images, setImages] = useState([]);
   const [noticeVisible, setNoticeVisible] = useState(true);
-  const [filterModalVisible, setFilterModalVisible] = useState(true);
-  const [filterNumber, setFilterNumber] = useState(1);
-  const [category, setCategory] = useState("야구");
-  const [limitedTime, setLimitedTime] = useState("제한시간");
+  const [modalVisible, setModalVisible] = useState(false);
 
   // test
   useEffect(() => {
+    console.log("title: ", titleText);
     console.log(contentText);
-  }, [contentText]);
+  }, [contentText, titleText]);
 
   // keyboard detector
   useLayoutEffect(() => {
@@ -143,62 +140,35 @@ export default function StoryEditScreen() {
             </Text>
           </TouchableOpacity>
         )}
-        {/* filter button */}
-        <View
-          style={[
-            theme.rowContainer,
-            {
-              width: "100%",
-              gap: 10,
-            },
-          ]}
-        >
-          <Pressable
-            onPress={() => {
-              setFilterNumber(1);
-              setFilterModalVisible(true);
-            }}
-            style={({ pressed }) => [
-              styles.filterButton,
-              { backgroundColor: pressed ? theme.gray300 : "#F5F6F8" },
-            ]}
-          >
-            <Text style={styles.filterButtonText}>{category}</Text>
-            <DropDown style={styles.dropdown} />
-          </Pressable>
-          <Pressable
-            onPress={() => {
-              setFilterNumber(2);
-              setFilterModalVisible(true);
-            }}
-            style={({ pressed }) => [
-              styles.filterButton,
-              { backgroundColor: pressed ? theme.gray300 : "#F5F6F8" },
-            ]}
-          >
-            <Text style={styles.filterButtonText}>{limitedTime}</Text>
-            <DropDown style={styles.dropdown} />
-          </Pressable>
-        </View>
         {/* edit */}
         <TextInput
-          placeholder="나누고 싶은 이야기를 입력해주세요. (모든 이야기는 익명으로 나누지만, 타인에게 불쾌감과 모욕감을 주는 이야기로 신고가 들어온 경우 자동으로 숨김 처리 될 수 있습니다)"
+          placeholder="제목을 입력하세요."
+          style={styles.titleInput}
+          value={titleText}
+          onChangeText={setTitleText}
+          returnKeyType="done"
+        />
+        <TextInput
+          placeholder="여기를 눌러 나의 동행을 구해보세요."
           multiline={true}
           style={styles.textinput}
           onChangeText={setContentText}
           returnKeyType="done"
         />
-        <Text style={styles.textLength}>{contentText.length}/315</Text>
         {/* confirm button */}
         {!isKeyboardVisible && (
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              disabled={contentText.length <= 0}
+              disabled={contentText.length <= 0 || titleText.length <= 0}
               activeOpacity={0.5}
-              onPress={() => {}}
+              onPress={() => {
+                setModalVisible(true);
+              }}
               style={[
                 styles.button,
-                contentText.length <= 0 && { backgroundColor: "#F3F3F3" },
+                (titleText.length <= 0 || contentText.length <= 0) && {
+                  backgroundColor: "#F3F3F3",
+                },
               ]}
             >
               <Text
@@ -257,15 +227,12 @@ export default function StoryEditScreen() {
           </View>
         </Shadow>
       )}
-      <CheckFilterModal
-        visible={filterModalVisible}
-        onClose={() => setFilterModalVisible(false)}
-        keywordArry={
-          filterNumber === 1
-            ? ["야구", "기사/뉴스", "일상", "성/연애"]
-            : ["30분", "1시간", "2시간", "3시간"]
-        }
-        setSelected={filterNumber === 1 ? setCategory : setLimitedTime}
+
+      <CancleConfirmModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        text={"글을 작성하시겠습니까?"}
+        onClick={() => {}}
       />
     </SafeAreaView>
   );
@@ -284,7 +251,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 5,
     backgroundColor: "#0084FF10",
-    marginBottom: 16,
+    marginBottom: 4,
   },
   noticeTitle: {
     fontFamily: "Pretendard-Bold",
@@ -297,23 +264,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: theme.main_blue,
   },
-  // filter button
-  filterButton: {
-    flexDirection: "row",
-    flex: 1,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 23,
-    paddingHorizontal: 18,
-  },
-  filterButtonText: {
-    fontSize: 15,
-    fontFamily: "Pretendard-SemiBold",
-    color: theme.main_black,
-  },
-  dropdown: { position: "absolute", right: 18, top: "50%" - 10 },
   // input
+  titleInput: {
+    width: "100%",
+    fontSize: 14,
+    fontFamily: "Pretendard-SemiBold",
+    textAlignVertical: "top",
+    textAlign: "left",
+    borderBottomColor: "#F4F4F4",
+    borderBottomWidth: 1,
+  },
   textinput: {
     flex: 1,
     width: "100%",
@@ -321,19 +281,12 @@ const styles = StyleSheet.create({
     fontFamily: "Pretendard-Medium",
     textAlignVertical: "top",
     textAlign: "left",
-    marginTop: 18,
-  },
-  textLength: {
-    fontFamily: "Pretendard-Regular",
-    fontSize: 12,
-    color: theme.gray500,
-    alignSelf: "flex-end",
   },
   // confirm button
   buttonContainer: {
     width: "100%",
     alignItems: "center",
-    marginVertical: 20,
+    marginBottom: 20,
   },
   button: {
     alignItems: "center",

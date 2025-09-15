@@ -6,7 +6,6 @@ export const loadPlaceBlock = async (travelRegionId) => {
     const { data } = await apiClient.get(
       `/api/travel/regions/${travelRegionId}/block`
     );
-    console.log(data);
   } catch (error) {
     console.log("load block error: ", error);
   }
@@ -24,10 +23,11 @@ export const cancelPlaceBlock = async (travelRegionId) => {
     const { data } = await apiClient.delete(
       `/api/travel/regions/${travelRegionId}/block`
     );
-    console.log(data);
+    return data.isSuccess;
   } catch (error) {
     showToast("차단 해제 실패! 다시 시도해주세요.");
     console.log("cancel block error: ", error);
+    return false;
   }
 };
 

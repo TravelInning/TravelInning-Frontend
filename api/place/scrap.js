@@ -4,22 +4,15 @@ export const loadPlaceScrap = async (travelRegionId) => {
   const { data } = await apiClient.get(
     `/api/travel/regions/${travelRegionId}/scrap`
   );
-  console.log(data);
   return data.result;
 };
 
 export const addPlaceScrap = async (travelRegionId) => {
-  const { data } = await apiClient.post(
-    `/api/travel/regions/${travelRegionId}/scrap`
-  );
-  console.log(data);
+  await apiClient.post(`/api/travel/regions/${travelRegionId}/scrap`);
 };
 
 export const cancelPlaceScrap = async (travelRegionId) => {
-  const { data } = await apiClient.delete(
-    `/api/travel/regions/${travelRegionId}/scrap`
-  );
-  console.log(data);
+  await apiClient.delete(`/api/travel/regions/${travelRegionId}/scrap`);
 };
 
 export const loadScrapPlaces = async () => {

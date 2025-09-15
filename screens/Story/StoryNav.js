@@ -38,7 +38,9 @@ export default function StoryNav({ navigation }) {
         {/* 채팅, 알림 아이콘 */}
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity
-            onPress={() => navigation.jumpTo("GoWith", { screen: "채팅내역" })}
+            onPress={() =>
+              navigation.jumpTo("Companion", { screen: "채팅내역" })
+            }
           >
             <Image
               source={require("../../assets/icon/chat.png")}

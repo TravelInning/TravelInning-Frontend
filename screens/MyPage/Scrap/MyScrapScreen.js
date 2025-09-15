@@ -6,8 +6,8 @@ import { useState } from "react";
 import { useRoute } from "@react-navigation/native";
 import { CompCard } from "../../../component/MyPage/PrivacySettingComp";
 import PlaceCard from "../../../component/Home/PlaceCard";
-import { loadScrapPlaces } from "../../../api/scrap/place";
 import { showToast } from "../../../component/Toast";
+import { loadScrapPlaces } from "../../../api/place/scrap";
 
 const Tab = createMaterialTopTabNavigator();
 
