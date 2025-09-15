@@ -56,7 +56,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Main" // 초기 화면 설정
+        initialRouteName="Splash" // 초기 화면 설정
         screenOptions={{
           animation: "fade",
         }}

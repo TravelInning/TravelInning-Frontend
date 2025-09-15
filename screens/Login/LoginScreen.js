@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -9,9 +9,12 @@ import {
   StyleSheet,
   Platform,
   StatusBar,
+  Alert,
 } from "react-native";
 import { SCREEN_HEIGHT, theme } from "../../colors/color";
 import { login } from "../../api/login/login";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 export default function LoginScreen({ navigation }) {
   const [idInput, setIdInput] = useState("");
@@ -23,8 +26,11 @@ export default function LoginScreen({ navigation }) {
   };
 
   const handleLogin = async () => {
-    const isValid = await login(idInput, passwordInput);
-    if (isValid) {
+    const result = await login(idInput, passwordInput);
+    if (result) {
+      await AsyncStorage.setItem("accessToken", result.jwt);
+      await SecureStore.setItemAsync("refreshToken", result.refreshToken);
+
       navigation.reset({
         index: 0,
         routes: [{ name: "Main" }],
