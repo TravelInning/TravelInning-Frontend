@@ -9,6 +9,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { useNavigation } from "@react-navigation/native";
+import { loadProfile } from "../api/mypage/profile/profile";
 
 const SplashScreen = () => {
   const navigation = useNavigation();
@@ -16,57 +17,20 @@ const SplashScreen = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const accessToken = await AsyncStorage.getItem("accessToken");
-        const refreshToken = await SecureStore.getItemAsync("refreshToken");
-
-        if (!accessToken || !refreshToken) {
-          // 토큰 없음 → 로그인 화면으로
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "LoginScreen" }],
-          });
-          return;
-        }
-
-        // 1. access token 검증 요청
-        const res = await fetch("http://your-api.com/auth/validate", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-
-        if (res.ok) {
-          // 유효하면 메인 화면으로
+        const data = await loadProfile();
+        if (data && data.isSuccess) {
           navigation.reset({
             index: 0,
             routes: [{ name: "Main" }],
           });
         } else {
-          // access token 만료 → refresh 요청
-          const refreshRes = await fetch("http://your-api.com/auth/refresh", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refreshToken }),
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "LoginScreen" }],
           });
-
-          if (refreshRes.ok) {
-            const data = await refreshRes.json();
-            await AsyncStorage.setItem("accessToken", data.accessToken);
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "Main" }],
-            });
-          } else {
-            // refresh 실패 → 로그인 화면으로
-            await AsyncStorage.removeItem("accessToken");
-            await SecureStore.deleteItemAsync("refreshToken");
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "LoginScreen" }],
-            });
-          }
         }
-      } catch (err) {
-        console.log("Auth check error:", err);
+      } catch (error) {
+        console.log("Auth check error:", error);
         navigation.reset({
           index: 0,
           routes: [{ name: "LoginScreen" }],
@@ -76,7 +40,7 @@ const SplashScreen = () => {
 
     const timer = setTimeout(() => {
       checkAuth();
-    }, 1500);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);

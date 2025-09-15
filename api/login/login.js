@@ -1,7 +1,6 @@
 import axios from "axios";
 import { API_URL } from "@env";
 import { showToast } from "../../component/Toast";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const changePassword = async (email, password) => {
   try {
@@ -23,12 +22,35 @@ export const login = async (email, password) => {
       email: email,
       password: password,
     });
-    await AsyncStorage.setItem("jwtToken", data.result.jwt);
-
-    return data.isSuccess;
+    return data.result;
   } catch (error) {
     console.log("login error: ", error);
     showToast("아이디와 비밀번호를 확인해주세요.");
+  }
+};
+
+export const logout = async (token) => {
+  try {
+    const { data } = await axios.post(
+      `${API_URL}/api/members/auth/logout?token=${token}`
+    );
+    return data.isSuccess;
+  } catch (error) {
+    console.log("logout error: ", error);
+    showToast("로그아웃 실패! 잠시 후 다시 시도해주세요.");
+    return false;
+  }
+};
+
+export const refresh = async (refreshToken) => {
+  try {
+    const { data } = await axios.get(
+      `${API_URL}/api/members/auth/refresh?refreshToken=${refreshToken}`
+    );
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.log("refresh error: ", error);
     return false;
   }
 };

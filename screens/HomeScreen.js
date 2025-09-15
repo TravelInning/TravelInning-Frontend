@@ -68,20 +68,19 @@ export default function HomeScreen({ navigation }) {
   });
 
   useEffect(() => {
-    const handleHeader = async () => {
-      const data = await loadHeader(teamId);
-      setHeaderData(data);
-    };
+    if (isFocused) {
+      const handleHeader = async () => {
+        const id = await AsyncStorage.getItem("teamId");
+        const parseId = id ? parseInt(id, 10) : 1;
+        setTeamId(parseId);
 
-    const loadTeamId = async () => {
-      const data = await AsyncStorage.getItem("teamId");
-      const parsedData = data ? parseInt(data, 10) : 1;
-      setTeamId(parseInt(parsedData, 10));
-    };
+        const data = await loadHeader(parseId);
+        setHeaderData(data);
+      };
 
-    handleHeader();
-    // loadTeamId();
-  }, []);
+      handleHeader();
+    }
+  }, [isFocused]);
 
   useEffect(() => {
     if (isFocused) {

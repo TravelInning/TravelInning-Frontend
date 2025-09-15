@@ -9,6 +9,9 @@ import {
 import { theme } from "../../colors/color";
 import { Header } from "../../component/Header/Header";
 import { useEffect, useState } from "react";
+import { logout } from "../../api/login/login";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 export default function SettingScreen({ navigation }) {
   const [profileImg, setProfileImg] = useState(
@@ -74,6 +77,25 @@ export default function SettingScreen({ navigation }) {
     // 나중에 setProfilImg 세팅하는 코드
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      const accessToken = await AsyncStorage.getItem("accessToken");
+      if (accessToken) {
+        const isSuccess = await logout(accessToken);
+        if (isSuccess) {
+          await AsyncStorage.removeItem("accessToken");
+          await SecureStore.deleteItemAsync("refreshToken");
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "LoginScreen" }],
+          });
+        }
+      }
+    } catch (error) {
+      console.log("logout error: ", error);
+    }
+  };
+
   return (
     <SafeAreaView style={theme.container}>
       <Header title="설정센터" />
@@ -104,7 +126,10 @@ export default function SettingScreen({ navigation }) {
             <Text style={[styles.title, { fontSize: 14 }]}>5.8.36</Text>
           </View>
           {/* logout */}
-          <TouchableOpacity style={[theme.rowContainer, { marginBottom: 20 }]}>
+          <TouchableOpacity
+            onPress={handleLogout}
+            style={[theme.rowContainer, { marginBottom: 20 }]}
+          >
             <Text style={styles.title}>로그아웃</Text>
           </TouchableOpacity>
           {/* delete account */}
