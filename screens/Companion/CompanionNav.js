@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -19,7 +18,7 @@ const Tab = createMaterialTopTabNavigator();
 
 export default function CompanionNav({ navigation }) {
   const route = useRoute();
-  const defaultTab = route.params?.screen || "직관동행";
+  const defaultTab = route.params?.screen || "동행찾기";
 
   return (
     <SafeAreaView style={theme.container}>
@@ -95,7 +94,7 @@ export default function CompanionNav({ navigation }) {
               fontFamily: "Pretendard-Medium",
             },
             tabBarStyle: {
-              width: "70%",
+              width: "46%",
               height: 48,
               paddingLeft: 6,
               shadowOpacity: 0,
@@ -112,14 +111,9 @@ export default function CompanionNav({ navigation }) {
           }}
         >
           <Tab.Screen
-            name="직관동행"
+            name="동행찾기"
             component={CompanionScreen}
-            options={{ tabBarLabel: "직관동행" }}
-          />
-          <Tab.Screen
-            name="여행동행"
-            component={CompanionScreen}
-            options={{ tabBarLabel: "여행동행" }}
+            options={{ tabBarLabel: "동행찾기" }}
           />
           <Tab.Screen
             name="채팅내역"

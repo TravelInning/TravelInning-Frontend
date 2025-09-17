@@ -3,19 +3,14 @@ import apiClient from "../../utils/apiClient";
 
 export const loadPlaceBlock = async (travelRegionId) => {
   try {
-    const { data } = await apiClient.get(
-      `/api/travel/regions/${travelRegionId}/block`
-    );
+    await apiClient.get(`/api/travel/regions/${travelRegionId}/block`);
   } catch (error) {
     console.log("load block error: ", error);
   }
 };
 
 export const addPlaceBlock = async (travelRegionId) => {
-  const { data } = await apiClient.post(
-    `/api/travel/regions/${travelRegionId}/block`
-  );
-  console.log(data);
+  await apiClient.post(`/api/travel/regions/${travelRegionId}/block`);
 };
 
 export const cancelPlaceBlock = async (travelRegionId) => {

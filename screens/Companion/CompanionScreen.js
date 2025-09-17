@@ -13,23 +13,47 @@ import { theme } from "../../colors/color";
 import { Shadow } from "react-native-shadow-2";
 import Search from "../../assets/icon/companion/search.svg";
 import Scrap from "../../assets/icon/bookmark_true.svg";
-import {
-  PostCard,
-  Story,
-  FilterDropDown,
-  WriteButton,
-} from "../../component/Companion/CompanionComp";
+import { WriteButton } from "../../component/Companion/CompanionComp";
 import DropDown from "../../assets/icon/dropdown.svg";
 import DropDowBlue from "../../assets/icon/companion/dropdown.svg";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CancleConfirmModal from "../../component/CancleConfirmModal";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { loadCompanionPosts } from "../../api/companion/post";
+import { PostCard } from "../../component/Companion/PostCard";
+import { addPostScrap, cancelPostScrap } from "../../api/companion/scrap";
+import { FilterDropDown } from "../../component/Companion/FilterDropDown";
+import Story from "../../component/Companion/Story";
+import { showToast } from "../../component/Toast";
+
+const filterMap = {
+  sortType: {
+    전체: "LATEST",
+    최신순: "LATEST",
+    스크랩: "SCRAP",
+  },
+  statusFilter: {
+    "전체 조건": "ALL",
+    구했어요: "FOUND",
+    구하는중: "FINDING",
+  },
+};
 
 export default function CompanionScreen() {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
+
+  const [storyPosts, setStoryPosts] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [postLoadCondition, setPostLoadCondition] = useState({
+    page: 0,
+    size: 10,
+    sortType: "LATEST",
+    statusFilter: "ALL",
+  });
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [filter1State, setFilter1State] = useState("전체");
+  const [filter1State, setFilter1State] = useState("최신순");
   const [filter2State, setFilter2State] = useState("전체 조건");
   const [filterVisible, setFilterVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
@@ -47,6 +71,60 @@ export default function CompanionScreen() {
       });
     }
   };
+
+  useEffect(() => {
+    if (isFocused) {
+      (async () => {
+        const content = await loadCompanionPosts({
+          page: 0,
+          size: 10,
+          sortType: "SCRAP",
+          statusFilter: "ALL",
+        });
+        if (content) setStoryPosts(content);
+      })();
+    }
+  }, [isFocused]);
+
+  useEffect(() => {
+    if (!isFocused) return;
+
+    let cancelled = false;
+    (async () => {
+      const content = await loadCompanionPosts(postLoadCondition);
+      if (!cancelled && content) setPosts(content);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isFocused, postLoadCondition]);
+
+  useEffect(() => {
+    setPostLoadCondition((prev) => {
+      const nextSort = filterMap.sortType[filter1State] ?? prev.sortType;
+      const nextStatus =
+        filterMap.statusFilter[filter2State] ?? prev.statusFilter;
+
+      if (nextSort === prev.sortType && nextStatus === prev.statusFilter) {
+        return prev;
+      }
+      return { ...prev, page: 0, sortType: nextSort, statusFilter: nextStatus };
+    });
+  }, [filter1State, filter2State]);
+
+  const handleToggleScrap = useCallback(async (postId, next) => {
+    try {
+      if (next) await addPostScrap(postId);
+      else await cancelPostScrap(postId);
+
+      setPosts((prev) =>
+        prev.map((p) => (p.id === postId ? { ...p, scraped: next } : p))
+      );
+    } catch (e) {
+      showToast("스크랩 오류! 다시 시도해주세요.");
+    }
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -86,13 +164,11 @@ export default function CompanionScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingRight: 10 }}
+            contentContainerStyle={{ gap: 16, paddingRight: 10 }}
           >
-            <Story text="게시글 제목입니다" state="inProgress" />
-            <Story text="게시글 제목입니다" state="done" />
-            <Story text="게시글 제목입니다" state="ended" />
-            <Story text="게시글 제목입니다" state="ended" />
-            <Story text="게시글 제목입니다" state="ended" />
+            {storyPosts.map((post) => (
+              <Story key={post.id} item={post} />
+            ))}
           </ScrollView>
         </View>
       </View>
@@ -164,20 +240,13 @@ export default function CompanionScreen() {
       />
       {/* content */}
       <FlatList
-        data={[
-          { id: 1, isdone: true },
-          { id: 2, isdone: false },
-          { id: 3, isdone: false },
-        ]}
-        keyExtractor={(item) => item.id.toString()}
+        data={posts}
+        keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
           <PostCard
-            title="게시글 제목 예를 들면 동행 2명 구해요"
-            content="삼성 vs KIA 경기 보러갑니다. 같은 성별(남성)만 원합니다. 어쩌구 저쩌구 저쩌구 저쩌구어쩌구저"
-            date="11.01"
-            club="최강삼성"
-            isDone={item.isdone}
+            item={item}
             setDeleteModalVisible={setModalVisible}
+            onToggleScrap={handleToggleScrap}
           />
         )}
       />
