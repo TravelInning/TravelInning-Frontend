@@ -4,10 +4,11 @@ import { Header } from "../../../component/Header/Header";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useState } from "react";
 import { useRoute } from "@react-navigation/native";
-import { CompCard } from "../../../component/MyPage/PrivacySettingComp";
 import PlaceCard from "../../../component/Home/PlaceCard";
+import ItemCard from "../../../component/MyPage/ItemCard";
 import { showToast } from "../../../component/Toast";
 import { loadScrapPlaces } from "../../../api/place/scrap";
+import { loadScrapPosts } from "../../../api/companion/scrap";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -70,6 +71,7 @@ const ScrapScreen = () => {
       if (tabName === "추천 장소") {
         loadPlaces();
       } else if (tabName === "동행 구하기") {
+        loadPosts();
       } else {
       }
     } catch (error) {
@@ -85,6 +87,13 @@ const ScrapScreen = () => {
     }
   }
 
+  async function loadPosts() {
+    const data = await loadScrapPosts();
+    if (data) {
+      setList(data);
+    }
+  }
+
   const renderItem = ({ item }) => {
     if (tabName === "추천 장소") {
       return (
@@ -95,28 +104,26 @@ const ScrapScreen = () => {
           ]}
         />
       );
-    } else if (tabName === "이야기방") {
+    } else if (tabName === "동행 구하기") {
       return (
-        <CompCard
-          category="야구"
-          content="한화는 언제쯤 우승해볼 수 있을까? 좋은 선수들은 많이 가지고 있으니니닌까ㅏ깎 "
-          date="25.02.28"
-          photo={require("../../../assets/images/companion/logo.png")}
-          from="story"
-          isScrap={true}
+        <ItemCard
+          item={item}
+          from="companion"
+          isHaveScrap={true}
+          modalOptions={[
+            { type: "share", text: "공유하기", onPress: () => {} },
+          ]}
         />
       );
     } else {
       return (
-        <CompCard
-          title="게시글 제목 예를 들면 ㅇㅇㅇㅇ"
-          content="삼성vskia 경기 보러갈건데요.
-  같은 ㄴ성별만 원하는데요. ㅇㅇㅇㅇㅇ"
-          date="11.01"
-          nickname="최강삼성"
-          photo={require("../../../assets/images/companion/logo.png")}
-          from="companion"
-          isScrap={true}
+        <ItemCard
+          item={item}
+          from="story"
+          isHaveScrap={true}
+          modalOptions={[
+            { type: "share", text: "공유하기", onPress: () => {} },
+          ]}
         />
       );
     }

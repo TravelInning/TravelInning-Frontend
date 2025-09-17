@@ -1,11 +1,31 @@
 import { showToast } from "../../component/Toast";
 import apiClient from "../../utils/apiClient";
 
-export const loadPlaceBlock = async (postId) => {
+export const addPostBlock = async (postId) => {
+  const { data } = await apiClient.post(`/api/companionPost/${postId}/block`);
+  console.log(data);
+};
+
+export const cancelPostBlock = async (postId) => {
   try {
-    const { data } = await apiClient.get(`/api/companionPost/${postId}/block`);
-    console.log(data);
+    const { data } = await apiClient.delete(
+      `/api/companionPost/${postId}/block`
+    );
+    return data.isSuccess;
   } catch (error) {
-    console.log("load block error: ", error);
+    showToast("차단 해제 실패! 다시 시도해주세요.");
+    console.log("cancel block error: ", error);
+    return false;
+  }
+};
+
+export const loadBlockedPosts = async () => {
+  try {
+    const { data } = await apiClient.get(`/api/mypage/blocked/companion-posts`);
+    return data.result;
+  } catch (error) {
+    console.log("load blocked posts error: ", error);
+    showToast("게시글 로드에 실패했습니다!");
+    return false;
   }
 };

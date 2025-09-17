@@ -16,20 +16,15 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { Shadow } from "react-native-shadow-2";
 import CancleConfirmModal from "../../component/CancleConfirmModal";
+import { createPost } from "../../api/companion/post";
 
-export default function StoryEditScreen() {
+export default function StoryEditScreen({ navigation }) {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [titleText, setTitleText] = useState("");
   const [contentText, setContentText] = useState("");
   const [images, setImages] = useState([]);
   const [noticeVisible, setNoticeVisible] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-
-  // test
-  useEffect(() => {
-    console.log("title: ", titleText);
-    console.log(contentText);
-  }, [contentText, titleText]);
 
   // keyboard detector
   useLayoutEffect(() => {
@@ -106,6 +101,14 @@ export default function StoryEditScreen() {
         }}
       />
     ));
+  };
+
+  const handlePost = async () => {
+    await createPost({
+      title: titleText,
+      content: contentText,
+      images: images,
+    });
   };
 
   return (
@@ -232,7 +235,11 @@ export default function StoryEditScreen() {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         text={"글을 작성하시겠습니까?"}
-        onClick={() => {}}
+        onClick={() => {
+          handlePost();
+          setModalVisible(false);
+          navigation.goBack();
+        }}
       />
     </SafeAreaView>
   );

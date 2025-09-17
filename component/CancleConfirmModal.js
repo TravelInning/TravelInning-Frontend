@@ -50,7 +50,7 @@ export default function CancleConfirmModal({
                 취소
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onClick={onClick} style={styles.btnContainer}>
+            <TouchableOpacity onPress={onClick} style={styles.btnContainer}>
               <Text
                 style={{
                   fontSize: 18,

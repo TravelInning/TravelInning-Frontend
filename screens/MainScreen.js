@@ -1,12 +1,4 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Button,
-  SafeAreaView,
-  Image,
-} from "react-native";
+import { StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { theme } from "../colors/color";
 import Home from "../assets/icon/tabBarIcon/home.svg";
@@ -57,12 +49,6 @@ export default function MainScreen() {
               <HomeGray width={18} height={18} />
             ),
         }}
-        initialParams={
-          {
-            //   ipnumber: ipnumber,
-            //   user_code: user_code,
-          }
-        }
       />
       <Tab.Screen
         name="Companion"

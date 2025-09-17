@@ -29,7 +29,7 @@ export default function HomeScreen({ navigation }) {
   const isFocused = useIsFocused();
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [teamId, setTeamId] = useState(10);
+  const [teamId, setTeamId] = useState(null);
   const [headerData, setHeaderData] = useState({
     baseTeamName: "",
     gameDate: "",
@@ -38,7 +38,7 @@ export default function HomeScreen({ navigation }) {
     stadiumName: "",
   });
   const [filter, setFilter] = useState({
-    teamId: 1,
+    teamId: null,
     categoryCodes: "",
     useDefaultCategory: false,
     myScrapOnly: false,
@@ -73,6 +73,7 @@ export default function HomeScreen({ navigation }) {
         const id = await AsyncStorage.getItem("teamId");
         const parseId = id ? parseInt(id, 10) : 1;
         setTeamId(parseId);
+        setFilter((prev) => ({ ...prev, teamId: parseId }));
 
         const data = await loadHeader(parseId);
         setHeaderData(data);
@@ -83,7 +84,7 @@ export default function HomeScreen({ navigation }) {
   }, [isFocused]);
 
   useEffect(() => {
-    if (isFocused) {
+    if (isFocused && teamId) {
       const loadplaces = async () => {
         const data = await loadPlace(filter);
         setPlaces(data.result);
@@ -126,10 +127,7 @@ export default function HomeScreen({ navigation }) {
         {/* 헤더 */}
         <View style={styles.header}>
           <View style={{ width: 46 }} />
-          <TouchableOpacity
-            onPress={() => console.log("위치 클릭")}
-            style={styles.rowContainer}
-          >
+          <View style={styles.rowContainer}>
             <View
               style={{
                 width: 13,
@@ -150,7 +148,7 @@ export default function HomeScreen({ navigation }) {
             >
               {headerData.stadiumName}
             </Text>
-          </TouchableOpacity>
+          </View>
           {/* 채팅, 알림 아이콘 */}
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <TouchableOpacity
@@ -223,10 +221,12 @@ export default function HomeScreen({ navigation }) {
             }}
           >
             <Text style={{ ...styles.todayTeamText }}>오늘의</Text>
-            <Image
-              source={homeClubMapping[teamId - 1].imgSrc}
-              style={styles.clubImageContainer}
-            />
+            {teamId && (
+              <Image
+                source={homeClubMapping[teamId - 1].imgSrc}
+                style={styles.clubImageContainer}
+              />
+            )}
             <Text style={styles.todayTeamText}>
               {headerData.baseTeamName} 경기
             </Text>

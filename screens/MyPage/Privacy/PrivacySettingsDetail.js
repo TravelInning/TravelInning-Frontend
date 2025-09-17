@@ -2,11 +2,16 @@ import { FlatList, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { theme } from "../../../colors/color";
 import { Header } from "../../../component/Header/Header";
 import React, { useState } from "react";
-import { CompCard } from "../../../component/MyPage/PrivacySettingComp";
+import ItemCard from "../../../component/MyPage/ItemCard";
 import PlaceCard from "../../../component/Home/PlaceCard";
 import { cancelPlaceBlock, loadBlockedPlaces } from "../../../api/place/block";
+import {
+  addPostBlock,
+  cancelPostBlock,
+  loadBlockedPosts,
+} from "../../../api/companion/block";
 
-export default function PrivacySettingsDetail({ navigation, route }) {
+export default function PrivacySettingsDetail({ route }) {
   const { title, subtitle } = route.params;
   const [list, setList] = useState([]);
 
@@ -14,6 +19,7 @@ export default function PrivacySettingsDetail({ navigation, route }) {
     if (title === "추천") {
       loadPlaces();
     } else if (title === "차단") {
+      loadPosts();
     } else {
     }
   }, []);
@@ -25,8 +31,23 @@ export default function PrivacySettingsDetail({ navigation, route }) {
     }
   }
 
+  async function loadPosts() {
+    const data = await loadBlockedPosts();
+    if (data) {
+      setList(data);
+      console.log("data: ", data);
+    }
+  }
+
   const handleCancelPlaceBlock = async (id) => {
     const success = await cancelPlaceBlock(id);
+    if (success) {
+      setList((prev) => prev.filter((item) => item.id !== id));
+    }
+  };
+
+  const handleCancelPostBlock = async (id) => {
+    const success = await cancelPostBlock(id);
     if (success) {
       setList((prev) => prev.filter((item) => item.id !== id));
     }
@@ -50,25 +71,36 @@ export default function PrivacySettingsDetail({ navigation, route }) {
       );
     } else if (title === "차단") {
       return (
-        <CompCard
-          title="게시글 제목 예를 들면 ㅇㅇㅇㅇ"
-          content="삼성vskia 경기 보러갈건데요.
-같은 ㄴ성별만 원하는데요. ㅇㅇㅇㅇㅇ"
-          date="11.01"
-          nickname="최강삼성"
-          photo={require("../../../assets/images/companion/logo.png")}
+        <ItemCard
+          item={item}
           from="companion"
-          isVisibleModal={true}
+          isHaveScrap={false}
+          canGoDetail={false}
+          modalOptions={[
+            {
+              type: "reset",
+              text: "차단 해제하기",
+              color: theme.main_blue,
+              onPress: () => handleCancelPostBlock(item.id),
+            },
+          ]}
         />
       );
     } else {
       return (
-        <CompCard
-          category="야구"
-          content="한화는 언제쯤 우승해볼 수 있을까? 좋은 선수들은 많이 가지고 있으니니닌까ㅏ깎 "
-          date="25.02.28"
-          photo={require("../../../assets/images/companion/logo.png")}
+        <ItemCard
+          item={item}
           from="story"
+          isHaveScrap={false}
+          canGoDetail={false}
+          modalOptions={[
+            {
+              type: "reset",
+              text: "차단 해제하기",
+              color: theme.main_blue,
+              onPress: () => handleCancelPostBlock(item.id),
+            },
+          ]}
         />
       );
     }

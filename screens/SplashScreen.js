@@ -40,7 +40,7 @@ const SplashScreen = () => {
 
     const timer = setTimeout(() => {
       checkAuth();
-    }, 2000);
+    }, 1800);
 
     return () => clearTimeout(timer);
   }, []);

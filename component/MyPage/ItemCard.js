@@ -1,4 +1,11 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import SeeMore from "../../assets/icon/see_more.svg";
 import SeeMoreActivate from "../../assets/icon/see_more_activate.svg";
 import { theme } from "../../colors/color";
@@ -7,32 +14,23 @@ import { useEffect, useRef, useState } from "react";
 import BookmarkFalse from "../../assets/icon/bookmark_false.svg";
 import BookmarkTrue from "../../assets/icon/bookmark_true.svg";
 import SeeMoreModal from "../SeeMoreModal";
+import { addPostScrap, cancelPostScrap } from "../../api/companion/scrap";
+import { useNavigation } from "@react-navigation/native";
 
-export const CompCard = ({
-  title,
-  content,
-  distance,
-  photo,
-  date,
-  nickname,
-  category,
+const ItemCard = ({
+  item,
   from,
-  isHaveScrap = false,
-  isMyPost = false,
-  isVisibleModal = false,
+  isHaveScrap = true,
+  canGoDetail = true,
+  modalOptions,
 }) => {
-  const [isScrap, setIsScrap] = useState(false);
+  const navigation = useNavigation();
+
+  const [isScrap, setIsScrap] = useState(isHaveScrap);
   const [modalVisible, setModalVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0 });
   const buttonRef = useRef(null);
-
-  useEffect(() => {
-    handleScrap();
-  }, [isScrap]);
-
-  const handleScrap = () => {
-    // 나중에 저장 상태변경 코드
-  };
+  const { authorName, createdAt, id, title } = item;
 
   const openModal = () => {
     buttonRef.current.measure((x, y, width, height, pageX, pageY) => {
@@ -41,23 +39,52 @@ export const CompCard = ({
     setModalVisible(!modalVisible);
   };
 
-  const handleReset = (from, id) => {
-    if (from === "place") {
-    } else if (from === "companion") {
-    } else {
+  const toggleScrap = async () => {
+    try {
+      if (from === "companion") {
+        if (isScrap) {
+          await cancelPostScrap(id);
+        } else {
+          await addPostScrap(id);
+        }
+      } else {
+      }
+
+      setIsScrap(!isScrap);
+    } catch (e) {
+      showToast("스크랩 오류! 다시 시도해주세요.");
+    }
+  };
+
+  const formattedDate = (date) => {
+    const newDate = new Date(date);
+    const month = String(newDate.getMonth() + 1).padStart(2, "0");
+    const day = String(newDate.getDate()).padStart(2, "0");
+
+    return `${month}.${day}`;
+  };
+
+  const goDetail = () => {
+    if (canGoDetail) {
+      if (from === "companion") {
+        navigation.navigate("CompanionPostDetail", { id, scraped: true });
+      }
     }
   };
 
   return (
     <Shadow distance={2} startColor="#00000015" endColor="#00000000">
-      <View style={[styles.container, isVisibleModal && { paddingRight: 13 }]}>
+      <Pressable
+        onPress={goDetail}
+        android_ripple={{ radius: 300 }}
+        style={styles.container}
+      >
         <View
           style={{
             flexDirection: "row",
             flex: 1,
           }}
         >
-          {/* text */}
           <View
             style={{
               flex: 2,
@@ -66,7 +93,7 @@ export const CompCard = ({
               marginRight: 8,
             }}
           >
-            {from !== "story" ? (
+            {from === "companion" ? (
               <View>
                 <Text
                   numberOfLines={1}
@@ -80,7 +107,7 @@ export const CompCard = ({
                   ellipsizeMode="tail"
                   style={styles.content}
                 >
-                  {content}
+                  임시 content
                 </Text>
               </View>
             ) : (
@@ -89,18 +116,14 @@ export const CompCard = ({
                   <Text style={styles.category}>{category}</Text>
                 </View>
                 <Text numberOfLines={2} style={styles.storyContent}>
-                  {content}
+                  임시 content
                 </Text>
               </View>
             )}
-            <Text style={styles.distance}>
-              {from === "place"
-                ? `• ${distance}km`
-                : from === "story"
-                ? date
-                : isMyPost
-                ? date
-                : `${date} • ${nickname}`}
+            <Text style={styles.smallText}>
+              {from === "companion"
+                ? `${formattedDate(createdAt)} • ${authorName}`
+                : date}
             </Text>
           </View>
           {/* image */}
@@ -110,33 +133,39 @@ export const CompCard = ({
               alignItems: "flex-end",
             }}
           >
-            <Image source={photo} style={styles.photo} />
+            <Image
+              // source={
+              //   thumbnailUrl
+              //     ? { uri: thumbnailUrl }
+              //     : require("../../assets/images/companion/logo.png")
+              // }
+              source={require("../../assets/images/companion/logo.png")}
+              style={styles.photo}
+            />
           </View>
           {/* modal button */}
-          {isVisibleModal && (
-            <TouchableOpacity
-              ref={buttonRef}
-              onPress={openModal}
-              style={{ marginLeft: 13 }}
+          <TouchableOpacity
+            ref={buttonRef}
+            onPress={openModal}
+            style={{ marginLeft: 13 }}
+          >
+            <View
+              style={{
+                width: 17,
+                height: 17,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: modalVisible ? "#EFF7FF" : "#fff",
+                borderRadius: 30,
+              }}
             >
-              <View
-                style={{
-                  width: 17,
-                  height: 17,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: modalVisible ? "#EFF7FF" : "#fff",
-                  borderRadius: 30,
-                }}
-              >
-                {modalVisible ? (
-                  <SeeMoreActivate width={13} height={13} />
-                ) : (
-                  <SeeMore width={13} height={13} />
-                )}
-              </View>
-            </TouchableOpacity>
-          )}
+              {modalVisible ? (
+                <SeeMoreActivate width={13} height={13} />
+              ) : (
+                <SeeMore width={13} height={13} />
+              )}
+            </View>
+          </TouchableOpacity>
         </View>
         {/* scrap */}
         {isHaveScrap && (
@@ -147,7 +176,7 @@ export const CompCard = ({
               bottom: 11,
             }}
           >
-            <TouchableOpacity onPress={() => setIsScrap(!isScrap)}>
+            <TouchableOpacity onPress={toggleScrap}>
               {isScrap ? (
                 <BookmarkTrue width={11} height={14} />
               ) : (
@@ -160,17 +189,9 @@ export const CompCard = ({
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
           buttonPosition={buttonPosition}
-          options={[
-            {
-              type: "reset",
-              text: from === "place" ? "다시 추천받기" : "차단 해제하기",
-              type: "reset",
-              onPress: () => handleReset(from, id),
-              color: theme.main_blue,
-            },
-          ]}
+          options={modalOptions}
         />
-      </View>
+      </Pressable>
     </Shadow>
   );
 };
@@ -183,7 +204,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor: "#fff",
     borderRadius: 16,
-    paddingHorizontal: 18,
+    paddingLeft: 18,
+    paddingRight: 13,
     paddingVertical: 12,
   },
   rowContainer: {
@@ -206,7 +228,7 @@ const styles = StyleSheet.create({
     fontFamily: "Pretendard-Regular",
     color: "#545454",
   },
-  distance: {
+  smallText: {
     fontSize: 10,
     fontFamily: "Pretendard-Medium",
     color: "#C2C2C2",
@@ -237,26 +259,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: theme.main_black,
   },
-
-  // modal
-  modalContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 3,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: "#EDEDED",
-    position: "absolute",
-    zIndex: 10,
-  },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: "transparent",
-  },
-  text: {
-    fontSize: 14,
-    fontFamily: "Pretendard-Regular",
-    marginLeft: 5,
-    color: theme.main_blue,
-  },
 });
+
+export default ItemCard;
