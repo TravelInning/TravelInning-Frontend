@@ -22,14 +22,19 @@ export const WriteButton = ({ onClick }) => {
 export const Chip = ({ isDone }) => {
   return (
     <View
-      style={[styles.chipContainer, isDone && { backgroundColor: "#545454" }]}
+      style={[
+        styles.chipContainer,
+        isDone === "FOUND" && { backgroundColor: "#545454" },
+      ]}
     >
-      {isDone ? (
+      {isDone === "FOUND" ? (
         <Done width={7} height={7} />
       ) : (
         <InProgress width={8} height={8} />
       )}
-      <Text style={styles.chipText}>{isDone ? "구했어요" : "구하는중"}</Text>
+      <Text style={styles.chipText}>
+        {isDone === "FOUND" ? "구했어요" : "구하는중"}
+      </Text>
     </View>
   );
 };
