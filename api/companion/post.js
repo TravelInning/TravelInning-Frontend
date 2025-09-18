@@ -101,6 +101,7 @@ export const deletePost = async (postId) => {
   try {
     const { data } = await apiClient.delete(`/api/companionPost/${postId}`);
     console.log("delete reponse: ", data);
+    showToast("삭제 완료!");
   } catch (error) {
     console.log("delete post error: ", error);
     showToast("삭제 실패! 다시 시도해주세요.");

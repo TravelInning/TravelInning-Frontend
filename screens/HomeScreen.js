@@ -17,13 +17,13 @@ import DropDown from "../assets/icon/dropdown.svg";
 import Filter from "../assets/icon/filter.svg";
 import { theme, SCREEN_WIDTH } from "../colors/color";
 import PlaceCard from "../component/Home/PlaceCard";
-import FilterModal from "../component/Home/FilterModal";
 import { useDoubleBackExit } from "../hooks/useDoubleBackExit";
 import { loadHeader, loadPlace } from "../api/home/home";
 import { homeClubMapping } from "../constants/mapping";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { addPlaceBlock } from "../api/place/block";
 import { useIsFocused } from "@react-navigation/native";
+import OptionModal from "../component/common/OptionModal";
 
 export default function HomeScreen({ navigation }) {
   const isFocused = useIsFocused();
@@ -334,11 +334,35 @@ export default function HomeScreen({ navigation }) {
           </ImageBackground>
         </View>
       </ImageBackground>
-      <FilterModal
+      <OptionModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        filter={filter}
-        setFilter={setFilter}
+        options={[
+          {
+            label: "내가 선택한 관광지 키워드만 보기",
+            onPress: () =>
+              setFilter((f) => ({
+                ...f,
+                useDefaultCategory: !f.useDefaultCategory,
+              })),
+            selected: filter.useDefaultCategory,
+          },
+          {
+            label: "그 외 관광지 키워드 선택하기",
+            hasNext: true,
+          },
+          {
+            label: "스크랩한 장소만 보기",
+            onPress: () =>
+              setFilter((f) => ({ ...f, myScrapOnly: !f.myScrapOnly })),
+            selected: filter.myScrapOnly,
+          },
+        ]}
+        subOptions={["음식", "인문", "쇼핑", "기타"]}
+        selectedSub={filter.categoryCodes}
+        onSelectSub={(value) =>
+          setFilter((f) => ({ ...f, categoryCodes: value }))
+        }
       />
     </SafeAreaView>
   );

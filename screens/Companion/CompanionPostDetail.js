@@ -19,15 +19,15 @@ import BookmarkFalse from "../../assets/icon/bookmark_false.svg";
 import BookmarkTrue from "../../assets/icon/bookmark_true.svg";
 import { showToast } from "../../component/Toast";
 import { addPostScrap, cancelPostScrap } from "../../api/companion/scrap";
-
-// {"authorName": "왓", "chatRoomId": null, "content": "테스트 4번 다른계정으로 글올리기 아아으ㅡ으으아아ㅏ아아아아나아나나나", "id": 4, "imageUrls": ["https://tikicktaka-bucket.s3.ap-northeast-2.amazonaws.com/companionPost/5c6012e4-a3eb-4673-838f-f39f580de5a0", "https://tikicktaka-bucket.s3.ap-northeast-2.amazonaws.com/companionPost/ebdbd218-936c-4fbf-802e-df113bdc0c1e"], "status": "FINDING", "thumbnailUrl": "https://tikicktaka-bucket.s3.ap-northeast-2.amazonaws.com/companionPost/5c6012e4-a3eb-4673-838f-f39f580de5a0", "title": "삼성 경기보러 갈 사람있나요? 같이 맛집도 다녀요", "travelStatus": "Baseball"}
+import OptionModal from "../../component/common/OptionModal";
 
 const CompanionPostDetail = ({ navigation, route }) => {
   const { id, scraped } = route.params;
   const [post, setPost] = useState(null);
   const [isScrap, setIsScrap] = useState(!!scraped);
   const [pending, setPending] = useState(false);
-  const isDone = false;
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isDone, setIsDone] = useState("FINDING");
 
   useEffect(() => {
     (async () => {
@@ -35,6 +35,10 @@ const CompanionPostDetail = ({ navigation, route }) => {
       if (result) setPost(result);
     })();
   }, []);
+
+  useEffect(() => {
+    console.log("isDone: ", isDone);
+  }, [isDone]);
 
   const toggleScrap = async () => {
     if (pending) return;
@@ -65,7 +69,7 @@ const CompanionPostDetail = ({ navigation, route }) => {
           <TouchableOpacity>
             <Share width={15} height={15} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
             <SeeMore width={15} height={15} />
           </TouchableOpacity>
         </View>
@@ -117,6 +121,32 @@ const CompanionPostDetail = ({ navigation, route }) => {
           ))}
         </View>
       </ScrollView>
+
+      <OptionModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        options={[
+          {
+            label: "글 수정하기",
+            onPress: () => {},
+          },
+          {
+            label: "상태 변경하기",
+            hasNext: true,
+          },
+          {
+            label: "삭제하기",
+            onPress: async () => {
+              await deletePost(id);
+              navigation.goBack();
+            },
+            color: "#f00",
+          },
+        ]}
+        subOptions={["FINDING", "FOUND"]}
+        selectedSub={isDone}
+        onSelectSub={(value) => setIsDone(value)}
+      />
     </SafeAreaView>
   );
 };
