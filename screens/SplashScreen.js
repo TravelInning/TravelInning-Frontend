@@ -6,10 +6,9 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SecureStore from "expo-secure-store";
 import { useNavigation } from "@react-navigation/native";
 import { loadProfile } from "../api/mypage/profile/profile";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SplashScreen = () => {
   const navigation = useNavigation();
@@ -18,23 +17,16 @@ const SplashScreen = () => {
     const checkAuth = async () => {
       try {
         const data = await loadProfile();
-        if (data && data.isSuccess) {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "Main" }],
-          });
+        if (data?.isSuccess && data?.result?.memberId != null) {
+          await AsyncStorage.setItem("userId", String(data.result.memberId));
+          navigation.reset({ index: 0, routes: [{ name: "Main" }] });
         } else {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "LoginScreen" }],
-          });
+          await AsyncStorage.removeItem("userId");
+          navigation.reset({ index: 0, routes: [{ name: "LoginScreen" }] });
         }
-      } catch (error) {
-        console.log("Auth check error:", error);
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "LoginScreen" }],
-        });
+      } catch (e) {
+        await AsyncStorage.removeItem("userId");
+        navigation.reset({ index: 0, routes: [{ name: "LoginScreen" }] });
       }
     };
 

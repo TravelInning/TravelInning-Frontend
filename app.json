@@ -16,6 +16,7 @@
       "bundleIdentifier": "com.heojiyoon.TravelInning"
     },
     "android": {
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -24,10 +25,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-font",
-      "expo-asset",
-      "expo-secure-store"
-    ]
+    "plugins": ["expo-font", "expo-asset", "expo-secure-store"]
   }
 }

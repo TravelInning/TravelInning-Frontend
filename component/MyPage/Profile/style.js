@@ -1,4 +1,4 @@
-import { theme } from "../../colors/color";
+import { theme } from "../../../colors/color";
 
 export const mypage = {
   editInput: {

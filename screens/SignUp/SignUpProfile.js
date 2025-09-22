@@ -45,14 +45,15 @@ export default function SignUpProfile({ navigation, route }) {
     };
   }, []);
 
-  const checkNickname = () => {
-    const isValid = handleNickname(nickname, setIsError);
+  const checkNickname = async () => {
+    const isValid = await handleNickname(nickname, setIsError);
     // UI 변경용
     if (isValid) {
       setNicknameisValid(true);
     } else {
       setNicknameisValid(false);
     }
+    return isValid;
   };
 
   return (

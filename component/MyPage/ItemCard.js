@@ -30,7 +30,7 @@ const ItemCard = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0 });
   const buttonRef = useRef(null);
-  const { authorName, createdAt, id, title } = item;
+  const { authorName, createdAt, id, title, content, thumbnailUrl } = item;
 
   const openModal = () => {
     buttonRef.current.measure((x, y, width, height, pageX, pageY) => {
@@ -107,7 +107,7 @@ const ItemCard = ({
                   ellipsizeMode="tail"
                   style={styles.content}
                 >
-                  임시 content
+                  {content}
                 </Text>
               </View>
             ) : (
@@ -134,12 +134,11 @@ const ItemCard = ({
             }}
           >
             <Image
-              // source={
-              //   thumbnailUrl
-              //     ? { uri: thumbnailUrl }
-              //     : require("../../assets/images/companion/logo.png")
-              // }
-              source={require("../../assets/images/companion/logo.png")}
+              source={
+                thumbnailUrl
+                  ? { uri: thumbnailUrl }
+                  : require("../../assets/images/companion/logo.png")
+              }
               style={styles.photo}
             />
           </View>

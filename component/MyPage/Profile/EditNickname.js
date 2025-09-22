@@ -1,7 +1,7 @@
 import { StyleSheet, TextInput, View } from "react-native";
 import { ConfirmBtn } from "./ConfirmBtn";
 import { useState } from "react";
-import { mypage } from "../../../styles/mypage/mypage";
+import { mypage } from "./style";
 import { Shadow } from "react-native-shadow-2";
 
 export default function EditNickname() {

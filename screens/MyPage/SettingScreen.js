@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { logout } from "../../api/login/login";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
+import { disconnectSocket } from "../../socket/chatSocket";
 
 export default function SettingScreen({ navigation }) {
   const [profileImg, setProfileImg] = useState(
@@ -83,7 +84,10 @@ export default function SettingScreen({ navigation }) {
       if (accessToken) {
         const isSuccess = await logout(accessToken);
         if (isSuccess) {
+          disconnectSocket();
+
           await AsyncStorage.removeItem("accessToken");
+          await AsyncStorage.removeItem("userId");
           await SecureStore.deleteItemAsync("refreshToken");
           navigation.reset({
             index: 0,

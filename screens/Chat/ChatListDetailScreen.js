@@ -10,9 +10,22 @@ import {
 } from "react-native";
 import { SCREEN_HEIGHT, theme } from "../../colors/color";
 import { LinearGradient } from "expo-linear-gradient";
-import { AloneChatBox, GroupChatBox } from "../../component/ChatComp";
+import { AloneChatBox, GroupChatBox } from "../../component/chat/ChatComp";
+import { useEffect } from "react";
+import { loadRoomSummary } from "../../api/chat/chat";
 
-export default function ChatListDetailScreen() {
+export default function ChatListDetailScreen({ route, navigation }) {
+  const [data, setData] = useState(null);
+
+  const { roomId, postId } = route.params;
+
+  useEffect(
+    (async () => {
+      await loadRoomSummary();
+    })(),
+    []
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <ImageBackground

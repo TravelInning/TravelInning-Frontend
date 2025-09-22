@@ -1,4 +1,5 @@
 import { useFonts } from "expo-font";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TestPage from "./screens/TestPage";
@@ -54,258 +55,260 @@ export default function App() {
   if (!fontsLoaded) return null;
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Splash" // 초기 화면 설정
-        screenOptions={{
-          animation: "fade",
-        }}
-      >
-        <Stack.Screen
-          name="Splash"
-          component={SplashScreen}
-          options={{
-            headerShown: false,
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Splash" // 초기 화면 설정
+          screenOptions={{
+            animation: "fade",
           }}
-        />
-        <Stack.Screen
-          name="Test"
-          component={TestPage}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="SelectPhoto"
-          component={SelectPhotoScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="SelectClub"
-          component={SelectClub}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Main"
-          component={MainScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="LoginScreen"
-          component={LoginScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="FindEmail"
-          component={FindEmailScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="FindPassword"
-          component={FindPasswordScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="Success"
-          component={SuccessScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="Notice"
-          component={NoticeScreen}
-          options={{
-            headerShown: false,
-            animation: "slide_from_right",
-          }}
-        />
-        <Stack.Screen
-          name="SignUpPassword"
-          component={SignUpPassword}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="SignUpProfile"
-          component={SignUpProfile}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="SignUpTerms"
-          component={SignUpTerms}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="ChatListDetail"
-          component={ChatListDetailScreen}
-          options={{
-            headerShown: false,
-            animation: "fade_from_bottom",
-          }}
-        />
-        <Stack.Screen
-          name="SignUpPhoneNumber"
-          component={SignUpPhoneNumber}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="SignUpEmail"
-          component={SignUpEmail}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Chat"
-          component={ChatScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="ChatList"
-          component={ChatListScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="CompanionNav"
-          component={CompanionNav}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="CompanionPostDetail"
-          component={CompanionPostDetail}
-          options={{
-            headerShown: false,
-            // animation: "slide_from_right",
-          }}
-        />
-        <Stack.Screen
-          name="CompanionForm"
-          component={CompanionForm}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="StoryNav"
-          component={StoryNav}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="StoryEdit"
-          component={StoryEditScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="Story"
-          component={StoryScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="MyPageMain"
-          component={MyPageMainScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="MyTravelinning"
-          component={MyTravelinningScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="PrivacySettings"
-          component={PrivacySettingsScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="PrivacySettingsDetail"
-          component={PrivacySettingsDetail}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="MyScrap"
-          component={MyScrapScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="MyPost"
-          component={MyPostScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="TermsInfo"
-          component={TermsInfoScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="TermsInfoDetail"
-          component={TermsInfoDetail}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="Setting"
-          component={SettingScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="EditProfile"
-          component={EditProfile}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="EditDetail"
-          component={EditDetail}
-          options={{
-            headerShown: false,
-          }}
-        />
-      </Stack.Navigator>
-      <Toast config={toastConfig} />
-    </NavigationContainer>
+        >
+          <Stack.Screen
+            name="Splash"
+            component={SplashScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Test"
+            component={TestPage}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SelectPhoto"
+            component={SelectPhotoScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SelectClub"
+            component={SelectClub}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Main"
+            component={MainScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="LoginScreen"
+            component={LoginScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="FindEmail"
+            component={FindEmailScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="FindPassword"
+            component={FindPasswordScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Success"
+            component={SuccessScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Notice"
+            component={NoticeScreen}
+            options={{
+              headerShown: false,
+              animation: "slide_from_right",
+            }}
+          />
+          <Stack.Screen
+            name="SignUpPassword"
+            component={SignUpPassword}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="SignUpProfile"
+            component={SignUpProfile}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="SignUpTerms"
+            component={SignUpTerms}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="ChatListDetail"
+            component={ChatListDetailScreen}
+            options={{
+              headerShown: false,
+              animation: "fade_from_bottom",
+            }}
+          />
+          <Stack.Screen
+            name="SignUpPhoneNumber"
+            component={SignUpPhoneNumber}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="SignUpEmail"
+            component={SignUpEmail}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Chat"
+            component={ChatScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="ChatList"
+            component={ChatListScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="CompanionNav"
+            component={CompanionNav}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="CompanionPostDetail"
+            component={CompanionPostDetail}
+            options={{
+              headerShown: false,
+              // animation: "slide_from_right",
+            }}
+          />
+          <Stack.Screen
+            name="CompanionForm"
+            component={CompanionForm}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="StoryNav"
+            component={StoryNav}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="StoryEdit"
+            component={StoryEditScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Story"
+            component={StoryScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="MyPageMain"
+            component={MyPageMainScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="MyTravelinning"
+            component={MyTravelinningScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="PrivacySettings"
+            component={PrivacySettingsScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="PrivacySettingsDetail"
+            component={PrivacySettingsDetail}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="MyScrap"
+            component={MyScrapScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="MyPost"
+            component={MyPostScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="TermsInfo"
+            component={TermsInfoScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="TermsInfoDetail"
+            component={TermsInfoDetail}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Setting"
+            component={SettingScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="EditProfile"
+            component={EditProfile}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="EditDetail"
+            component={EditDetail}
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack.Navigator>
+        <Toast config={toastConfig} />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
