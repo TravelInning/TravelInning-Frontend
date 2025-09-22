@@ -15,6 +15,7 @@ import TestPage from "./TestPage";
 import CompanionNav from "./Companion/CompanionNav";
 import StoryNav from "./Story/StoryNav";
 import MyPageMainScreen from "./MyPage/MyPageMainScreen";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Tab = createBottomTabNavigator();
 

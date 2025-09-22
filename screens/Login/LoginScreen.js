@@ -15,6 +15,7 @@ import { SCREEN_HEIGHT, theme } from "../../colors/color";
 import { login } from "../../api/login/login";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
+import { loadProfile } from "../../api/mypage/profile/profile";
 
 export default function LoginScreen({ navigation }) {
   const [idInput, setIdInput] = useState("");
@@ -30,6 +31,17 @@ export default function LoginScreen({ navigation }) {
     if (result) {
       await AsyncStorage.setItem("accessToken", result.jwt);
       await SecureStore.setItemAsync("refreshToken", result.refreshToken);
+
+      try {
+        const prof = await loadProfile();
+        if (prof?.isSuccess && prof?.result?.memberId != null) {
+          await AsyncStorage.setItem("userId", String(prof.result.memberId));
+        } else {
+          await AsyncStorage.removeItem("userId");
+        }
+      } catch {
+        await AsyncStorage.removeItem("userId");
+      }
 
       navigation.reset({
         index: 0,

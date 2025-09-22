@@ -20,6 +20,7 @@ import BookmarkTrue from "../../assets/icon/bookmark_true.svg";
 import { showToast } from "../../component/Toast";
 import { addPostScrap, cancelPostScrap } from "../../api/companion/scrap";
 import OptionModal from "../../component/common/OptionModal";
+import { Header } from "../../component/Header/Header";
 
 const CompanionPostDetail = ({ navigation, route }) => {
   const { id, scraped } = route.params;
@@ -58,13 +59,7 @@ const CompanionPostDetail = ({ navigation, route }) => {
   return (
     <SafeAreaView style={theme.container}>
       {/* header */}
-      <View style={theme.header}>
-        <TouchableOpacity
-          onPress={() => navigation.pop()}
-          style={{ width: 40 }}
-        >
-          <Left width={8} height={15} />
-        </TouchableOpacity>
+      <Header>
         <View style={styles.headerRightBox}>
           <TouchableOpacity>
             <Share width={15} height={15} />
@@ -73,7 +68,8 @@ const CompanionPostDetail = ({ navigation, route }) => {
             <SeeMore width={15} height={15} />
           </TouchableOpacity>
         </View>
-      </View>
+      </Header>
+
       {/* content */}
       <ScrollView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
         <View style={{ ...styles.container, paddingBottom: 12 }}>
@@ -89,7 +85,14 @@ const CompanionPostDetail = ({ navigation, route }) => {
                 <Text style={styles.time}>2시간 전</Text>
               </View>
             </View>
-            <TouchableOpacity style={{ alignItems: "center", gap: 5 }}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("Chat", {
+                  postId: id,
+                })
+              }
+              style={{ alignItems: "center", gap: 5 }}
+            >
               <Chat width={22} height={22} />
               <Text style={styles.chat}>대화하기</Text>
             </TouchableOpacity>

@@ -1,34 +1,36 @@
 import { StyleSheet, SafeAreaView, FlatList } from "react-native";
-import { theme } from "../../colors/color";
-import { ChatListBox } from "../../component/ChatComp";
+import ChatBox from "../../component/chat/ChatBox";
+import { useEffect, useState } from "react";
+import { loadChatList } from "../../api/chat/chat";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function ChatListScreen({ navigation }) {
+  const [cursor, setCursor] = useState(null);
+  const [rooms, setRooms] = useState([]);
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (isFocused) {
+      (async () => {
+        const result = await loadChatList(cursor, 10);
+        console.log("chat list: ", result);
+
+        if (!result) return;
+        if (cursor == null) setRooms(result.rooms || []);
+        else setRooms((prev) => [...prev, ...(result.rooms || [])]);
+      })();
+    }
+  }, [isFocused]);
+
   return (
     <SafeAreaView style={styles.container}>
-      <ChatListBox
-        isWriter={true}
-        isGroup={false}
-        isNewChat={true}
-        title="게시글 제목"
-        content="동행 신청합니당!(새로 온 채팅 내용)"
-        time="19:25"
-      />
-      <ChatListBox
-        isWriter={false}
-        isGroup={true}
-        isNewChat={false}
-        title="게시글제목입니다다"
-        content="너무 즐거웠습니당(마지막 채팅 내용)"
-        time="19:26"
-      />
-      {/* <FlatList
-        data={[0, 1, 2]}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => {
-          return <ChatListBox title="ggggggg"/>;
-        }}
+      <FlatList
+        data={rooms}
+        keyExtractor={(item) => String(item.roomId)}
+        renderItem={({ item }) => <ChatBox item={item} />}
         style={{ flex: 1 }}
-      /> */}
+        scrollEventThrottle={16}
+      />
     </SafeAreaView>
   );
 }

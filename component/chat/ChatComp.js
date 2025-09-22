@@ -7,7 +7,7 @@ import {
   Pressable,
 } from "react-native";
 import { Shadow } from "react-native-shadow-2";
-import { theme } from "../colors/color";
+import { theme } from "../../colors/color";
 import { useNavigation } from "@react-navigation/native";
 
 export function AloneChatBox() {
@@ -28,7 +28,7 @@ export function AloneChatBox() {
         ]}
       >
         <Image
-          source={require("../assets/images/selectphoto/photo1.png")}
+          source={require("../../assets/images/selectphoto/photo1.png")}
           style={styles.aloneImg}
         />
         <View style={styles.textContainer}>
@@ -50,10 +50,10 @@ export function AloneChatBox() {
 
 export function GroupChatBox() {
   const images = [
-    require("../assets/images/selectphoto/photo1.png"),
-    require("../assets/images/selectphoto/photo1.png"),
-    require("../assets/images/selectphoto/photo1.png"),
-    require("../assets/images/selectphoto/photo1.png"),
+    require("../../assets/images/selectphoto/photo1.png"),
+    require("../../assets/images/selectphoto/photo1.png"),
+    require("../../assets/images/selectphoto/photo1.png"),
+    require("../../assets/images/selectphoto/photo1.png"),
   ];
 
   const navigation = useNavigation();
@@ -93,66 +93,6 @@ export function GroupChatBox() {
     </Shadow>
   );
 }
-
-export const ChatListBox = ({ isReceiveCode = true, isGroup }) => {
-  const images = [
-    require("../assets/images/selectphoto/photo1.png"),
-    require("../assets/images/selectphoto/photo1.png"),
-    require("../assets/images/selectphoto/photo1.png"),
-    require("../assets/images/selectphoto/photo1.png"),
-  ];
-
-  const navigation = useNavigation();
-
-  return (
-    <Pressable
-      onPress={() => navigation.navigate("ChatListDetail")}
-      style={({ pressed }) => [
-        styles.chatContainer,
-        { backgroundColor: !pressed ? "#FFF" : theme.gray50 },
-      ]}
-    >
-      {isGroup ? (
-        <View style={styles.imageGrid}>
-          {images.map((image, index) => (
-            <Image key={index} source={image} style={styles.groupImg} />
-          ))}
-        </View>
-      ) : (
-        <View>
-          <Image source={images[0]} style={styles.aloneImg} />
-          <View style={{ position: "absolute", right: -5, bottom: -4 }}>
-            <Shadow
-              distance={2}
-              startColor="rgba(0, 0, 0, 0.1)"
-              finalColor="rgba(0, 0, 0, 0)"
-            >
-              <View style={styles.receivedCodeContainer}>
-                <Image
-                  source={require("../assets/images/chat/receivedCode.png")}
-                  style={{ width: 12, resizeMode: "contain" }}
-                />
-              </View>
-            </Shadow>
-          </View>
-        </View>
-      )}
-
-      <View style={[styles.textContainer, { marginHorizontal: 14 }]}>
-        <Text style={styles.mediumText}>게시글 제목</Text>
-        <Text numberOfLines={1} style={styles.smallText}>
-          ㅋㅋㅋ넹 조아여(마지막 채팅 내용)
-        </Text>
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.timeText}>19:25</Text>
-        <View style={styles.circle}>
-          <Text style={styles.chatNumberText}>2</Text>
-        </View>
-      </View>
-    </Pressable>
-  );
-};
 
 const styles = StyleSheet.create({
   boxContainer: {

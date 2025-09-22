@@ -90,15 +90,14 @@ export const verifyEmailCode = async (email, verificationCode) => {
 // ------------ NickName -------------
 export const handleNickname = async (nickname, setIsError) => {
   try {
-    const response = await axios.post(
+    const { data } = await axios.post(
       `${API_URL}/api/members/nickname/duplicate`,
       {
         nickname: nickname,
       }
     );
-
     setIsError(false);
-    return response.data?.result.checkNickname || false;
+    return data?.result.checkNickname || false;
   } catch (error) {
     console.log("nickname check: ", error);
     showToast(`닉네임 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.`);
