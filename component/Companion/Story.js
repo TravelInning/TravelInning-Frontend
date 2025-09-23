@@ -5,11 +5,11 @@ import { useNavigation } from "@react-navigation/native";
 const Story = ({ item }) => {
   const navigation = useNavigation();
 
-  const { id, title, thumbnailUrl, scraped } = item;
-  const state = "inProgress"; // inProgress, done, ended
+  const { id, title, thumbnailUrl, scraped, createdAt, status } = item;
+  // const state = "inProgress"; // inProgress, done, ended
 
   const goDetail = () => {
-    navigation.navigate("CompanionPostDetail", { id, scraped });
+    navigation.navigate("CompanionPostDetail", { id, scraped, createdAt });
   };
 
   return (
@@ -27,7 +27,7 @@ const Story = ({ item }) => {
           }
           style={styles.circle}
         />
-        {state === "ended" && (
+        {status === "FOUND" && (
           <View
             style={{
               ...styles.circle,
@@ -45,11 +45,11 @@ const Story = ({ item }) => {
           styles.miniCircle,
           {
             backgroundColor:
-              state === "inProgress"
+              status === "FINDING"
                 ? theme.main_blue
-                : state === "done"
-                ? "#545454"
-                : "transperant",
+                : status === "FOUND"
+                ? "transperant"
+                : "#545454",
           },
         ]}
       />

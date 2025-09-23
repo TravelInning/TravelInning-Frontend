@@ -6,6 +6,6 @@ export const loadProfile = async () => {
     return data;
   } catch (error) {
     console.log("load profile error: ", error);
-    return false;
+    return null;
   }
 };

@@ -34,13 +34,16 @@ export default function LoginScreen({ navigation }) {
 
       try {
         const prof = await loadProfile();
-        if (prof?.isSuccess && prof?.result?.memberId != null) {
+        if (prof?.isSuccess && prof?.result) {
           await AsyncStorage.setItem("userId", String(prof.result.memberId));
+          await AsyncStorage.setItem("userName", String(prof.result.nickname));
         } else {
           await AsyncStorage.removeItem("userId");
+          await AsyncStorage.removeItem("userName");
         }
       } catch {
         await AsyncStorage.removeItem("userId");
+        await AsyncStorage.removeItem("userName");
       }
 
       navigation.reset({

@@ -14,15 +14,22 @@ export const loadHeader = async (teamId) => {
 
 export const loadPlace = async ({
   teamId,
-  categoryCodes,
-  useDefaultCategory,
-  myScrapOnly,
-  sort,
+  styleIds,
+  myScrapOnly = false,
+  sort = "id,desc",
+  limit = 200,
 }) => {
   try {
-    const { data } = await apiClient.get(
-      `/api/stadium-attractions/list?teamId=${teamId}&categoryCodes=${categoryCodes}&useDefaultCategory=${useDefaultCategory}&myScrapOnly=${myScrapOnly}&sort=${sort}`
-    );
+    const { data } = await apiClient.get(`/api/stadium-attractions`, {
+      params: {
+        teamId,
+        styleIds,
+        myScrapOnly,
+        unpaged: true,
+        limit,
+        sort,
+      },
+    });
     return data;
   } catch (error) {
     console.log("place load error: ", error);

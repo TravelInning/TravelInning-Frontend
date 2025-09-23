@@ -17,15 +17,20 @@ const SplashScreen = () => {
     const checkAuth = async () => {
       try {
         const data = await loadProfile();
-        if (data?.isSuccess && data?.result?.memberId != null) {
+        if (data?.isSuccess && data?.result) {
           await AsyncStorage.setItem("userId", String(data.result.memberId));
+          await AsyncStorage.setItem("userName", String(data.result.nickname));
           navigation.reset({ index: 0, routes: [{ name: "Main" }] });
         } else {
           await AsyncStorage.removeItem("userId");
+          await AsyncStorage.removeItem("userName");
+
           navigation.reset({ index: 0, routes: [{ name: "LoginScreen" }] });
         }
       } catch (e) {
         await AsyncStorage.removeItem("userId");
+        await AsyncStorage.removeItem("userName");
+
         navigation.reset({ index: 0, routes: [{ name: "LoginScreen" }] });
       }
     };

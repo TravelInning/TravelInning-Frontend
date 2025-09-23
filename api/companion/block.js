@@ -2,8 +2,13 @@ import { showToast } from "../../component/Toast";
 import apiClient from "../../utils/apiClient";
 
 export const addPostBlock = async (postId) => {
-  const { data } = await apiClient.post(`/api/companionPost/${postId}/block`);
-  console.log(data);
+  try {
+    const { data } = await apiClient.post(`/api/companionPost/${postId}/block`);
+    console.log(data);
+    showToast("차단 완료! 해제를 원할 시 마이페이지 설정으로 들어가주세요.");
+  } catch (error) {
+    showToast("차단 실패! 다시 시도해주세요.");
+  }
 };
 
 export const cancelPostBlock = async (postId) => {

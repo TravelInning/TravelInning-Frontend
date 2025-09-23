@@ -21,6 +21,7 @@ import { showToast } from "../../component/Toast";
 import { leaveChat, createGroupChat, joinByInvite } from "../../api/chat/chat";
 import Message from "../../component/chat/Message";
 import { useChatRoom } from "../../hooks/useChatRoom";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const INVITE_RE = /\[초대 코드\]([A-Za-z0-9]+)/;
 
@@ -158,6 +159,9 @@ export default function ChatScreen({ navigation, route }) {
         onClose={() => setExitModalVisible(false)}
         text={`방을 나가는 동시에${"\n"}모든 대화 기록이 삭제됩니다.`}
         onClick={async () => {
+          const userName = await AsyncStorage.getItem("userName");
+          const text = `[SYSTEM] ${userName}님이 대화방을 나갔습니다.`;
+          await onSend(text);
           await leaveChat(roomId);
           navigation.pop();
         }}
@@ -171,16 +175,26 @@ export default function ChatScreen({ navigation, route }) {
             showToast("잠시 후 다시 시도해주세요.");
             return;
           }
+          const data = await createGroupChat(postId, userId);
 
-          const result = await createGroupChat(postId, userId);
-          if (result?.inviteCode) {
+          if (data?.isSuccess) {
+            if (!data?.result?.inviteCode) return;
+            await onSend(`[SYSTEM] 그룹 대화방이 생성되었습니다.`);
             const msg = `[초대 코드]${
-              result.inviteCode
+              data.result.inviteCode
             }${"\n"}말풍선을 꾹 눌러서 입장하세요!`;
             const ok = await onSend(msg);
             if (ok) setInviteModalVisible(false);
           } else {
-            showToast("초대 코드 생성 실패! 잠시 후 다시 시도해주세요.");
+            if (data?.code === "CONFLICT") {
+              // const msg = `[초대 코드]${
+              //   data.result.inviteCode
+              // }${"\n"}말풍선을 꾹 눌러서 입장하세요!`;
+              // const ok = await onSend(msg);
+              // if (ok) setInviteModalVisible(false);
+            } else {
+              showToast(data?.message);
+            }
           }
         }}
       />
@@ -190,9 +204,16 @@ export default function ChatScreen({ navigation, route }) {
         text={`${peerName}님으로부터 초대 코드가 왔습니다!${"\n"} 톡방으로 이동할까요?`}
         onClick={async () => {
           try {
-            const res = await joinByInvite(inviteCode, userId);
-            // 백엔드가 roomId를 반환한다면 여기서 사용하세요.
-            // 예: setRoomId(res.roomId); or navigation.replace("Chat", { initialRoomId: res.roomId, peerName: "그룹" })
+            const data = await joinByInvite(inviteCode, userId);
+            if (data?.isSuccess) {
+              navigation.replace("Chat", {
+                initialRoomId: data?.result.result.slice(3),
+                peerName: "그룹 대화방",
+                postId: postId,
+              });
+            } else {
+              showToast(data.message);
+            }
             setMoveToModalVisible(false);
           } catch {
             showToast("입장에 실패했어요. 초대코드를 확인해주세요.");
