@@ -77,6 +77,10 @@ export default function HomeScreen({ navigation }) {
     if (isFocused) {
       const handleHeader = async () => {
         const id = await AsyncStorage.getItem("teamId");
+        if (!id) {
+          navigation.replace("SelectClub");
+          return;
+        }
         const parseId = id ? parseInt(id, 10) : 1;
         setTeamId(parseId);
         setFilter((prev) => ({ ...prev, teamId: parseId }));

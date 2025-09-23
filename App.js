@@ -3,8 +3,8 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TestPage from "./screens/TestPage";
-import SelectPhotoScreen from "./screens/SignUp/SelectPhotoScreen";
 import SelectClub from "./screens/SignUp/SelectClub";
+import SelectPhoto from "./screens/SignUp/SelectPhoto";
 import HomeScreen from "./screens/HomeScreen";
 import MainScreen from "./screens/MainScreen";
 import NoticeScreen from "./screens/NoticeScreen";
@@ -40,6 +40,7 @@ import FindEmailScreen from "./screens/Login/FindEmailScreen";
 import SuccessScreen from "./screens/Login/SuccessScreen";
 import EditProfile from "./screens/MyPage/Profile/EditProfile";
 import EditDetail from "./screens/MyPage/Profile/EditDetail";
+import Onboarding from "./screens/Onboarding/Onboarding";
 
 const Stack = createNativeStackNavigator();
 
@@ -77,12 +78,17 @@ export default function App() {
           />
           <Stack.Screen
             name="SelectPhoto"
-            component={SelectPhotoScreen}
+            component={SelectPhoto}
             options={{ headerShown: false }}
           />
           <Stack.Screen
             name="SelectClub"
             component={SelectClub}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Onboarding"
+            component={Onboarding}
             options={{ headerShown: false }}
           />
           <Stack.Screen

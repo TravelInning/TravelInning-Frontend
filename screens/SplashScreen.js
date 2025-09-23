@@ -14,30 +14,38 @@ const SplashScreen = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const data = await loadProfile();
-        if (data?.isSuccess && data?.result) {
-          await AsyncStorage.setItem("userId", String(data.result.memberId));
-          await AsyncStorage.setItem("userName", String(data.result.nickname));
-          navigation.reset({ index: 0, routes: [{ name: "Main" }] });
-        } else {
-          await AsyncStorage.removeItem("userId");
-          await AsyncStorage.removeItem("userName");
+    const boot = async () => {
+      const hasOnboarded = await AsyncStorage.getItem("hasOnboarded");
+      const accessToken = await AsyncStorage.getItem("accessToken");
 
-          navigation.reset({ index: 0, routes: [{ name: "LoginScreen" }] });
+      if (accessToken) {
+        try {
+          const prof = await loadProfile();
+          if (prof?.isSuccess && prof?.result) {
+            await AsyncStorage.setItem("userId", String(prof.result.memberId));
+            await AsyncStorage.setItem(
+              "userName",
+              String(prof.result.nickname)
+            );
+            navigation.reset({ index: 0, routes: [{ name: "Main" }] });
+            return;
+          }
+        } catch (e) {
+          await AsyncStorage.multiRemove(["accessToken", "userId", "userName"]);
         }
-      } catch (e) {
-        await AsyncStorage.removeItem("userId");
-        await AsyncStorage.removeItem("userName");
+      }
 
+      await AsyncStorage.removeItem("userId");
+      await AsyncStorage.removeItem("userName");
+
+      if (hasOnboarded === "true") {
         navigation.reset({ index: 0, routes: [{ name: "LoginScreen" }] });
+      } else {
+        navigation.reset({ index: 0, routes: [{ name: "Onboarding" }] });
       }
     };
 
-    const timer = setTimeout(() => {
-      checkAuth();
-    }, 1800);
+    const timer = setTimeout(boot, 1500);
 
     return () => clearTimeout(timer);
   }, []);
