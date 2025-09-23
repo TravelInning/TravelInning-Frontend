@@ -53,24 +53,10 @@ export default function TestPage({ navigation, route }) {
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => navigation.push("LoginScreen")}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>로그인 테스트</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.5}
           onPress={() => navigation.push("Chat")}
           style={styles.button}
         >
           <Text style={styles.buttonText}>채팅창</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.5}
-          onPress={() => navigation.push("CompanionPostDetail")}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>동행찾기화면-지윤</Text>
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
@@ -81,10 +67,10 @@ export default function TestPage({ navigation, route }) {
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => navigation.push("Splash")}
+          onPress={() => navigation.push("Onboarding")}
           style={styles.button}
         >
-          <Text style={styles.buttonText}>스플래시</Text>
+          <Text style={styles.buttonText}>온보딩</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

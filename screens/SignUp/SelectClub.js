@@ -19,7 +19,7 @@ export default function SelectClub({ navigation, route }) {
 
   useEffect(() => {
     const loadTeamId = async () => {
-      const data = await AsyncStorage("teamId");
+      const data = await AsyncStorage.getItem("teamId");
       const parsedData = data ? parseInt(data, 10) : null;
       setSelectedTeam(parsedData);
       setTeamId(parsedData);

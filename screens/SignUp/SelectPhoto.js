@@ -11,14 +11,14 @@ import {
 } from "react-native";
 import { theme, SCREEN_HEIGHT } from "../../colors/color";
 import Check from "../../assets/icon/check.svg";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import BottomBtn from "../../component/BottomBtn";
 import { selectTravelStyle } from "../../api/signup/travelStyle";
 
 // 디바이스에 따라 메인 마진값 조절
 const MARGIN = SCREEN_HEIGHT / 40;
 
-export default function SelectPhotoScreen({ navigation }) {
+export default function SelectPhoto({ navigation }) {
   const [selectedKeyword, setSelectedKeyword] = useState([]);
   const keywords = ["자연", "인문", "레포츠", "쇼핑", "음식", "기타"];
   const imageMap = {
@@ -44,7 +44,6 @@ export default function SelectPhotoScreen({ navigation }) {
       selectedKeyword[1]
     );
     if (isSucccess) {
-      // 온보딩 이동으로 변동 가능성있음
       navigation.reset({
         index: 0,
         routes: [{ name: "Main" }],

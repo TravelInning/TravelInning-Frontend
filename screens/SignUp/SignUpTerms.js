@@ -12,6 +12,7 @@ import { Shadow } from "react-native-shadow-2";
 import Check from "../../assets/icon/check_white.svg";
 import { SignUpBtn } from "../../component/SignUpComp";
 import { handleSignUp } from "../../api/signup/signup";
+import { showToast } from "../../component/Toast";
 
 export default function SignUpTerms({ navigation, route }) {
   const [selectedTerms, setSelectedTerms] = useState([
@@ -138,11 +139,12 @@ export default function SignUpTerms({ navigation, route }) {
             selectedTerms
           );
           if (isSuccess) {
+            showToast("회원가입 완료!");
             navigation.replace("LoginScreen");
           }
         }}
         backText={"닫기"}
-        backFunction={() => navigation.navigate("Main")}
+        backFunction={() => navigation.navigate("Splash")}
       />
     </SafeAreaView>
   );
