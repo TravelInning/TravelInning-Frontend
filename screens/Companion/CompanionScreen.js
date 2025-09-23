@@ -17,14 +17,18 @@ import { WriteButton } from "../../component/Companion/CompanionComp";
 import DropDown from "../../assets/icon/dropdown.svg";
 import DropDowBlue from "../../assets/icon/companion/dropdown.svg";
 import { useCallback, useEffect, useRef, useState } from "react";
-import CancleConfirmModal from "../../component/CancleConfirmModal";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import { loadCompanionPosts } from "../../api/companion/post";
+import {
+  changePostState,
+  deletePost,
+  loadCompanionPosts,
+} from "../../api/companion/post";
 import { PostCard } from "../../component/Companion/PostCard";
 import { addPostScrap, cancelPostScrap } from "../../api/companion/scrap";
 import { FilterDropDown } from "../../component/Companion/FilterDropDown";
 import Story from "../../component/Companion/Story";
 import { showToast } from "../../component/Toast";
+import { addPostBlock } from "../../api/companion/block";
 
 const filterMap = {
   sortType: {
@@ -37,6 +41,15 @@ const filterMap = {
     구했어요: "FOUND",
     구하는중: "FINDING",
   },
+};
+
+const sortCompanionStoryPosts = (list) => {
+  return [...list].sort((a, b) => {
+    if (a.status !== b.status) {
+      return a.status === "FINDING" ? -1 : 1;
+    }
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
 };
 
 export default function CompanionScreen() {
@@ -52,7 +65,6 @@ export default function CompanionScreen() {
     statusFilter: "ALL",
   });
 
-  const [modalVisible, setModalVisible] = useState(false);
   const [filter1State, setFilter1State] = useState("최신순");
   const [filter2State, setFilter2State] = useState("전체 조건");
   const [filterVisible, setFilterVisible] = useState(false);
@@ -81,7 +93,9 @@ export default function CompanionScreen() {
           sortType: "SCRAP",
           statusFilter: "ALL",
         });
-        if (content) setStoryPosts(content);
+        if (content) {
+          setStoryPosts(sortCompanionPosts(content));
+        }
       })();
     }
   }, [isFocused]);
@@ -121,9 +135,39 @@ export default function CompanionScreen() {
       setPosts((prev) =>
         prev.map((p) => (p.id === postId ? { ...p, scraped: next } : p))
       );
+
+      setStoryPosts((prev) => {
+        let updated = prev;
+        if (next) {
+          const post = posts.find((p) => p.id === postId);
+          if (post) {
+            updated = [...prev, { ...post, scraped: true }];
+          }
+        } else {
+          updated = prev.filter((p) => p.id !== postId);
+        }
+        return sortCompanionStoryPosts(updated);
+      });
     } catch (e) {
       showToast("스크랩 오류! 다시 시도해주세요.");
     }
+  }, []);
+
+  const handleChangeState = useCallback(async (postId, newStatus) => {
+    await changePostState(postId, newStatus);
+    setPosts((prev) =>
+      prev.map((p) => (p.id === postId ? { ...p, status: newStatus } : p))
+    );
+  }, []);
+
+  const handleDeletePost = useCallback(async (postId) => {
+    await deletePost(postId);
+    setPosts((prev) => prev.filter((p) => p.id !== postId));
+  }, []);
+
+  const handleBlockPost = useCallback(async (postId) => {
+    await addPostBlock(postId);
+    setPosts((prev) => prev.filter((p) => p.id !== postId));
   }, []);
 
   return (
@@ -245,17 +289,12 @@ export default function CompanionScreen() {
         renderItem={({ item }) => (
           <PostCard
             item={item}
-            setDeleteModalVisible={setModalVisible}
             onToggleScrap={handleToggleScrap}
+            onChangeState={handleChangeState}
+            onDeletePost={handleDeletePost}
+            onBlockPost={handleBlockPost}
           />
         )}
-      />
-      {/* delete modal */}
-      <CancleConfirmModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        text={`한 번 삭제한 글은 복구할 수 없습니다.\n정말 삭제하시겠습니까?`}
-        onClick={() => {}}
       />
       {/* write button */}
       <WriteButton onClick={() => navigation.navigate("CompanionForm")} />

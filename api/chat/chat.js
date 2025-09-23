@@ -6,7 +6,7 @@ export const loadChatList = async (cursor, size = 20) => {
     const params = { size };
     if (cursor != null) params.cursor = cursor;
     const { data } = await apiClient.get("/api/chats/rooms", { params });
-    console.log("load chat list: ", data);
+    console.log("load chat list: ", data.result.rooms);
     return data?.result;
   } catch (error) {
     console.error("loadChatList error: ", error);
@@ -18,8 +18,6 @@ export const loadChatList = async (cursor, size = 20) => {
 export const loadRoomSummary = async (roomId) => {
   try {
     const { data } = await apiClient.get(`/api/chats/rooms/${roomId}/summary`);
-    console.log("summary: ", data);
-    console.log("load summary: ", data);
     return data?.result;
   } catch (error) {
     console.error(
@@ -43,7 +41,6 @@ export const loadMessages = async ({
       `/api/compnaion/chats/rooms/${roomId}/messages`,
       { params }
     );
-    console.log("load messages: ", data);
     return data?.result;
   } catch (error) {
     console.error(
@@ -84,7 +81,7 @@ export const createGroupChat = async (postId, ownerId) => {
       ownerId,
     });
     console.log("create GroupRoom: ", data);
-    return data.result;
+    return data;
   } catch (error) {
     console.error("create GroupRoom error: ", error);
     showToast("잠시 후 다시 시도해주세요.");
@@ -99,24 +96,9 @@ export const joinByInvite = async (inviteCode, userId) => {
         inviteCode
       )}&userId=${userId}`
     );
-    console.log("move to GroupRoom: ", data);
-    return data?.result;
+    return data;
   } catch (error) {
     console.error("move to GroupRoom error: ", error);
-    showToast("error.message");
     return null;
-  }
-};
-
-export const pingRoom = async (roomId) => {
-  try {
-    const { data } = await apiClient.get(
-      `/api/compnaion/chats/rooms/${roomId}`
-    );
-    console.log("pingRoom ok:", data);
-    return true;
-  } catch (e) {
-    console.log("pingRoom fail:", e?.response?.data || e?.message);
-    return false;
   }
 };

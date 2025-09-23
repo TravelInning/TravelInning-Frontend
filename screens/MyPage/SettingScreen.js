@@ -88,6 +88,7 @@ export default function SettingScreen({ navigation }) {
 
           await AsyncStorage.removeItem("accessToken");
           await AsyncStorage.removeItem("userId");
+          await AsyncStorage.removeItem("userName");
           await SecureStore.deleteItemAsync("refreshToken");
           navigation.reset({
             index: 0,

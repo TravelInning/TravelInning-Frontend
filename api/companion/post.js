@@ -74,9 +74,9 @@ export const loadPublicPost = async (postId) => {
 export const loadPost = async (postId) => {
   try {
     const { data } = await apiClient.get(`/api/companionPost/${postId}`);
+    console.log(data);
     return data.result;
   } catch (error) {
-    console.log("load post error: ", error);
     showToast("게시글을 불러오는데 실패했습니다! 다시 시도해주세요.");
     return null;
   }
@@ -84,26 +84,19 @@ export const loadPost = async (postId) => {
 
 export const changePostState = async (postId, status) => {
   try {
-    const { data } = await apiClient.fetch(
-      `/api/companionPost/${postId}/status`,
-      {
-        status: status,
-      }
-    );
-    console.log("reponse: ", data);
+    await apiClient.patch(`/api/companionPost/${postId}/status`, {
+      status,
+    });
   } catch (error) {
-    console.log("change state error: ", error);
     showToast("상태변경 실패! 다시 시도해주세요.");
   }
 };
 
 export const deletePost = async (postId) => {
   try {
-    const { data } = await apiClient.delete(`/api/companionPost/${postId}`);
-    console.log("delete reponse: ", data);
+    await apiClient.delete(`/api/companionPost/${postId}`);
     showToast("삭제 완료!");
   } catch (error) {
-    console.log("delete post error: ", error);
     showToast("삭제 실패! 다시 시도해주세요.");
   }
 };

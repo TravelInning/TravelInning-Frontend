@@ -15,14 +15,31 @@ import { useRef, useState } from "react";
 import SeeMoreModal from "../SeeMoreModal";
 import { useNavigation } from "@react-navigation/native";
 import { Chip } from "./CompanionComp";
+import { mmdd } from "../../utils/time";
+import CancleConfirmModal from "../CancleConfirmModal";
 
-export const PostCard = ({ item, setDeleteModalVisible, onToggleScrap }) => {
+export const PostCard = ({
+  item,
+  onToggleScrap,
+  onChangeState,
+  onDeletePost,
+  onBlockPost,
+}) => {
   const navigation = useNavigation();
 
-  const { id, title, content, authorName, scraped, thumbnailUrl } = item;
-  const isDone = false;
-  const date = "09.17";
+  const {
+    id,
+    title,
+    content,
+    authorName,
+    scraped,
+    thumbnailUrl,
+    mine,
+    status,
+    createdAt,
+  } = item;
   const [modalVisible, setModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0 });
   const buttonRef = useRef(null);
 
@@ -40,7 +57,7 @@ export const PostCard = ({ item, setDeleteModalVisible, onToggleScrap }) => {
   };
 
   const goDetail = () => {
-    navigation.navigate("CompanionPostDetail", { id, scraped });
+    navigation.navigate("CompanionPostDetail", { id, scraped, createdAt });
   };
 
   return (
@@ -61,9 +78,9 @@ export const PostCard = ({ item, setDeleteModalVisible, onToggleScrap }) => {
           style={{ ...theme.rowContainer, justifyContent: "space-between" }}
         >
           <Text style={styles.date_authorName}>
-            {date} • {authorName}
+            {mmdd(createdAt)} • {authorName}
           </Text>
-          <Chip isDone={isDone} />
+          <Chip status={status} />
         </View>
       </View>
       {/* image */}
@@ -122,22 +139,43 @@ export const PostCard = ({ item, setDeleteModalVisible, onToggleScrap }) => {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         buttonPosition={buttonPosition}
-        setDeleteModalVisible={setDeleteModalVisible}
-        options={[
-          { type: "share", text: "공유하기", onPress: () => {} },
-          {
-            type: "change",
-            text: "상태 변경하기",
-            color: theme.main_blue,
-            onPress: () => {},
-          },
-          {
-            type: "reject",
-            text: "삭제하기",
-            color: "#f00",
-            onPress: () => setDeleteModalVisible(true),
-          },
-        ]}
+        options={
+          mine
+            ? [
+                { type: "share", text: "공유하기", onPress: () => {} },
+                {
+                  type: "change",
+                  text: "상태 변경하기",
+                  color: theme.main_blue,
+                  onPress: async () => {
+                    const newStatus =
+                      status === "FINDING" ? "FOUND" : "FINDING";
+                    await onChangeState?.(id, newStatus);
+                  },
+                },
+                {
+                  type: "reject",
+                  text: "삭제하기",
+                  color: "#f00",
+                  onPress: () => setDeleteModalVisible(true),
+                },
+              ]
+            : [
+                { type: "share", text: "공유하기", onPress: () => {} },
+                {
+                  type: "reject",
+                  text: "이 게시글 차단하기",
+                  color: "#f00",
+                  onPress: async () => await onBlockPost(id),
+                },
+              ]
+        }
+      />
+      <CancleConfirmModal
+        visible={deleteModalVisible}
+        onClose={() => setDeleteModalVisible(false)}
+        text={`한 번 삭제한 글은 복구할 수 없습니다.\n정말 삭제하시겠습니까?`}
+        onClick={async () => await onDeletePost(id)}
       />
     </Pressable>
   );

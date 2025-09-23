@@ -13,7 +13,7 @@ export default function ChatListScreen({ navigation }) {
     if (isFocused) {
       (async () => {
         const result = await loadChatList(cursor, 10);
-        console.log("chat list: ", result);
+        // console.log("chat list: ", result);
 
         if (!result) return;
         if (cursor == null) setRooms(result.rooms || []);

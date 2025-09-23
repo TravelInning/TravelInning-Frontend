@@ -8,12 +8,11 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { loadPost } from "../../api/companion/post";
+import { changePostState, loadPost } from "../../api/companion/post";
 import { theme } from "../../colors/color";
 import Share from "../../assets/icon/companion/share.svg";
 import SeeMore from "../../assets/icon/companion/see_more.svg";
 import Chat from "../../assets/icon/companion/chat.svg";
-import Left from "../../assets/icon/left_arrow.svg";
 import { Chip } from "../../component/Companion/CompanionComp";
 import BookmarkFalse from "../../assets/icon/bookmark_false.svg";
 import BookmarkTrue from "../../assets/icon/bookmark_true.svg";
@@ -21,25 +20,34 @@ import { showToast } from "../../component/Toast";
 import { addPostScrap, cancelPostScrap } from "../../api/companion/scrap";
 import OptionModal from "../../component/common/OptionModal";
 import { Header } from "../../component/Header/Header";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { timeAgo } from "../../utils/time";
+import { openOrCreateOneOnOne } from "../../api/chat/openOrCreate";
 
 const CompanionPostDetail = ({ navigation, route }) => {
-  const { id, scraped } = route.params;
+  const { id, scraped, createdAt } = route.params;
   const [post, setPost] = useState(null);
   const [isScrap, setIsScrap] = useState(!!scraped);
   const [pending, setPending] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [isDone, setIsDone] = useState("FINDING");
+  const [userName, setUserName] = useState(null);
 
   useEffect(() => {
-    (async () => {
+    const handlePost = async () => {
       const result = await loadPost(id);
       if (result) setPost(result);
-    })();
+    };
+    const handleUserName = async () => {
+      try {
+        const nickname = await AsyncStorage.getItem("userName");
+        setUserName(nickname);
+      } catch (error) {
+        console.log("getItem userName error: ", error);
+      }
+    };
+    handlePost();
+    handleUserName();
   }, []);
-
-  useEffect(() => {
-    console.log("isDone: ", isDone);
-  }, [isDone]);
 
   const toggleScrap = async () => {
     if (pending) return;
@@ -56,6 +64,23 @@ const CompanionPostDetail = ({ navigation, route }) => {
     }
   };
 
+  const onClickChat = async () => {
+    try {
+      const { roomId, peerName: name } = await openOrCreateOneOnOne(id);
+      if (!roomId) {
+        showToast("대화방을 만들 수 없어요. 잠시 후 다시 시도해주세요.");
+        return;
+      }
+      navigation.navigate("Chat", {
+        initialRoomId: roomId,
+        postId: id,
+        peerName: name || post?.authorName || "상대 닉네임",
+      });
+    } catch (e) {
+      showToast("대화방 열기에 실패했어요.");
+    }
+  };
+
   return (
     <SafeAreaView style={theme.container}>
       {/* header */}
@@ -64,16 +89,18 @@ const CompanionPostDetail = ({ navigation, route }) => {
           <TouchableOpacity>
             <Share width={15} height={15} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <SeeMore width={15} height={15} />
-          </TouchableOpacity>
+          {post?.authorName === userName && (
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <SeeMore width={15} height={15} />
+            </TouchableOpacity>
+          )}
         </View>
       </Header>
 
       {/* content */}
       <ScrollView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
         <View style={{ ...styles.container, paddingBottom: 12 }}>
-          <Chip isDone={isDone} />
+          <Chip status={post?.status} />
           <View style={styles.userHeader}>
             <View style={{ flexDirection: "row", gap: 5 }}>
               <Image
@@ -82,20 +109,18 @@ const CompanionPostDetail = ({ navigation, route }) => {
               />
               <View style={{ gap: 3 }}>
                 <Text style={styles.nickname}>{post?.authorName}</Text>
-                <Text style={styles.time}>2시간 전</Text>
+                <Text style={styles.time}>{timeAgo(createdAt)}</Text>
               </View>
             </View>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("Chat", {
-                  postId: id,
-                })
-              }
-              style={{ alignItems: "center", gap: 5 }}
-            >
-              <Chat width={22} height={22} />
-              <Text style={styles.chat}>대화하기</Text>
-            </TouchableOpacity>
+            {post?.authorName !== userName && (
+              <TouchableOpacity
+                onPress={onClickChat}
+                style={{ alignItems: "center", gap: 5 }}
+              >
+                <Chat width={22} height={22} />
+                <Text style={styles.chat}>대화하기</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           <View style={styles.textContainer}>
@@ -135,6 +160,12 @@ const CompanionPostDetail = ({ navigation, route }) => {
           },
           {
             label: "상태 변경하기",
+            onPress: async () => {
+              await changePostState(
+                id,
+                post.status === "FINDING" ? "FOUND" : "FINDING"
+              );
+            },
             hasNext: true,
           },
           {
@@ -147,8 +178,13 @@ const CompanionPostDetail = ({ navigation, route }) => {
           },
         ]}
         subOptions={["FINDING", "FOUND"]}
-        selectedSub={isDone}
-        onSelectSub={(value) => setIsDone(value)}
+        selectedSub={post?.status}
+        onSelectSub={(value) =>
+          setPost((prev) => ({
+            ...prev,
+            status: value,
+          }))
+        }
       />
     </SafeAreaView>
   );

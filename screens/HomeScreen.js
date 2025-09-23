@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   Image,
   ImageBackground,
@@ -24,6 +30,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { addPlaceBlock } from "../api/place/block";
 import { useIsFocused } from "@react-navigation/native";
 import OptionModal from "../component/common/OptionModal";
+import { ymdw } from "../utils/time";
 
 export default function HomeScreen({ navigation }) {
   const isFocused = useIsFocused();
@@ -39,10 +46,9 @@ export default function HomeScreen({ navigation }) {
   });
   const [filter, setFilter] = useState({
     teamId: null,
-    categoryCodes: "",
+    styleIds: "",
     useDefaultCategory: false,
     myScrapOnly: false,
-    sort: "popularity",
   });
   const [places, setPlaces] = useState([]);
 
@@ -93,17 +99,6 @@ export default function HomeScreen({ navigation }) {
     }
   }, [filter, isFocused]);
 
-  const formattedDate = (date) => {
-    const weekMap = ["일", "월", "화", "수", "목", "금", "토"];
-    const newDate = new Date(date);
-    const year = String(newDate.getFullYear()).slice(2);
-    const month = String(newDate.getMonth() + 1).padStart(2, "0");
-    const day = String(newDate.getDate()).padStart(2, "0");
-    const week = weekMap[newDate.getDay()];
-
-    return `${year}.${month}.${day}(${week})`;
-  };
-
   const handlePlaceBlock = async (targetId) => {
     try {
       await addPlaceBlock(targetId);
@@ -112,6 +107,23 @@ export default function HomeScreen({ navigation }) {
       showToast("차단 실패! 다시 시도해주세요.");
     }
   };
+
+  const modalOptions = useMemo(
+    () => [
+      {
+        type: "reject",
+        text: "더 이상 추천받지 않음",
+        color: "#f00",
+        onPress: (id) => handlePlaceBlock(id),
+      },
+    ],
+    []
+  );
+
+  const renderPlaceCard = useCallback(
+    ({ item }) => <PlaceCard place={item} modalOptions={modalOptions} />,
+    [modalOptions]
+  );
 
   return (
     <SafeAreaView style={theme.container}>
@@ -239,7 +251,7 @@ export default function HomeScreen({ navigation }) {
                 color: "#505050",
               }}
             >
-              {`${formattedDate(headerData.gameDate)} | `}
+              {`${ymdw(headerData.gameDate)} | `}
             </Text>
             <Text
               style={{
@@ -309,27 +321,18 @@ export default function HomeScreen({ navigation }) {
             </View>
             <FlatList
               data={places}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <PlaceCard
-                  place={item}
-                  modalOptions={[
-                    { type: "share", text: "공유하기", onPress: () => {} },
-                    {
-                      type: "reject",
-                      text: "더 이상 추천받지 않음",
-                      color: "#f00",
-                      onPress: () => handlePlaceBlock(item.id),
-                    },
-                  ]}
-                />
-              )}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={renderPlaceCard}
               contentContainerStyle={styles.scroll}
               onScroll={Animated.event(
                 [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                 { useNativeDriver: false }
               )}
               scrollEventThrottle={16}
+              initialNumToRender={10}
+              maxToRenderPerBatch={10}
+              windowSize={5}
+              removeClippedSubviews
             />
           </ImageBackground>
         </View>
@@ -340,11 +343,15 @@ export default function HomeScreen({ navigation }) {
         options={[
           {
             label: "내가 선택한 관광지 키워드만 보기",
-            onPress: () =>
+            onPress: () => {
+              if (!filter.useDefaultCategory) {
+                setFilter((f) => ({ ...f, styleIds: "" }));
+              }
               setFilter((f) => ({
                 ...f,
                 useDefaultCategory: !f.useDefaultCategory,
-              })),
+              }));
+            },
             selected: filter.useDefaultCategory,
           },
           {
@@ -359,10 +366,14 @@ export default function HomeScreen({ navigation }) {
           },
         ]}
         subOptions={["음식", "인문", "쇼핑", "기타"]}
-        selectedSub={filter.categoryCodes}
-        onSelectSub={(value) =>
-          setFilter((f) => ({ ...f, categoryCodes: value }))
-        }
+        selectedSub={filter.styleIds}
+        onSelectSub={(value) => {
+          setFilter((f) => ({
+            ...f,
+            styleIds: value,
+            useDefaultCategory: false,
+          }));
+        }}
       />
     </SafeAreaView>
   );

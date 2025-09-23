@@ -4,6 +4,12 @@ import { SCREEN_WIDTH, theme } from "../../colors/color";
 
 const Message = ({ item, handleLongPress }) => {
   const isLeft = item.side === "left";
+  const isSystem = item.text?.startsWith("[SYSTEM]");
+
+  if (isSystem) {
+    return <Text style={styles.chatStartText}>{item.text}</Text>;
+  }
+
   return (
     <View style={{ marginBottom: item.marginBottom }}>
       {isLeft && item.showPeerHeader && (
@@ -77,6 +83,14 @@ const Message = ({ item, handleLongPress }) => {
 };
 
 const styles = StyleSheet.create({
+  chatStartText: {
+    alignSelf: "center",
+    paddingBottom: 40,
+    fontFamily: "Pretendard-Medium",
+    fontSize: 12,
+    color: "#6B6B6B",
+    textDecorationLine: "underline",
+  },
   row: {
     flexDirection: "row",
     alignItems: "flex-end",

@@ -26,7 +26,6 @@ export default function MainScreen() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          height: 70,
           alignItems: "center",
           justifyContent: "center",
           paddingBottom: 22,
