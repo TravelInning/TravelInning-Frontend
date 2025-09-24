@@ -1,20 +1,22 @@
-import { SafeAreaView, StyleSheet, View, Text, FlatList } from "react-native";
+import { StyleSheet, View, Text, FlatList, RefreshControl } from "react-native";
 import { theme } from "../../../colors/color";
 import { Header } from "../../../component/Header/Header";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { useState } from "react";
-import { useRoute } from "@react-navigation/native";
+import { useCallback, useMemo, useState } from "react";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
 import PlaceCard from "../../../component/Home/PlaceCard";
 import ItemCard from "../../../component/MyPage/ItemCard";
 import { showToast } from "../../../component/Toast";
 import { loadScrapPlaces } from "../../../api/place/scrap";
 import { loadScrapPosts } from "../../../api/companion/scrap";
+import { loadScrapStoryRooms } from "../../../api/storyroom/scrap";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Tab = createMaterialTopTabNavigator();
 
-export default function MyScrapScreen({ navigation }) {
+export default function MyScrapScreen({}) {
   return (
-    <SafeAreaView style={theme.container}>
+    <SafeAreaView style={styles.container}>
       <Header title="스크랩" />
       <Tab.Navigator
         initialRouteName={"추천 장소"}
@@ -44,17 +46,17 @@ export default function MyScrapScreen({ navigation }) {
         <Tab.Screen
           name="추천 장소"
           component={ScrapScreen}
-          options={{ tabBarLabel: "추천 장소" }}
+          initialParams={{ type: "place" }}
         />
         <Tab.Screen
           name="동행 구하기"
           component={ScrapScreen}
-          options={{ tabBarLabel: "동행 구하기" }}
+          initialParams={{ type: "companion" }}
         />
         <Tab.Screen
           name="이야기방"
           component={ScrapScreen}
-          options={{ tabBarLabel: "이야기방" }}
+          initialParams={{ type: "story" }}
         />
       </Tab.Navigator>
     </SafeAreaView>
@@ -63,78 +65,87 @@ export default function MyScrapScreen({ navigation }) {
 
 const ScrapScreen = () => {
   const route = useRoute();
-  const tabName = route.name;
+  const type = route.params?.type ?? "place";
   const [list, setList] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useState(() => {
+  const config = useMemo(
+    () => ({
+      place: {
+        load: loadScrapPlaces,
+        render: (item) => (
+          <PlaceCard
+            place={item}
+            modalOptions={[
+              { type: "share", text: "공유하기", onPress: () => {} },
+            ]}
+          />
+        ),
+      },
+      companion: {
+        load: loadScrapPosts,
+        render: (item) => (
+          <ItemCard
+            item={item}
+            from="companion"
+            isHaveScrap={true}
+            modalOptions={[
+              { type: "share", text: "공유하기", onPress: () => {} },
+            ]}
+          />
+        ),
+      },
+      story: {
+        load: loadScrapStoryRooms,
+        render: (item) => (
+          <ItemCard
+            item={item}
+            from="story"
+            isHaveScrap={true}
+            modalOptions={[
+              { type: "share", text: "공유하기", onPress: () => {} },
+            ]}
+          />
+        ),
+      },
+    }),
+    []
+  );
+
+  const current = config[type];
+
+  const fetchData = useCallback(async () => {
     try {
-      if (tabName === "추천 장소") {
-        loadPlaces();
-      } else if (tabName === "동행 구하기") {
-        loadPosts();
-      } else {
-      }
-    } catch (error) {
-      console.log("load error: ", error);
+      const data = await current.load();
+      if (data) setList(data);
+    } catch (e) {
+      console.log("load error: ", e);
       showToast("로드 오류 발생!");
     }
-  }, []);
+  }, [current]);
 
-  async function loadPlaces() {
-    const data = await loadScrapPlaces();
-    if (data) {
-      setList(data);
-    }
-  }
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData])
+  );
 
-  async function loadPosts() {
-    const data = await loadScrapPosts();
-    if (data) {
-      setList(data);
-    }
-  }
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  }, [fetchData]);
 
-  const renderItem = ({ item }) => {
-    if (tabName === "추천 장소") {
-      return (
-        <PlaceCard
-          place={item}
-          modalOptions={[
-            { type: "share", text: "공유하기", onPress: () => {} },
-          ]}
-        />
-      );
-    } else if (tabName === "동행 구하기") {
-      return (
-        <ItemCard
-          item={item}
-          from="companion"
-          isHaveScrap={true}
-          modalOptions={[
-            { type: "share", text: "공유하기", onPress: () => {} },
-          ]}
-        />
-      );
-    } else {
-      return (
-        <ItemCard
-          item={item}
-          from="story"
-          isHaveScrap={true}
-          modalOptions={[
-            { type: "share", text: "공유하기", onPress: () => {} },
-          ]}
-        />
-      );
-    }
-  };
+  const renderItem = useCallback(({ item }) => current.render(item), [current]);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.listContainer}>
       <FlatList
         data={list}
         renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item, index) =>
+          item?.id != null ? String(item.id) : String(index)
+        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>목록 없음</Text>
@@ -148,6 +159,9 @@ const ScrapScreen = () => {
           paddingVertical: 24,
           gap: 20,
         }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
     </View>
   );
@@ -155,6 +169,10 @@ const ScrapScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  listContainer: {
     flex: 1,
     backgroundColor: "#FFF",
     borderTopWidth: 1,

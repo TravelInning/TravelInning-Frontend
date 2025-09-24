@@ -1,3 +1,5 @@
+// src/screen/Story/StoryScreen.jsx
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   FlatList,
   SafeAreaView,
@@ -8,28 +10,50 @@ import {
   Image,
 } from "react-native";
 import { WriteButton } from "../../component/Companion/CompanionComp";
-import { SCREEN_WIDTH, theme } from "../../colors/color";
-import { useRef, useState } from "react";
-import { StoryBox } from "../../component/Story/StoryComp";
-import Carousel from "react-native-reanimated-carousel";
+import { theme } from "../../colors/color";
 import DropDown from "../../assets/icon/dropdown.svg";
 import DropDowBlue from "../../assets/icon/companion/dropdown.svg";
-import { FilterDropDown } from "../../component/Story/StoryComp";
+import StoryBox from "../../component/Story/StoryBox";
+import TopCarousel from "../../component/Story/TopCarousel";
+import FilterDropDown from "../../component/Story/FilterDropDown";
+import { loadStoryRoomList } from "../../api/storyroom/room";
+import {
+  addStoryPostScrap,
+  cancelStoryPostScrap,
+} from "../../api/storyroom/scrap";
+import { addStoryPostBlock } from "../../api/storyroom/block";
+import { useIsFocused } from "@react-navigation/native";
+import { showToast } from "../../component/Toast";
+
+const filterMap = {
+  filter1: { 전체: null, 최신순: "LATEST", 스크랩: "SCRAP" },
+  filter2: {
+    "전체 조건": null,
+    이야기해요: "IN_PROGRESS",
+    끝난이야기: "ENDED",
+  },
+  filter3: {
+    "전체 조건": null,
+    야구: "BASEBALL",
+    연애: "LOVE",
+    일상: "DAILY",
+    뉴스: "NEWS",
+  },
+};
 
 export default function StoryScreen({ navigation }) {
-  // TOP3 carousel(swiper)
+  const isFocused = useIsFocused();
   const [activeSlide, setActiveSlide] = useState(0);
-  // filter
-  const [filter1State, setFilter1State] = useState("전체");
-  const [filter2State, setFilter2State] = useState("전체 조건");
-  const [filter3State, setFilter3State] = useState("전체 조건");
+  const [filter1, setFilter1] = useState("최신순");
+  const [filter2, setFilter2] = useState("전체 조건");
+  const [filter3, setFilter3] = useState("전체 조건");
   const [filterVisible, setFilterVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
   const [selectedFilter, setSelectedFilter] = useState(null);
-
   const filter1ButtonRef = useRef(null);
   const filter2ButtonRef = useRef(null);
   const filter3ButtonRef = useRef(null);
+  const [rooms, setRooms] = useState([]);
 
   const openModal = (ref, filterName) => {
     if (ref.current) {
@@ -41,141 +65,118 @@ export default function StoryScreen({ navigation }) {
     }
   };
 
-  const DATA = [
-    {
-      id: "1",
-      category: "야구",
-      time: "11분 전",
-      content:
-        "한화는 언제쯤 우승해볼 수 있을까? 좋은 선수들은 많이 가지고 있으니까 앞으로 잘 하면 될거같은데",
-      limitedTime: "14:59",
-      photo: require("../../assets/images/companion/logo.png"),
-    },
-    {
-      id: "2",
-      category: "농구",
-      time: "5분 전",
-      content: "어제 경기 미쳤다.. 마지막 3점슛 대박",
-      limitedTime: "13:20",
-      photo: require("../../assets/images/companion/logo.png"),
-    },
-    {
-      id: "3",
-      category: "축구",
-      time: "20분 전",
-      content: "이번 시즌 손흥민 폼 장난 아닌 듯",
-      limitedTime: "12:45",
-      photo: require("../../assets/images/companion/logo.png"),
-    },
-  ];
+  useEffect(() => {
+    (async () => {
+      const data = await loadStoryRoomList({
+        status: filterMap.filter2[filter2],
+        sortType: filterMap.filter1[filter1],
+        topic: filterMap.filter3[filter3],
+      });
+      setRooms(data || []);
+    })();
+  }, [filter1, filter2, filter3, isFocused]);
+
+  const handleToggleScrap = useCallback(async (id, next) => {
+    try {
+      const ok = next
+        ? await addStoryPostScrap(id)
+        : await cancelStoryPostScrap(id);
+      if (!ok) return;
+      setRooms((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, scrapped: next } : p))
+      );
+    } catch {
+      showToast("스크랩 오류! 다시 시도해주세요.");
+    }
+  }, []);
+
+  const handleBlockRoom = useCallback(async (id) => {
+    const ok = await addStoryPostBlock(id);
+    if (ok) setRooms((prev) => prev.filter((p) => p.id !== id));
+  }, []);
+
+  const topData = rooms.slice(0, 3);
+
+  const renderStoryItem = useCallback(
+    ({ item }) => (
+      <StoryBox
+        item={item}
+        onToggleScrap={handleToggleScrap}
+        onBlockRoom={handleBlockRoom}
+      />
+    ),
+    [handleToggleScrap, handleBlockRoom]
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* top3 */}
-      <View style={styles.topContainer}>
-        {/* story box */}
-        {/* carousel modal 터치 방해로 눈속임 */}
-        {filterVisible ? (
-          <View style={[styles.carouselItemContainer, { marginBottom: 2 }]}>
-            <StoryBox
-              category={DATA[activeSlide].category}
-              time={DATA[activeSlide].time}
-              content={DATA[activeSlide].content}
-              limitedTime={DATA[activeSlide].limitedTime}
-              photo={DATA[activeSlide].photo}
-            />
-          </View>
-        ) : (
-          <Carousel
-            loop
-            width={SCREEN_WIDTH}
-            height={200}
-            autoPlay={true}
-            data={DATA}
-            scrollAnimationDuration={2500}
-            onSnapToItem={(index) => setActiveSlide(index)}
-            renderItem={({ item, index }) => (
-              <View key={index} style={styles.carouselItemContainer}>
-                <StoryBox
-                  category={item.category}
-                  time={item.time}
-                  content={item.content}
-                  limitedTime={item.limitedTime}
-                  photo={item.photo}
-                />
-              </View>
-            )}
-            style={{ height: 106 }}
-          />
-        )}
-        <View style={{ flexDirection: "row", marginBottom: 16 }}>
-          {[0, 1, 2].map((data) => (
-            <View
-              key={data}
-              style={[
-                styles.dot,
-                data === activeSlide && { backgroundColor: theme.main_blue },
-              ]}
-            />
-          ))}
-        </View>
-      </View>
-      {/* filter */}
+      <TopCarousel
+        data={topData}
+        activeSlide={activeSlide}
+        setActiveSlide={setActiveSlide}
+        onToggleScrap={handleToggleScrap}
+        onBlockRoom={handleBlockRoom}
+        filterVisible={filterVisible}
+      />
       <View style={styles.filterContainer}>
-        <View style={theme.rowContainer}>
-          {/* filter1 */}
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity
             ref={filter1ButtonRef}
             onPress={() => openModal(filter1ButtonRef, "filter1")}
-            style={theme.rowContainer}
+            style={{ flexDirection: "row", alignItems: "center" }}
           >
             <Text
               style={[
                 styles.filterText,
-                filter1State !== "전체" && { color: theme.main_blue },
+                filter1 !== "전체" && { color: theme.main_blue },
               ]}
             >
-              {filter1State}
+              {filter1}
             </Text>
-            {filter1State !== "전체" ? <DropDowBlue /> : <DropDown />}
+            {filter1 !== "전체" ? <DropDowBlue /> : <DropDown />}
           </TouchableOpacity>
-          {/* filter2 */}
           <TouchableOpacity
             ref={filter2ButtonRef}
             onPress={() => openModal(filter2ButtonRef, "filter2")}
-            style={{ ...theme.rowContainer, marginLeft: 18 }}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginLeft: 18,
+            }}
           >
             <Text
               style={[
                 styles.filterText,
-                filter2State !== "전체 조건" && { color: theme.main_blue },
+                filter2 !== "전체 조건" && { color: theme.main_blue },
               ]}
             >
-              {filter2State}
+              {filter2}
             </Text>
-            {filter2State !== "전체 조건" ? <DropDowBlue /> : <DropDown />}
+            {filter2 !== "전체 조건" ? <DropDowBlue /> : <DropDown />}
           </TouchableOpacity>
-          {/* filter3 */}
           <TouchableOpacity
             ref={filter3ButtonRef}
             onPress={() => openModal(filter3ButtonRef, "filter3")}
-            style={{ ...theme.rowContainer, marginLeft: 18 }}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginLeft: 18,
+            }}
           >
             <Text
               style={[
                 styles.filterText,
-                filter3State !== "전체 조건" && { color: theme.main_blue },
+                filter3 !== "전체 조건" && { color: theme.main_blue },
               ]}
             >
-              {filter3State}
+              {filter3}
             </Text>
-            {filter3State !== "전체 조건" ? <DropDowBlue /> : <DropDown />}
+            {filter3 !== "전체 조건" ? <DropDowBlue /> : <DropDown />}
           </TouchableOpacity>
         </View>
-        {/* filter reset */}
-        {filter1State === "전체" &&
-        filter2State === "전체 조건" &&
-        filter3State === "전체 조건" ? (
+        {filter1 === "전체" &&
+        filter2 === "전체 조건" &&
+        filter3 === "전체 조건" ? (
           <Image
             source={require("../../assets/images/companion/filter_reset.png")}
             style={styles.filterImage}
@@ -183,9 +184,9 @@ export default function StoryScreen({ navigation }) {
         ) : (
           <TouchableOpacity
             onPress={() => {
-              setFilter1State("전체");
-              setFilter2State("전체 조건");
-              setFilter3State("전체 조건");
+              setFilter1("전체");
+              setFilter2("전체 조건");
+              setFilter3("전체 조건");
             }}
           >
             <Image
@@ -195,7 +196,6 @@ export default function StoryScreen({ navigation }) {
           </TouchableOpacity>
         )}
       </View>
-      {/* filterModal */}
       <FilterDropDown
         visible={filterVisible}
         onClose={() => setFilterVisible(false)}
@@ -203,58 +203,30 @@ export default function StoryScreen({ navigation }) {
         selectedFilter={selectedFilter}
         setFilterState={
           selectedFilter === "filter1"
-            ? setFilter1State
+            ? setFilter1
             : selectedFilter === "filter2"
-            ? setFilter2State
-            : setFilter3State
+            ? setFilter2
+            : setFilter3
         }
       />
-      {/* list */}
       <FlatList
-        data={[{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }]}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item, index }) => (
-          <View key={index} style={{ marginBottom: 20 }}>
-            <StoryBox
-              category="야구"
-              time="11분 전"
-              content="한화는 언제쯤 우승해볼 수 있을까? 좋은 선수들은 많이 가지고 있으니까 앞으로 잘 하면 될거같은데"
-              limitedTime="14:59"
-              photo={require("../../assets/images/companion/logo.png")}
-            />
-          </View>
-        )}
+        data={rooms}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={renderStoryItem}
         contentContainerStyle={{
+          gap: 20,
           paddingHorizontal: 20,
           paddingTop: 10,
           paddingBottom: 0,
         }}
       />
-      {/* write button */}
       <WriteButton onClick={() => navigation.navigate("StoryEdit")} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF",
-  },
-  topContainer: {
-    width: "100%",
-    alignItems: "center",
-    borderColor: theme.borderColor,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 30,
-    backgroundColor: "#EDEDED",
-    marginHorizontal: 5,
-  },
+  container: { flex: 1, backgroundColor: "#FFF" },
   filterContainer: {
     flexDirection: "row",
     width: "100%",
@@ -269,14 +241,5 @@ const styles = StyleSheet.create({
     color: "#545454",
     marginRight: 4,
   },
-  filterImage: {
-    width: 65,
-    resizeMode: "contain",
-  },
-  carouselItemContainer: {
-    width: "100%",
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
-  },
+  filterImage: { width: 65, resizeMode: "contain" },
 });

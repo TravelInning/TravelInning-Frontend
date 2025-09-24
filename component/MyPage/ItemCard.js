@@ -16,6 +16,12 @@ import BookmarkTrue from "../../assets/icon/bookmark_true.svg";
 import SeeMoreModal from "../SeeMoreModal";
 import { addPostScrap, cancelPostScrap } from "../../api/companion/scrap";
 import { useNavigation } from "@react-navigation/native";
+import {
+  addStoryPostScrap,
+  cancelStoryPostScrap,
+} from "../../api/storyroom/scrap";
+import { mmdd, ymd } from "../../utils/time";
+import { TOPIC_MAP } from "../../constants/mapping";
 
 const ItemCard = ({
   item,
@@ -30,7 +36,16 @@ const ItemCard = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0 });
   const buttonRef = useRef(null);
-  const { authorName, createdAt, id, title, content, thumbnailUrl } = item;
+  const {
+    authorName,
+    createdAt,
+    id,
+    title,
+    content,
+    thumbnailUrl,
+    topic,
+    status,
+  } = item;
 
   const openModal = () => {
     buttonRef.current.measure((x, y, width, height, pageX, pageY) => {
@@ -48,6 +63,11 @@ const ItemCard = ({
           await addPostScrap(id);
         }
       } else {
+        if (isScrap) {
+          await cancelStoryPostScrap(id);
+        } else {
+          await addStoryPostScrap(id);
+        }
       }
 
       setIsScrap(!isScrap);
@@ -56,18 +76,12 @@ const ItemCard = ({
     }
   };
 
-  const formattedDate = (date) => {
-    const newDate = new Date(date);
-    const month = String(newDate.getMonth() + 1).padStart(2, "0");
-    const day = String(newDate.getDate()).padStart(2, "0");
-
-    return `${month}.${day}`;
-  };
-
   const goDetail = () => {
     if (canGoDetail) {
       if (from === "companion") {
-        navigation.navigate("CompanionPostDetail", { id, scraped: true });
+        navigation.navigate("CompanionPostDetail", { id });
+      } else {
+        navigation.navigate("StoryPostDetail", { id });
       }
     }
   };
@@ -113,17 +127,19 @@ const ItemCard = ({
             ) : (
               <View style={styles.rowContainer}>
                 <View style={styles.blueBox}>
-                  <Text style={styles.category}>{category}</Text>
+                  <Text style={styles.category}>
+                    {topic ? TOPIC_MAP[topic] : TOPIC_MAP[status]}
+                  </Text>
                 </View>
                 <Text numberOfLines={2} style={styles.storyContent}>
-                  임시 content
+                  {content}
                 </Text>
               </View>
             )}
             <Text style={styles.smallText}>
               {from === "companion"
-                ? `${formattedDate(createdAt)} • ${authorName}`
-                : date}
+                ? `${mmdd(createdAt)} • ${authorName}`
+                : ymd(createdAt)}
             </Text>
           </View>
           {/* image */}
@@ -216,6 +232,7 @@ const styles = StyleSheet.create({
     height: 50,
     resizeMode: "cover",
     borderRadius: 6,
+    backgroundColor: "#eaeaea",
   },
   title: {
     fontSize: 16,

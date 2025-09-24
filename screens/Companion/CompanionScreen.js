@@ -94,7 +94,7 @@ export default function CompanionScreen() {
           statusFilter: "ALL",
         });
         if (content) {
-          setStoryPosts(sortCompanionPosts(content));
+          setStoryPosts(sortCompanionStoryPosts(content));
         }
       })();
     }

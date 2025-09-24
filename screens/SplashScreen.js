@@ -1,11 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  Image,
-  ImageBackground,
-  SafeAreaView,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import { Image, ImageBackground, SafeAreaView, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { loadProfile } from "../api/mypage/profile";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -59,11 +53,6 @@ const SplashScreen = () => {
         <Image
           source={require("../assets/images/splash/logo.png")}
           style={styles.logo}
-        />
-        <ActivityIndicator
-          size="large"
-          color="#000"
-          style={{ marginTop: 50 }}
         />
       </ImageBackground>
     </SafeAreaView>
