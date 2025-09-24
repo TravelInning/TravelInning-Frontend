@@ -1,5 +1,4 @@
 import {
-  SafeAreaView,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -12,60 +11,59 @@ import {
 import { theme } from "../../colors/color";
 import { Header } from "../../component/Header/Header";
 import Close from "../../assets/icon/story/close_blue.svg";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import { Shadow } from "react-native-shadow-2";
 import CancleConfirmModal from "../../component/CancleConfirmModal";
-import { createPost } from "../../api/companion/post";
+import { createPost, updatePost } from "../../api/companion/post";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { showToast } from "../../component/Toast";
 
-export default function StoryEditScreen({ navigation }) {
+export default function CompanionForm({ navigation, route }) {
+  const mode = route?.params?.mode ?? "create";
+  const post = route?.params?.post ?? null;
+
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const [titleText, setTitleText] = useState("");
-  const [contentText, setContentText] = useState("");
-  const [images, setImages] = useState([]);
   const [noticeVisible, setNoticeVisible] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
 
+  const [titleText, setTitleText] = useState(post?.title ?? "");
+  const [contentText, setContentText] = useState(post?.content ?? "");
+
+  const [images, setImages] = useState(post?.imageUrls ?? []);
+
   // keyboard detector
   useLayoutEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      () => {
-        setKeyboardVisible(true);
-      }
+    const showL = Keyboard.addListener("keyboardDidShow", () =>
+      setKeyboardVisible(true)
     );
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        setKeyboardVisible(false);
-      }
+    const hideL = Keyboard.addListener("keyboardDidHide", () =>
+      setKeyboardVisible(false)
     );
-
     return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
+      showL.remove();
+      hideL.remove();
     };
   }, []);
 
-  // image
   const pickImage = async () => {
+    const remain = Math.max(0, 5 - images.length);
+    if (remain === 0) return;
+
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType,
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsMultipleSelection: true,
-      selectionLimit: 5 - images.length,
+      selectionLimit: remain,
       quality: 1,
     });
-
     if (!result.canceled) {
-      setImages(
-        [...images, ...result.assets.map((asset) => asset.uri)].slice(0, 5)
-      );
+      const locals = result.assets.map((a) => a.uri);
+      setImages((prev) => [...prev, ...locals].slice(0, 5));
     }
   };
 
-  const renderImageItem = ({ item }) => (
+  const renderImageItem = (uri) => (
     <View
-      key={item}
+      key={uri}
       style={{
         width: 110,
         height: 134,
@@ -79,7 +77,7 @@ export default function StoryEditScreen({ navigation }) {
       }}
     >
       <Image
-        source={{ uri: item }}
+        source={{ uri }}
         style={{ width: "100%", height: "100%", borderRadius: 5 }}
       />
     </View>
@@ -103,26 +101,51 @@ export default function StoryEditScreen({ navigation }) {
     ));
   };
 
-  const handlePost = async () => {
-    await createPost({
+  const isLocal = (uri) => !/^https?:\/\//i.test(uri);
+
+  const handleSubmit = async () => {
+    if (!titleText || !contentText) {
+      showToast("제목과 내용을 입력해주세요.");
+      return;
+    }
+
+    const localImages = images.filter(isLocal);
+
+    if (mode === "create") {
+      await createPost({
+        title: titleText,
+        content: contentText,
+        images: localImages,
+      });
+      navigation.goBack();
+      return;
+    }
+
+    // edit
+    const ok = await updatePost({
+      postId: post.id,
       title: titleText,
       content: contentText,
-      images: images,
+      status: post.status,
+      postType: post.postType || "Baseball",
+      images: localImages,
     });
+
+    if (ok) {
+      navigation.replace("CompanionPostDetail", { id: post.id });
+    }
   };
 
   return (
-    <SafeAreaView style={theme.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
-      <Header title="작성하기" right="none" />
+      <Header title={mode === "edit" ? "수정하기" : "작성하기"} right="none" />
       <View style={styles.editContainer}>
         {/* notice */}
-        {noticeVisible && (
+        {noticeVisible && mode !== "edit" && (
           <TouchableOpacity
             activeOpacity={0.5}
-            onPress={() => {
-              setNoticeVisible(false);
-            }}
+            onPress={() => setNoticeVisible(false)}
             style={styles.noticeContainer}
           >
             <View
@@ -134,7 +157,6 @@ export default function StoryEditScreen({ navigation }) {
               <Text style={styles.noticeTitle}>
                 글을 작성하기 전에 알려드려요.
               </Text>
-
               <Close style={{ marginRight: 4 }} />
             </View>
             <Text style={styles.noticeText}>
@@ -143,7 +165,8 @@ export default function StoryEditScreen({ navigation }) {
             </Text>
           </TouchableOpacity>
         )}
-        {/* edit */}
+
+        {/* inputs */}
         <TextInput
           placeholder="제목을 입력하세요."
           style={styles.titleInput}
@@ -153,20 +176,19 @@ export default function StoryEditScreen({ navigation }) {
         />
         <TextInput
           placeholder="여기를 눌러 나의 동행을 구해보세요."
-          multiline={true}
+          multiline
           style={styles.textinput}
+          value={contentText}
           onChangeText={setContentText}
           returnKeyType="done"
         />
-        {/* confirm button */}
+
         {!isKeyboardVisible && (
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               disabled={contentText.length <= 0 || titleText.length <= 0}
               activeOpacity={0.5}
-              onPress={() => {
-                setModalVisible(true);
-              }}
+              onPress={() => setModalVisible(true)}
               style={[
                 styles.button,
                 (titleText.length <= 0 || contentText.length <= 0) && {
@@ -177,7 +199,9 @@ export default function StoryEditScreen({ navigation }) {
               <Text
                 style={[
                   styles.buttonText,
-                  contentText.length <= 0 && { color: "#B8B8B8" },
+                  (titleText.length <= 0 || contentText.length <= 0) && {
+                    color: "#B8B8B8",
+                  },
                 ]}
               >
                 완료
@@ -186,59 +210,52 @@ export default function StoryEditScreen({ navigation }) {
           </View>
         )}
       </View>
-      {/* image container */}
+
+      {/* image picker bar */}
       {!isKeyboardVisible && (
-        <Shadow
-          distance={6}
-          startColor="rgba(0, 0, 0, 0.1)"
-          finalColor="rgba(0, 0, 0, 0)"
-          offset={[0, 2]}
-        >
-          <View style={styles.imageContainer}>
-            <View style={styles.slide} />
-            {/* image upload */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ padding: 20 }}
+        <View style={styles.imageContainer}>
+          <View style={styles.slide} />
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ padding: 20 }}
+          >
+            <TouchableOpacity
+              onPress={pickImage}
+              style={{
+                width: 70,
+                height: 134,
+                backgroundColor: "#ECECEC",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 5,
+                marginRight: 10,
+              }}
             >
-              <TouchableOpacity
-                onPress={pickImage}
-                style={{
-                  width: 70,
-                  height: 134,
-                  backgroundColor: "#ECECEC",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 5,
-                  marginRight: 10,
-                }}
-              >
-                <Image
-                  source={require("../../assets/images/companion/camera-icon.png")}
-                  style={{ width: 24, height: 24 }}
-                />
-                <Text style={{ color: "#909090", fontSize: 12 }}>
-                  {images.length}/5
-                </Text>
-              </TouchableOpacity>
-              {images.map((uri, index) =>
-                renderImageItem({ item: uri, index })
-              )}
-              {renderEmptyImageSlots()}
-            </ScrollView>
-          </View>
-        </Shadow>
+              <Image
+                source={require("../../assets/images/companion/camera-icon.png")}
+                style={{ width: 24, height: 24 }}
+              />
+              <Text style={{ color: "#909090", fontSize: 12 }}>
+                {images.length}/5
+              </Text>
+            </TouchableOpacity>
+
+            {images.map((uri) => renderImageItem(uri))}
+            {renderEmptyImageSlots()}
+          </ScrollView>
+        </View>
       )}
 
       <CancleConfirmModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        text={"글을 작성하시겠습니까?"}
+        text={
+          mode === "edit" ? "글을 수정하시겠습니까?" : "글을 작성하시겠습니까?"
+        }
         onClick={() => {
-          handlePost();
+          handleSubmit();
           setModalVisible(false);
-          navigation.goBack();
         }}
       />
     </SafeAreaView>
@@ -246,6 +263,7 @@ export default function StoryEditScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#fff" },
   editContainer: {
     flex: 1,
     paddingHorizontal: 20,
@@ -271,7 +289,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: theme.main_blue,
   },
-  // input
   titleInput: {
     width: "100%",
     fontSize: 14,
@@ -289,12 +306,7 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
     textAlign: "left",
   },
-  // confirm button
-  buttonContainer: {
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 20,
-  },
+  buttonContainer: { width: "100%", alignItems: "center", marginBottom: 20 },
   button: {
     alignItems: "center",
     justifyContent: "center",
@@ -303,18 +315,14 @@ const styles = StyleSheet.create({
     borderRadius: 9,
     backgroundColor: theme.main_blue,
   },
-  buttonText: {
-    fontSize: 20,
-    fontFamily: "Pretendard-Bold",
-    color: "white",
-  },
-  // image
+  buttonText: { fontSize: 20, fontFamily: "Pretendard-Bold", color: "white" },
   imageContainer: {
     width: "100%",
-    paddingTop: 16,
-    paddingBottom: 24,
+    paddingVertical: 16,
     zIndex: 20,
     backgroundColor: "#FFF",
+    borderTopWidth: 1,
+    borderColor: "#eaeaea",
   },
   slide: {
     width: 60,

@@ -1,119 +1,128 @@
-import { FlatList, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { theme } from "../../../colors/color";
 import { Header } from "../../../component/Header/Header";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ItemCard from "../../../component/MyPage/ItemCard";
 import PlaceCard from "../../../component/Home/PlaceCard";
 import { cancelPlaceBlock, loadBlockedPlaces } from "../../../api/place/block";
 import {
-  addPostBlock,
   cancelPostBlock,
   loadBlockedPosts,
 } from "../../../api/companion/block";
+import {
+  cancelStoryPostBlock,
+  loadBlockedStoryRooms,
+} from "../../../api/storyroom/block";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PrivacySettingsDetail({ route }) {
   const { title, subtitle } = route.params;
   const [list, setList] = useState([]);
 
-  useState(() => {
-    if (title === "추천") {
-      loadPlaces();
-    } else if (title === "차단") {
-      loadPosts();
-    } else {
-    }
-  }, []);
+  const config = useMemo(
+    () => ({
+      추천: {
+        load: loadBlockedPlaces,
+        cancel: cancelPlaceBlock,
+        render: (item, onCancel) => (
+          <PlaceCard
+            place={item}
+            isHaveScrap={false}
+            canGoDetail={false}
+            modalOptions={[
+              {
+                type: "reset",
+                text: "다시 추천받기",
+                color: theme.main_blue,
+                onPress: () => onCancel(item.id),
+              },
+            ]}
+          />
+        ),
+      },
+      차단: {
+        load: loadBlockedPosts,
+        cancel: cancelPostBlock,
+        render: (item, onCancel) => (
+          <ItemCard
+            item={item}
+            from="companion"
+            isHaveScrap={false}
+            modalOptions={[
+              {
+                type: "reset",
+                text: "차단 해제하기",
+                color: theme.main_blue,
+                onPress: () => onCancel(item.id),
+              },
+            ]}
+          />
+        ),
+      },
+      신고: {
+        load: loadBlockedStoryRooms,
+        cancel: cancelStoryPostBlock,
+        render: (item, onCancel) => (
+          <ItemCard
+            item={item}
+            from="story"
+            isHaveScrap={false}
+            canGoDetail={false}
+            modalOptions={[
+              {
+                type: "reset",
+                text: "차단 해제하기",
+                color: theme.main_blue,
+                onPress: () => onCancel(item.id),
+              },
+            ]}
+          />
+        ),
+      },
+    }),
+    []
+  );
 
-  async function loadPlaces() {
-    const data = await loadBlockedPlaces();
-    if (data) {
-      setList(data);
-    }
-  }
+  const current = config[title];
 
-  async function loadPosts() {
-    const data = await loadBlockedPosts();
-    if (data) {
-      setList(data);
-      console.log("data: ", data);
-    }
-  }
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await current.load();
+        if (mounted && data) setList(data);
+      } catch (e) {
+        console.log("load error: ", e);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [current]);
 
-  const handleCancelPlaceBlock = async (id) => {
-    const success = await cancelPlaceBlock(id);
-    if (success) {
-      setList((prev) => prev.filter((item) => item.id !== id));
-    }
-  };
+  const handleCancel = useCallback(
+    async (id) => {
+      const ok = await current.cancel(id);
+      if (ok) setList((prev) => prev.filter((it) => it.id !== id));
+    },
+    [current]
+  );
 
-  const handleCancelPostBlock = async (id) => {
-    const success = await cancelPostBlock(id);
-    if (success) {
-      setList((prev) => prev.filter((item) => item.id !== id));
-    }
-  };
-
-  const renderItem = ({ item }) => {
-    if (title === "추천") {
-      return (
-        <PlaceCard
-          place={item}
-          isHaveScrap={false}
-          modalOptions={[
-            {
-              type: "reset",
-              text: "다시 추천받기",
-              color: theme.main_blue,
-              onPress: () => handleCancelPlaceBlock(item.id),
-            },
-          ]}
-        />
-      );
-    } else if (title === "차단") {
-      return (
-        <ItemCard
-          item={item}
-          from="companion"
-          isHaveScrap={false}
-          canGoDetail={false}
-          modalOptions={[
-            {
-              type: "reset",
-              text: "차단 해제하기",
-              color: theme.main_blue,
-              onPress: () => handleCancelPostBlock(item.id),
-            },
-          ]}
-        />
-      );
-    } else {
-      return (
-        <ItemCard
-          item={item}
-          from="story"
-          isHaveScrap={false}
-          canGoDetail={false}
-          modalOptions={[
-            {
-              type: "reset",
-              text: "차단 해제하기",
-              color: theme.main_blue,
-              onPress: () => handleCancelPostBlock(item.id),
-            },
-          ]}
-        />
-      );
-    }
-  };
+  const renderItem = useCallback(
+    ({ item }) => current.render(item, handleCancel),
+    [current, handleCancel]
+  );
 
   return (
-    <SafeAreaView style={theme.container}>
+    <SafeAreaView style={styles.container}>
       <Header title={subtitle} />
-      <View style={styles.container}>
+      <View style={styles.listContainer}>
         <FlatList
           data={list}
           renderItem={renderItem}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item, index) =>
+            item?.id != null ? String(item.id) : String(index)
+          }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.text}>목록 없음</Text>
@@ -135,6 +144,10 @@ export default function PrivacySettingsDetail({ route }) {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  listContainer: {
     flex: 1,
   },
   text: {

@@ -18,21 +18,32 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { Shadow } from "react-native-shadow-2";
 import CheckFilterModal from "../../component/CheckFilterModal";
+import { createStoryPost } from "../../api/storyroom/room";
+import { showToast } from "../../component/Toast";
 
-export default function StoryEditScreen() {
+const TOPIC_MAP = {
+  야구: "BASEBALL",
+  "기사/뉴스": "NEWS",
+  일상: "DAILY",
+  "성/연애": "LOVE",
+};
+
+const LIMIT_MAP = {
+  "30분": "MINUTES_30",
+  "1시간": "HOURS_1",
+  "2시간": "HOURS_2",
+  "3시간": "HOURS_3",
+};
+
+export default function StoryEditScreen({ navigation }) {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [contentText, setContentText] = useState("");
   const [images, setImages] = useState([]);
   const [noticeVisible, setNoticeVisible] = useState(true);
   const [filterModalVisible, setFilterModalVisible] = useState(true);
   const [filterNumber, setFilterNumber] = useState(1);
-  const [category, setCategory] = useState("야구");
+  const [topic, setTopic] = useState("야구");
   const [limitedTime, setLimitedTime] = useState("제한시간");
-
-  // test
-  useEffect(() => {
-    console.log(contentText);
-  }, [contentText]);
 
   // keyboard detector
   useLayoutEffect(() => {
@@ -111,12 +122,39 @@ export default function StoryEditScreen() {
     ));
   };
 
+  const handleConfirm = async () => {
+    if (!contentText.trim()) {
+      showToast("내용을 입력해주세요.");
+      return;
+    }
+    const topicEnum = TOPIC_MAP[topic];
+    const limitEnum = LIMIT_MAP[limitedTime];
+    if (!topicEnum) {
+      showToast("주제를 선택해주세요.");
+      return;
+    }
+    if (!limitEnum) {
+      showToast("제한시간을 선택해주세요.");
+      return;
+    }
+
+    const created = await createStoryPost({
+      content: contentText,
+      topic: topicEnum,
+      limitTime: limitEnum,
+      images,
+    });
+    if (created) {
+      setContentText("");
+      setImages([]);
+      navigation.goBack();
+    }
+  };
+
   return (
     <SafeAreaView style={theme.container}>
-      {/* Header */}
-      <Header title="작성하기" right="none" />
+      <Header title="작성하기" />
       <View style={styles.editContainer}>
-        {/* notice */}
         {noticeVisible && (
           <TouchableOpacity
             activeOpacity={0.5}
@@ -143,7 +181,7 @@ export default function StoryEditScreen() {
             </Text>
           </TouchableOpacity>
         )}
-        {/* filter button */}
+
         <View
           style={[
             theme.rowContainer,
@@ -163,7 +201,7 @@ export default function StoryEditScreen() {
               { backgroundColor: pressed ? theme.gray300 : "#F5F6F8" },
             ]}
           >
-            <Text style={styles.filterButtonText}>{category}</Text>
+            <Text style={styles.filterButtonText}>{topic}</Text>
             <DropDown style={styles.dropdown} />
           </Pressable>
           <Pressable
@@ -180,7 +218,6 @@ export default function StoryEditScreen() {
             <DropDown style={styles.dropdown} />
           </Pressable>
         </View>
-        {/* edit */}
         <TextInput
           placeholder="나누고 싶은 이야기를 입력해주세요. (모든 이야기는 익명으로 나누지만, 타인에게 불쾌감과 모욕감을 주는 이야기로 신고가 들어온 경우 자동으로 숨김 처리 될 수 있습니다)"
           multiline={true}
@@ -189,13 +226,14 @@ export default function StoryEditScreen() {
           returnKeyType="done"
         />
         <Text style={styles.textLength}>{contentText.length}/315</Text>
+
         {/* confirm button */}
         {!isKeyboardVisible && (
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               disabled={contentText.length <= 0}
               activeOpacity={0.5}
-              onPress={() => {}}
+              onPress={handleConfirm}
               style={[
                 styles.button,
                 contentText.length <= 0 && { backgroundColor: "#F3F3F3" },
@@ -265,7 +303,7 @@ export default function StoryEditScreen() {
             ? ["야구", "기사/뉴스", "일상", "성/연애"]
             : ["30분", "1시간", "2시간", "3시간"]
         }
-        setSelected={filterNumber === 1 ? setCategory : setLimitedTime}
+        setSelected={filterNumber === 1 ? setTopic : setLimitedTime}
       />
     </SafeAreaView>
   );

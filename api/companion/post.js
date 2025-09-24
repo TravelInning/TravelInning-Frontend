@@ -22,7 +22,7 @@ export const createPost = async ({
   title,
   content,
   status = "FINDING",
-  travelStatus = "Baseball",
+  postType = "Baseball",
   images = [],
 }) => {
   try {
@@ -45,7 +45,7 @@ export const createPost = async ({
         title
       )}&content=${encodeURIComponent(
         content
-      )}&status=${status}&travelStatus=${travelStatus}`,
+      )}&status=${status}&postType=${postType}`,
       formData,
       {
         headers: {
@@ -74,7 +74,6 @@ export const loadPublicPost = async (postId) => {
 export const loadPost = async (postId) => {
   try {
     const { data } = await apiClient.get(`/api/companionPost/${postId}`);
-    console.log(data);
     return data.result;
   } catch (error) {
     showToast("게시글을 불러오는데 실패했습니다! 다시 시도해주세요.");
@@ -98,5 +97,49 @@ export const deletePost = async (postId) => {
     showToast("삭제 완료!");
   } catch (error) {
     showToast("삭제 실패! 다시 시도해주세요.");
+  }
+};
+
+export const updatePost = async ({
+  postId,
+  title,
+  content,
+  status = "FINDING",
+  postType = "Baseball",
+  images = [],
+  replaceAllImages = false,
+}) => {
+  try {
+    const formData = new FormData();
+
+    if (images.length > 0) {
+      images.forEach((uri, index) => {
+        formData.append("imageFiles", {
+          uri,
+          name: `image_${index}.jpg`,
+          type: "image/jpeg",
+        });
+      });
+    } else if (replaceAllImages) {
+      formData.append("imageFiles", "");
+    }
+
+    const qs =
+      `title=${encodeURIComponent(title ?? "")}` +
+      `&content=${encodeURIComponent(content ?? "")}` +
+      `&status=${status}` +
+      `&postType=${postType}` +
+      `&replaceAllImages=${replaceAllImages}`;
+
+    await apiClient.put(`/api/companionPost/${postId}?${qs}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    showToast("수정 완료!");
+    return true;
+  } catch (error) {
+    console.log("update post error: ", error);
+    showToast("수정 중 오류가 발생했습니다! 다시 시도해주세요.");
+    return false;
   }
 };

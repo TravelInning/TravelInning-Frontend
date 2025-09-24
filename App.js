@@ -43,6 +43,7 @@ import EditDetail from "./screens/MyPage/Profile/EditDetail";
 import Onboarding from "./screens/Onboarding/Onboarding";
 import EditAccount from "./screens/MyPage/account/EditAccount";
 import EditPhone from "./screens/MyPage/account/EditPhone";
+import StoryPostDetail from "./screens/Story/StoryPostDetail";
 
 const Stack = createNativeStackNavigator();
 
@@ -324,6 +325,13 @@ export default function App() {
           <Stack.Screen
             name="EditPhone"
             component={EditPhone}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="StoryPostDetail"
+            component={StoryPostDetail}
             options={{
               headerShown: false,
             }}

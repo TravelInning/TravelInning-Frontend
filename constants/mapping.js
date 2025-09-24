@@ -50,3 +50,10 @@ export const homeClubMapping = [
     imgSrc: require("../assets/images/clubs/hanwha.png"),
   },
 ];
+
+export const TOPIC_MAP = {
+  BASEBALL: "야구",
+  LOVE: "연애",
+  DAILY: "일상",
+  NEWS: "뉴스",
+};

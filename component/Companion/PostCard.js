@@ -26,7 +26,6 @@ export const PostCard = ({
   onBlockPost,
 }) => {
   const navigation = useNavigation();
-
   const {
     id,
     title,
@@ -57,7 +56,7 @@ export const PostCard = ({
   };
 
   const goDetail = () => {
-    navigation.navigate("CompanionPostDetail", { id, scraped, createdAt });
+    navigation.navigate("CompanionPostDetail", { id, scraped });
   };
 
   return (

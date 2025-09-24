@@ -8,11 +8,7 @@ import {
 } from "react-native";
 import { theme } from "../../colors/color";
 import { Header } from "../../component/Header/Header";
-import { useEffect, useState } from "react";
-import { logout } from "../../api/login/login";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SecureStore from "expo-secure-store";
-import { disconnectSocket } from "../../socket/chatSocket";
+import { useState } from "react";
 import { handleAccountDelete, handleLogout } from "../../utils/accountUtils";
 
 export default function SettingScreen({ navigation }) {
