@@ -41,6 +41,8 @@ import SuccessScreen from "./screens/Login/SuccessScreen";
 import EditProfile from "./screens/MyPage/Profile/EditProfile";
 import EditDetail from "./screens/MyPage/Profile/EditDetail";
 import Onboarding from "./screens/Onboarding/Onboarding";
+import EditAccount from "./screens/MyPage/account/EditAccount";
+import EditPhone from "./screens/MyPage/account/EditPhone";
 
 const Stack = createNativeStackNavigator();
 
@@ -308,6 +310,20 @@ export default function App() {
           <Stack.Screen
             name="EditDetail"
             component={EditDetail}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="EditAccount"
+            component={EditAccount}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="EditPhone"
+            component={EditPhone}
             options={{
               headerShown: false,
             }}

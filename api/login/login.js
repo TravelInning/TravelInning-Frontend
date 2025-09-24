@@ -17,29 +17,18 @@ export const changePassword = async (email, password) => {
 };
 
 export const login = async (email, password) => {
-  try {
-    const { data } = await axios.post(`${API_URL}/api/members/login`, {
-      email: email,
-      password: password,
-    });
-    return data.result;
-  } catch (error) {
-    console.log("login error: ", error);
-    showToast("아이디와 비밀번호를 확인해주세요.");
-  }
+  const { data } = await axios.post(`${API_URL}/api/members/login`, {
+    email: email,
+    password: password,
+  });
+  return data.result;
 };
 
 export const logout = async (token) => {
-  try {
-    const { data } = await axios.post(
-      `${API_URL}/api/members/auth/logout?token=${token}`
-    );
-    return data.isSuccess;
-  } catch (error) {
-    console.log("logout error: ", error);
-    showToast("로그아웃 실패! 잠시 후 다시 시도해주세요.");
-    return false;
-  }
+  const { data } = await axios.post(
+    `${API_URL}/api/members/auth/logout?token=${token}`
+  );
+  return data.isSuccess;
 };
 
 export const refresh = async (refreshToken) => {

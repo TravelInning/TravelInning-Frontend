@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { loadProfile } from "../api/mypage/profile/profile";
+import { loadProfile } from "../api/mypage/profile";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SplashScreen = () => {

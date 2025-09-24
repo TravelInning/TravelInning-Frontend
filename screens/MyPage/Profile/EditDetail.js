@@ -3,6 +3,7 @@ import { Header } from "../../../component/Header/Header";
 import { theme } from "../../../colors/color";
 import EditNickname from "../../../component/MyPage/Profile/EditNickname";
 import EditGender from "../../../component/MyPage/Profile/EditGender";
+import EditIntroduce from "../../../component/MyPage/Profile/EditIntroduce";
 
 const titleMap = {
   닉네임: "닉네임 변경",

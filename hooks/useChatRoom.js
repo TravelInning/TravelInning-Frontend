@@ -11,7 +11,6 @@ import {
   sendMessageDual,
 } from "../socket/chatSocket";
 import { loadMessages, createOneChat, loadRoomSummary } from "../api/chat/chat";
-import { loadProfile } from "../api/mypage/profile/profile";
 
 const dedupMessages = (arr) => {
   const seen = new Set();

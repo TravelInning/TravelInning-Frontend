@@ -33,35 +33,18 @@ export default function EditGender() {
           </View>
         </Shadow>
         <View style={styles.btnGroup}>
-          <Shadow
-            distance={2}
-            startColor="rgba(0, 0, 0, 0.1)"
-            finalColor="rgba(0, 0, 0, 0)"
-            containerViewStyle={{ flex: 1, width: "100%" }}
+          <TouchableOpacity
+            onPress={() => setGender("MALE")}
+            style={[styles.button, gender === "MALE" && styles.button_active]}
           >
-            <TouchableOpacity
-              onPress={() => setGender("MALE")}
-              style={[styles.button, gender === "MALE" && styles.button_active]}
-            >
-              <Text style={styles.text}>남성</Text>
-            </TouchableOpacity>
-          </Shadow>
-          <Shadow
-            distance={2}
-            startColor="rgba(0, 0, 0, 0.1)"
-            finalColor="rgba(0, 0, 0, 0)"
-            containerViewStyle={{ flex: 1 }}
+            <Text style={styles.text}>남성</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setGender("FEMALE")}
+            style={[styles.button, gender === "FEMALE" && styles.button_active]}
           >
-            <TouchableOpacity
-              onPress={() => setGender("FEMALE")}
-              style={[
-                styles.button,
-                gender === "FEMALE" && styles.button_active,
-              ]}
-            >
-              <Text style={styles.text}>여성</Text>
-            </TouchableOpacity>
-          </Shadow>
+            <Text style={styles.text}>여성</Text>
+          </TouchableOpacity>
         </View>
       </View>
       <ConfirmBtn />
@@ -81,11 +64,14 @@ const styles = StyleSheet.create({
     gap: 15,
   },
   button: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 17,
     borderRadius: 9,
     color: theme.main_black,
+    borderWidth: 1,
+    borderColor: "#eaeaea",
   },
   button_active: {
     backgroundColor: "#F4F4F4",

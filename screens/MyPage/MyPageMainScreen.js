@@ -17,22 +17,46 @@ import Pen from "../../assets/icon/companion/pen.svg";
 import Bookmark from "../../assets/icon/mypage/bookmark_true.svg";
 import Plus from "../../assets/icon/mypage/plus.svg";
 import Arrow from "../../assets/icon/mypage/right_arrow.svg";
-import { API_URL } from "@env";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MyPageModal } from "../../component/MyPage/MyPageComp";
+import { useIsFocused } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { homeClubMapping } from "../../constants/mapping";
+import { loadProfile } from "../../api/mypage/profile";
+
+const activitys = [
+  {
+    image: require("../../assets/icon/mypage/chat.png"),
+    text: "나의 대화 신청 내역",
+    onPress: () => navigation.jumpTo("Companion", { screen: "채팅내역" }),
+  },
+  {
+    image: require("../../assets/icon/mypage/prohibit.png"),
+    text: "내가 차단한 글 및 계정",
+  },
+];
 
 export default function MyPageMainScreen({ navigation }) {
-  const activitys = [
-    {
-      image: require("../../assets/icon/mypage/chat.png"),
-      text: "나의 대화 신청 내역",
-      onPress: () => navigation.jumpTo("Companion", { screen: "채팅내역" }),
-    },
-    {
-      image: require("../../assets/icon/mypage/prohibit.png"),
-      text: "내가 차단한 글 및 계정",
-    },
-  ];
+  const isFocused = useIsFocused();
+  const [profile, setProfile] = useState({});
+  const [teamId, setTeamId] = useState(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const prof = await loadProfile();
+      if (prof.isSuccess) {
+        setProfile(prof.result);
+      }
+    };
+    const fetchTeam = async () => {
+      const team = await AsyncStorage.getItem("teamId");
+      setTeamId(parseInt(team));
+    };
+
+    fetchProfile();
+    fetchTeam();
+  }, [isFocused]);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0, right: 0 });
   const modalButtonRef = useRef(null);
@@ -93,7 +117,7 @@ export default function MyPageMainScreen({ navigation }) {
             source={require("../../assets/images/companion/logo.png")}
             style={styles.profileImage}
           />
-          <Text style={styles.profileText}>Jihye</Text>
+          <Text style={styles.profileText}>{profile?.nickname}</Text>
           {/* my club & bookmark & post */}
           <View
             style={{
@@ -117,7 +141,11 @@ export default function MyPageMainScreen({ navigation }) {
                   style={{ alignItems: "center" }}
                 >
                   <Image
-                    source={require("../../assets/images/clubs/ssg.png")}
+                    source={
+                      teamId
+                        ? homeClubMapping[teamId - 1].imgSrc
+                        : require("../../assets/images/companion/logo.png")
+                    }
                     style={{
                       maxWidth: 48,
                       maxHeight: 32,

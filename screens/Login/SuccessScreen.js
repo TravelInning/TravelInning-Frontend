@@ -29,12 +29,13 @@ export default function SuccessScreen({ navigation }) {
       </View>
       <SignUpBtn
         nextCondition={true}
-        nextFunction={() =>
+        nextFunction={async () => {
+          await AsyncStorage.multiRemove(["accessToken", "userId", "userName"]);
           navigation.reset({
             index: 0,
             routes: [{ name: "LoginScreen" }],
-          })
-        }
+          });
+        }}
         nextText="확인"
         backFunction={() => {}}
         backText={""}
