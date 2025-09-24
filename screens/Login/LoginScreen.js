@@ -9,13 +9,9 @@ import {
   StyleSheet,
   Platform,
   StatusBar,
-  Alert,
 } from "react-native";
 import { SCREEN_HEIGHT, theme } from "../../colors/color";
-import { login } from "../../api/login/login";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SecureStore from "expo-secure-store";
-import { loadProfile } from "../../api/mypage/profile/profile";
+import { handleLogin } from "../../utils/accountUtils";
 
 export default function LoginScreen({ navigation }) {
   const [idInput, setIdInput] = useState("");
@@ -24,33 +20,6 @@ export default function LoginScreen({ navigation }) {
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
-  };
-
-  const handleLogin = async () => {
-    const result = await login(idInput, passwordInput);
-    if (result) {
-      await AsyncStorage.setItem("accessToken", result.jwt);
-      await SecureStore.setItemAsync("refreshToken", result.refreshToken);
-
-      try {
-        const prof = await loadProfile();
-        if (prof?.isSuccess && prof?.result) {
-          await AsyncStorage.setItem("userId", String(prof.result.memberId));
-          await AsyncStorage.setItem("userName", String(prof.result.nickname));
-        } else {
-          await AsyncStorage.removeItem("userId");
-          await AsyncStorage.removeItem("userName");
-        }
-      } catch {
-        await AsyncStorage.removeItem("userId");
-        await AsyncStorage.removeItem("userName");
-      }
-
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "Main" }],
-      });
-    }
   };
 
   return (
@@ -93,9 +62,7 @@ export default function LoginScreen({ navigation }) {
 
           <TouchableOpacity
             style={styles.loginButton}
-            onPress={() => {
-              handleLogin();
-            }}
+            onPress={() => handleLogin(idInput, passwordInput, navigation)}
           >
             <Text style={styles.loginButtonText}>{"로그인"}</Text>
           </TouchableOpacity>

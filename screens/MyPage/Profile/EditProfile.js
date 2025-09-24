@@ -12,18 +12,45 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH, theme } from "../../../colors/color";
 import { showToast } from "../../../component/Toast";
 import { ConfirmBtn } from "../../../component/MyPage/Profile/ConfirmBtn";
 import { EditProfileNavBtn } from "../../../component/MyPage/Profile/EditProfileNavBtn";
+import { useEffect, useState } from "react";
+import { useIsFocused } from "@react-navigation/native";
+import { loadProfile } from "../../../api/mypage/profile";
 
 const title = ["닉네임", "성별", "소개 메시지"];
 
 export default function EditProfile({ navigation }) {
+  const isFocused = useIsFocused();
+  const [profile, setProfile] = useState({});
+
+  useEffect(() => {
+    (async () => {
+      const prof = await loadProfile();
+      if (prof.isSuccess) {
+        const result = prof.result;
+        setProfile({
+          ...profile,
+          profileImgUrl: result.profileImgUrl,
+          닉네임: result.nickname,
+          성별: result.gender === "MALE" ? "남자" : "여자",
+          "소개 메시지": "",
+        });
+      }
+    })();
+  }, [isFocused]);
+
   return (
     <SafeAreaView style={theme.container}>
       <Header title="프로필 변경" />
       <ScrollView contentContainerStyle={styles.container}>
         <Image
-          source={require("../../../assets/images/companion/logo.png")}
+          source={
+            profile?.profileImgUrl
+              ? { uri: profile.profileImgUrl }
+              : require("../../../assets/images/companion/logo.png")
+          }
           style={styles.profileImage}
         />
+
         <TouchableOpacity>
           <Text style={styles.profileImgText}>프로필 이미지</Text>
         </TouchableOpacity>
@@ -32,9 +59,12 @@ export default function EditProfile({ navigation }) {
             <EditProfileNavBtn
               key={index}
               title={text}
-              content="Jihye"
+              content={profile[text]}
               navFunc={() => {
-                navigation.navigate("EditDetail", { title: text });
+                navigation.navigate("EditDetail", {
+                  title: text,
+                  content: [profile[text]],
+                });
               }}
             />
           ))}
