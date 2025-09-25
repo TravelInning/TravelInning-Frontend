@@ -9,9 +9,9 @@ import {
   SafeAreaView,
 } from "react-native";
 import BottomBtn from "../../component/BottomBtn";
-import { selectClub } from "../../api/club/club";
 import { showToast } from "../../component/Toast";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { enrollClub } from "../../api/club/club";
 
 export default function SelectClub({ navigation, route }) {
   const [selectedTeam, setSelectedTeam] = useState(null);
@@ -32,8 +32,7 @@ export default function SelectClub({ navigation, route }) {
       route.params.setRivalClub(selectedTeam);
       navigation.goBack();
     } else {
-      const isSucccess = await selectClub(teamId);
-      await AsyncStorage.setItem("teamId", String(teamId));
+      const isSucccess = await enrollClub(teamId);
       if (route.params && route.params.from === "mypage") {
         if (isSucccess) {
           showToast("저장 완료!");

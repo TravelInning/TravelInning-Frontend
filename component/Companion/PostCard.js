@@ -56,7 +56,7 @@ export const PostCard = ({
   };
 
   const goDetail = () => {
-    navigation.navigate("CompanionPostDetail", { id, scraped });
+    navigation.navigate("CompanionPostDetail", { id });
   };
 
   return (

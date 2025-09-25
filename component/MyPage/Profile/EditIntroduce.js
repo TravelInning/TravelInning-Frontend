@@ -1,51 +1,46 @@
+import React from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
-import { ConfirmBtn } from "./ConfirmBtn";
-import { useState } from "react";
-import { mypage } from "./style";
 import { Shadow } from "react-native-shadow-2";
 import { theme } from "../../../colors/color";
 
-export default function EditIntroduce() {
-  const [introduce, setIntroduce] = useState("");
+export default function EditIntroduce({ value, onChange, maxLength = 50 }) {
+  const length = value?.length ?? 0;
 
   return (
-    <>
-      <View style={styles.container}>
-        <Shadow
-          distance={2}
-          startColor="rgba(0, 0, 0, 0.1)"
-          finalColor="rgba(0, 0, 0, 0)"
-          style={{ width: "100%" }}
-        >
-          <View style={[mypage.editInput, { paddingTop: 10 }]}>
-            <TextInput
-              placeholder={"소개 메시지 입력"}
-              value={introduce}
-              onChangeText={setIntroduce}
-              style={styles.textarea}
-              multiline={true}
-              textAlignVertical="top"
-              maxLength={50}
-            />
-            <Text style={styles.limit}>
-              <Text style={{ color: theme.main_black }}>
-                {introduce.length}
-              </Text>{" "}
-              | 50
-            </Text>
-          </View>
-        </Shadow>
-      </View>
-      <ConfirmBtn />
-    </>
+    <View style={styles.container}>
+      <Shadow
+        distance={2}
+        startColor="rgba(0, 0, 0, 0.1)"
+        finalColor="rgba(0, 0, 0, 0)"
+        style={{ width: "100%" }}
+      >
+        <View style={[styles.editInput, { paddingTop: 10 }]}>
+          <TextInput
+            placeholder="소개 메시지 입력"
+            value={value}
+            onChangeText={onChange}
+            style={styles.textarea}
+            multiline
+            textAlignVertical="top"
+            maxLength={maxLength}
+          />
+          <Text style={styles.limit}>
+            <Text style={{ color: theme.main_black }}>{length}</Text> |{" "}
+            {maxLength}
+          </Text>
+        </View>
+      </Shadow>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 23,
-    paddingVertical: 30,
+  container: { flex: 1, paddingHorizontal: 23, paddingVertical: 30 },
+  editInput: {
+    backgroundColor: "#fff",
+    borderRadius: 9,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
   textarea: {
     height: 100,

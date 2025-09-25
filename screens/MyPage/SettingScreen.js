@@ -8,60 +8,63 @@ import {
 } from "react-native";
 import { theme } from "../../colors/color";
 import { Header } from "../../component/Header/Header";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { handleAccountDelete, handleLogout } from "../../utils/accountUtils";
 
-export default function SettingScreen({ navigation }) {
-  const [profileImg, setProfileImg] = useState(
-    require("../../assets/icon/mypage/setting/account.png")
+export default function SettingScreen({ navigation, route }) {
+  const profileImage = route.params.profileImage || null;
+  const contents = useMemo(
+    () => [
+      {
+        title: "프로필",
+        icon: profileImage
+          ? { uri: profileImage }
+          : require("../../assets/images/companion/logo.png"),
+        onPress: () => {
+          navigation.navigate("EditProfile");
+        },
+      },
+      {
+        title: "계정",
+        icon: require("../../assets/icon/mypage/setting/account.png"),
+        onPress: () => {
+          navigation.navigate("EditAccount");
+        },
+      },
+      {
+        title: "개인정보 보호",
+        icon: require("../../assets/icon/mypage/setting/privacy.png"),
+        onPress: () => {
+          navigation.navigate("PrivacySettings");
+        },
+      },
+      {
+        title: "채팅 내역",
+        icon: require("../../assets/icon/mypage/setting/chat.png"),
+        onPress: () => {
+          navigation.replace("Main", {
+            screen: "Companion",
+            params: { screen: "채팅내역" },
+          });
+        },
+      },
+      {
+        title: "알림",
+        icon: require("../../assets/icon/mypage/setting/notification.png"),
+        onPress: () => {
+          navigation.navigate("Notice");
+        },
+      },
+      {
+        title: "정보",
+        icon: require("../../assets/icon/mypage/setting/info.png"),
+        onPress: () => {
+          navigation.navigate("TermsInfo");
+        },
+      },
+    ],
+    [navigation]
   );
-  const contents = [
-    {
-      title: "프로필",
-      icon: profileImg,
-      onPress: () => {
-        navigation.navigate("EditProfile");
-      },
-    },
-    {
-      title: "계정",
-      icon: require("../../assets/icon/mypage/setting/account.png"),
-      onPress: () => {
-        navigation.navigate("EditAccount");
-      },
-    },
-    {
-      title: "개인정보 보호",
-      icon: require("../../assets/icon/mypage/setting/privacy.png"),
-      onPress: () => {
-        navigation.navigate("PrivacySettings");
-      },
-    },
-    {
-      title: "채팅 내역",
-      icon: require("../../assets/icon/mypage/setting/chat.png"),
-      onPress: () => {
-        navigation.replace("Main", {
-          screen: "Companion",
-          params: { screen: "채팅내역" },
-        });
-      },
-    },
-    {
-      title: "알림",
-      icon: require("../../assets/icon/mypage/setting/notification.png"),
-      onPress: () => {
-        navigation.navigate("Notice");
-      },
-    },
-    {
-      title: "정보",
-      icon: require("../../assets/icon/mypage/setting/info.png"),
-      onPress: () => {
-        navigation.navigate("TermsInfo");
-      },
-    },
-  ];
 
   return (
     <SafeAreaView style={theme.container}>
@@ -73,7 +76,10 @@ export default function SettingScreen({ navigation }) {
             onPress={content.onPress}
             style={[theme.rowContainer, { marginBottom: 20 }]}
           >
-            <Image source={content.icon} style={styles.icon} />
+            <Image
+              source={content.icon}
+              style={index === 0 ? styles.img : styles.icon}
+            />
             <Text style={styles.title}>{content.title}</Text>
           </TouchableOpacity>
         ))}
@@ -123,6 +129,13 @@ const styles = StyleSheet.create({
     maxWidth: 20,
     maxHeight: 20,
     resizeMode: "contain",
+    marginRight: 10,
+  },
+  img: {
+    width: 20,
+    height: 20,
+    resizeMode: "cover",
+    borderRadius: 30,
     marginRight: 10,
   },
   title: {

@@ -13,7 +13,6 @@ export const cancelPostScrap = async (postId) => {
 export const loadScrapPosts = async () => {
   try {
     const { data } = await apiClient.get(`/api/mypage/scraps/companion-posts`);
-    console.log("scrap load: ", data);
     return data.result;
   } catch (error) {
     console.log("load scrap posts error: ", error);
