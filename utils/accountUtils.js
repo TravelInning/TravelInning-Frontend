@@ -73,11 +73,6 @@ export async function handleLogout(navigation) {
 }
 
 async function clearUserStorage() {
-  await AsyncStorage.multiRemove([
-    "accessToken",
-    "userId",
-    "userName",
-    "teamId",
-  ]);
+  await AsyncStorage.multiRemove(["accessToken", "userId", "userName"]);
   await SecureStore.deleteItemAsync("refreshToken");
 }

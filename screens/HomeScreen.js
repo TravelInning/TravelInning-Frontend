@@ -26,17 +26,16 @@ import PlaceCard from "../component/Home/PlaceCard";
 import { useDoubleBackExit } from "../hooks/useDoubleBackExit";
 import { loadHeader, loadPlace } from "../api/home/home";
 import { homeClubMapping } from "../constants/mapping";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { addPlaceBlock } from "../api/place/block";
 import { useIsFocused } from "@react-navigation/native";
 import OptionModal from "../component/common/OptionModal";
 import { ymdw } from "../utils/time";
+import { loadClub } from "../api/club/club";
 
 export default function HomeScreen({ navigation }) {
   const isFocused = useIsFocused();
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [teamId, setTeamId] = useState(null);
   const [headerData, setHeaderData] = useState({
     baseTeamName: "",
     gameDate: "",
@@ -76,16 +75,14 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     if (isFocused) {
       const handleHeader = async () => {
-        const id = await AsyncStorage.getItem("teamId");
-        if (!id) {
+        const { result } = await loadClub();
+        if (!result.teamId) {
           navigation.replace("SelectClub");
           return;
         }
-        const parseId = id ? parseInt(id, 10) : 1;
-        setTeamId(parseId);
-        setFilter((prev) => ({ ...prev, teamId: parseId }));
-
-        const data = await loadHeader(parseId);
+        const teamId = result.teamId;
+        setFilter((prev) => ({ ...prev, teamId: teamId }));
+        const data = await loadHeader(teamId);
         setHeaderData(data);
       };
 
@@ -94,7 +91,7 @@ export default function HomeScreen({ navigation }) {
   }, [isFocused]);
 
   useEffect(() => {
-    if (isFocused && teamId) {
+    if (isFocused && filter.teamId) {
       const loadplaces = async () => {
         const data = await loadPlace(filter);
         setPlaces(data.result);
@@ -237,9 +234,9 @@ export default function HomeScreen({ navigation }) {
             }}
           >
             <Text style={{ ...styles.todayTeamText }}>오늘의</Text>
-            {teamId && (
+            {filter.teamId && (
               <Image
-                source={homeClubMapping[teamId - 1].imgSrc}
+                source={homeClubMapping[filter.teamId - 1].imgSrc}
                 style={styles.clubImageContainer}
               />
             )}
