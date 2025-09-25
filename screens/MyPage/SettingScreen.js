@@ -10,9 +10,11 @@ import { theme } from "../../colors/color";
 import { Header } from "../../component/Header/Header";
 import { useMemo, useState } from "react";
 import { handleAccountDelete, handleLogout } from "../../utils/accountUtils";
+import CancleConfirmModal from "../../component/CancleConfirmModal";
 
 export default function SettingScreen({ navigation, route }) {
   const profileImage = route.params.profileImage || null;
+  const [modalVisible, setModalVisible] = useState(false);
   const contents = useMemo(
     () => [
       {
@@ -107,13 +109,19 @@ export default function SettingScreen({ navigation, route }) {
           </TouchableOpacity>
           {/* delete account */}
           <TouchableOpacity
-            onPress={() => handleAccountDelete(navigation)}
+            onPress={() => setModalVisible(true)}
             style={[theme.rowContainer, { marginBottom: 20 }]}
           >
             <Text style={[styles.title, { color: "#F00" }]}>회원탈퇴</Text>
           </TouchableOpacity>
         </View>
       </View>
+      <CancleConfirmModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        text={`정말 탈퇴하시겠습니까?`}
+        onClick={() => handleAccountDelete(navigation)}
+      />
     </SafeAreaView>
   );
 }
