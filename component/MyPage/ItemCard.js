@@ -22,6 +22,7 @@ import {
 } from "../../api/storyroom/scrap";
 import { mmdd, ymd } from "../../utils/time";
 import { TOPIC_MAP } from "../../constants/mapping";
+import { showToast } from "../Toast";
 
 const ItemCard = ({
   item,
@@ -32,57 +33,58 @@ const ItemCard = ({
 }) => {
   const navigation = useNavigation();
 
+  const entityId = item?.id ?? item?.postId;
+
   const [isScrap, setIsScrap] = useState(isHaveScrap);
   const [modalVisible, setModalVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0 });
   const buttonRef = useRef(null);
-  const {
-    authorName,
-    createdAt,
-    id,
-    title,
-    content,
-    thumbnailUrl,
-    topic,
-    status,
-  } = item;
+
+  const { authorName, createdAt, title, content, thumbnailUrl, topic, status } =
+    item;
 
   const openModal = () => {
-    buttonRef.current.measure((x, y, width, height, pageX, pageY) => {
-      setButtonPosition({ top: pageY - 10 });
-    });
-    setModalVisible(!modalVisible);
+    if (buttonRef.current?.measure) {
+      buttonRef.current.measure((x, y, width, height, pageX, pageY) => {
+        if (typeof pageY === "number") {
+          setButtonPosition({ top: pageY - 10 });
+        }
+        setModalVisible((v) => !v);
+      });
+    } else {
+      setModalVisible((v) => !v);
+    }
   };
 
   const toggleScrap = async () => {
+    if (!entityId) return;
     try {
       if (from === "companion") {
         if (isScrap) {
-          await cancelPostScrap(id);
+          await cancelPostScrap(entityId);
         } else {
-          await addPostScrap(id);
+          await addPostScrap(entityId);
         }
       } else {
         if (isScrap) {
-          await cancelStoryPostScrap(id);
+          await cancelStoryPostScrap(entityId);
         } else {
-          await addStoryPostScrap(id);
+          await addStoryPostScrap(entityId);
         }
       }
 
-      setIsScrap(!isScrap);
+      setIsScrap((prev) => !prev);
     } catch (e) {
       showToast("스크랩 오류! 다시 시도해주세요.");
     }
   };
 
   const goDetail = () => {
-    if (canGoDetail) {
-      if (from === "companion") {
-        navigation.navigate("CompanionPostDetail", { id });
-      } else {
-        navigation.navigate("StoryPostDetail", { id });
-      }
+    if (!canGoDetail || !entityId) return;
+    if (from === "companion") {
+      navigation.navigate("CompanionPostDetail", { id: entityId });
+    } else {
+      navigation.navigate("StoryPostDetail", { id: entityId });
     }
   };
 
@@ -128,7 +130,7 @@ const ItemCard = ({
               <View style={styles.rowContainer}>
                 <View style={styles.blueBox}>
                   <Text style={styles.category}>
-                    {topic ? TOPIC_MAP[topic] : TOPIC_MAP[status]}
+                    {TOPIC_MAP?.[topic] ?? TOPIC_MAP?.[status] ?? "기타"}
                   </Text>
                 </View>
                 <Text numberOfLines={2} style={styles.storyContent}>
@@ -138,7 +140,9 @@ const ItemCard = ({
             )}
             <Text style={styles.smallText}>
               {from === "companion"
-                ? `${mmdd(createdAt)} • ${authorName}`
+                ? authorName
+                  ? `${mmdd(createdAt)} • ${authorName}`
+                  : `${mmdd(createdAt)}`
                 : ymd(createdAt)}
             </Text>
           </View>

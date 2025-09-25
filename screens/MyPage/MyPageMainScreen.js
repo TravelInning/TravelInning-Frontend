@@ -2,7 +2,6 @@ import {
   FlatList,
   Image,
   ImageBackground,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,22 +16,23 @@ import Pen from "../../assets/icon/companion/pen.svg";
 import Bookmark from "../../assets/icon/mypage/bookmark_true.svg";
 import Plus from "../../assets/icon/mypage/plus.svg";
 import Arrow from "../../assets/icon/mypage/right_arrow.svg";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MyPageModal } from "../../component/MyPage/MyPageComp";
 import { useIsFocused } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { homeClubMapping } from "../../constants/mapping";
 import { loadProfile } from "../../api/mypage/profile";
+import { loadClub } from "../../api/club/club";
 
 const activitys = [
   {
     image: require("../../assets/icon/mypage/chat.png"),
     text: "나의 대화 신청 내역",
-    onPress: () => navigation.jumpTo("Companion", { screen: "채팅내역" }),
+    key: "chat",
   },
   {
     image: require("../../assets/icon/mypage/prohibit.png"),
     text: "내가 차단한 글 및 계정",
+    key: "block",
   },
 ];
 
@@ -42,36 +42,33 @@ export default function MyPageMainScreen({ navigation }) {
   const [teamId, setTeamId] = useState(null);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    let mounted = true;
+    (async () => {
       const prof = await loadProfile();
-      if (prof.isSuccess) {
-        setProfile(prof.result);
-      }
+      if (mounted && prof && prof.isSuccess) setProfile(prof.result);
+      const data = await loadClub();
+      if (mounted && data && data.isSuccess) setTeamId(data.result.teamId);
+    })();
+    return () => {
+      mounted = false;
     };
-    const fetchTeam = async () => {
-      const team = await AsyncStorage.getItem("teamId");
-      setTeamId(parseInt(team));
-    };
-
-    fetchProfile();
-    fetchTeam();
   }, [isFocused]);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [buttonPosition, setButtonPosition] = useState({ top: 0, right: 0 });
+  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
   const modalButtonRef = useRef(null);
 
-  const openModal = (ref) => {
+  const openModal = useCallback((ref) => {
     if (ref.current) {
-      ref.current.measure((x, y, width, height, pageX, pageY) => {
-        setButtonPosition({ top: pageY + height, left: pageX });
+      ref.current.measureInWindow((x, y, width, height) => {
+        setButtonPosition({ top: y + height, left: x });
         setModalVisible(true);
       });
     }
-  };
+  }, []);
 
   return (
-    <SafeAreaView style={theme.container}>
+    <View style={theme.container}>
       <LinearGradient
         colors={["#0084FF18", "transparent"]}
         style={styles.gradient}
@@ -80,7 +77,13 @@ export default function MyPageMainScreen({ navigation }) {
       />
       {/* header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate("Setting")}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("Setting", {
+              profileImage: profile?.profileImgUrl,
+            })
+          }
+        >
           <Image
             source={require("../../assets/icon/mypage/setting.png")}
             style={styles.setting}
@@ -114,7 +117,11 @@ export default function MyPageMainScreen({ navigation }) {
         >
           {/* profile */}
           <Image
-            source={require("../../assets/images/companion/logo.png")}
+            source={
+              profile?.profileImgUrl
+                ? { uri: profile.profileImgUrl }
+                : require("../../assets/images/companion/logo.png")
+            }
             style={styles.profileImage}
           />
           <Text style={styles.profileText}>{profile?.nickname}</Text>
@@ -261,11 +268,18 @@ export default function MyPageMainScreen({ navigation }) {
                 style={{ width: "100%" }}
               >
                 <View style={styles.activityContainer}>
-                  {activitys.map((activity, index) => {
+                  {activitys.map((activity) => {
                     return (
                       <TouchableOpacity
-                        key={index}
-                        onPress={activity.onPress}
+                        key={activity.key}
+                        onPress={() => {
+                          if (activity.key === "chat")
+                            navigation.jumpTo("Companion", {
+                              screen: "채팅내역",
+                            });
+                          else if (activity.key === "block")
+                            navigation.navigate("PrivacySettings");
+                        }}
                         style={styles.rowContainer}
                       >
                         <View style={theme.rowContainer}>
@@ -287,7 +301,7 @@ export default function MyPageMainScreen({ navigation }) {
           </View>
         </ScrollView>
       </ImageBackground>
-    </SafeAreaView>
+    </View>
   );
 }
 

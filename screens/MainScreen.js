@@ -1,4 +1,6 @@
-import { StyleSheet } from "react-native";
+// MainScreen.jsx
+import React, { useEffect, useState } from "react";
+import { Image, StyleSheet, DeviceEventEmitter } from "react-native"; // ✅ DeviceEventEmitter import
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { theme } from "../colors/color";
 import Home from "../assets/icon/tabBarIcon/home.svg";
@@ -15,11 +17,25 @@ import TestPage from "./TestPage";
 import CompanionNav from "./Companion/CompanionNav";
 import StoryNav from "./Story/StoryNav";
 import MyPageMainScreen from "./MyPage/MyPageMainScreen";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { loadProfile } from "../api/mypage/profile";
 
 const Tab = createBottomTabNavigator();
 
 export default function MainScreen() {
+  const [profileImage, setProfileImage] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const data = await loadProfile();
+      setProfileImage(data?.result?.profileImgUrl ?? null);
+    })();
+
+    const sub = DeviceEventEmitter.addListener("PROFILE_UPDATED", (url) => {
+      setProfileImage(url ?? null);
+    });
+    return () => sub.remove();
+  }, []);
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -42,8 +58,8 @@ export default function MainScreen() {
         component={HomeScreen}
         options={{
           title: "홈",
-          tabBarIcon: ({ color }) =>
-            color === theme.main_black ? (
+          tabBarIcon: ({ focused }) =>
+            focused ? (
               <Home width={18} height={18} />
             ) : (
               <HomeGray width={18} height={18} />
@@ -55,8 +71,8 @@ export default function MainScreen() {
         component={CompanionNav}
         options={{
           title: "동행찾기",
-          tabBarIcon: ({ color }) =>
-            color === theme.main_black ? (
+          tabBarIcon: ({ focused }) =>
+            focused ? (
               <Companion width={21} height={18} />
             ) : (
               <CompanionGray width={21} height={18} />
@@ -68,8 +84,8 @@ export default function MainScreen() {
         component={TestPage}
         options={{
           title: "테스트",
-          tabBarIcon: ({ color }) =>
-            color == theme.main_black ? (
+          tabBarIcon: ({ focused }) =>
+            focused ? (
               <GameInfo width={18} height={18} />
             ) : (
               <GameInfoGray width={18} height={18} />
@@ -81,8 +97,8 @@ export default function MainScreen() {
         component={StoryNav}
         options={{
           title: "이야기방",
-          tabBarIcon: ({ color }) =>
-            color == theme.main_black ? (
+          tabBarIcon: ({ focused }) =>
+            focused ? (
               <Story width={22} height={20} />
             ) : (
               <StoryGray width={22} height={20} />
@@ -94,7 +110,12 @@ export default function MainScreen() {
         component={MyPageMainScreen}
         options={{
           title: "내 정보",
-          tabBarIcon: () => <My width={19} height={19} />,
+          tabBarIcon: () =>
+            profileImage ? (
+              <Image source={{ uri: profileImage }} style={styles.img} />
+            ) : (
+              <My width={19} height={19} />
+            ),
         }}
       />
     </Tab.Navigator>
@@ -102,8 +123,6 @@ export default function MainScreen() {
 }
 
 const styles = StyleSheet.create({
-  tabBarText: {
-    fontSize: 9,
-    fontFamily: "Pretendard-Regular",
-  },
+  tabBarText: { fontSize: 9, fontFamily: "Pretendard-Regular" },
+  img: { width: 19, height: 19, resizeMode: "cover", borderRadius: 30 },
 });

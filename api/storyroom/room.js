@@ -80,16 +80,14 @@ export const loadPublicStoryPostDetail = async (postId) => {
   }
 };
 
-// 게시글 삭제 (연결된 채팅방도 함께 삭제)
 export const deleteStoryPost = async (postId) => {
   try {
     const { data } = await apiClient.delete(`/api/storyRoom/post/${postId}`);
-    if (data?.isSuccess) showToast("게시글이 삭제되었어요.");
+    if (data?.isSuccess) showToast("게시글 삭제 완료!");
     else showToast("게시글 삭제에 실패했어요.");
     return !!data?.isSuccess;
   } catch (error) {
     showToast("게시글 삭제 실패! 다시 시도해주세요.");
-    console.log("deleteStoryPost error: ", error);
     return false;
   }
 };

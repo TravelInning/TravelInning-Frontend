@@ -6,7 +6,9 @@ import {
   View,
   Text,
   TouchableOpacity,
+  DeviceEventEmitter,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { Header } from "../../../component/Header/Header";
 import { SCREEN_HEIGHT, SCREEN_WIDTH, theme } from "../../../colors/color";
 import { showToast } from "../../../component/Toast";
@@ -14,29 +16,95 @@ import { ConfirmBtn } from "../../../component/MyPage/Profile/ConfirmBtn";
 import { EditProfileNavBtn } from "../../../component/MyPage/Profile/EditProfileNavBtn";
 import { useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
-import { loadProfile } from "../../../api/mypage/profile";
+import { loadProfile, uploadProfileImage } from "../../../api/mypage/profile";
 
-const title = ["닉네임", "성별", "소개 메시지"];
+const sections = ["닉네임", "성별", "소개 메시지"];
+const genderLabel = (g) =>
+  g === "MALE" ? "남자" : g === "FEMALE" ? "여자" : "";
 
 export default function EditProfile({ navigation }) {
   const isFocused = useIsFocused();
-  const [profile, setProfile] = useState({});
+  const [profile, setProfile] = useState({
+    profileImgUrl: "",
+    nickname: "",
+    gender: "",
+    introduceMessage: "",
+  });
+
+  const [localImageUri, setLocalImageUri] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     (async () => {
       const prof = await loadProfile();
       if (prof.isSuccess) {
-        const result = prof.result;
+        const r = prof.result;
         setProfile({
-          ...profile,
-          profileImgUrl: result.profileImgUrl,
-          닉네임: result.nickname,
-          성별: result.gender === "MALE" ? "남자" : "여자",
-          "소개 메시지": "",
+          profileImgUrl: r.profileImgUrl,
+          nickname: r.nickname,
+          gender: r.gender,
+          introduceMessage: r.introduceMessage,
         });
+        setLocalImageUri(null);
       }
     })();
   }, [isFocused]);
+
+  const requestMediaPermission = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      showToast("사진 접근 권한이 필요해요.");
+      return false;
+    }
+    return true;
+  };
+
+  const pickImage = async () => {
+    const ok = await requestMediaPermission();
+    if (!ok) return;
+
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.9,
+    });
+
+    if (!res.canceled && res.assets?.length) {
+      const uri = res.assets[0].uri;
+      setLocalImageUri(uri);
+      setProfile((p) => ({ ...p, profileImgUrl: uri }));
+    }
+  };
+
+  const handleConfirm = async () => {
+    try {
+      setSubmitting(true);
+      let newUrl = null;
+
+      if (localImageUri) {
+        const data = await uploadProfileImage(localImageUri);
+        if (!data?.isSuccess) {
+          showToast("프로필 이미지 업로드에 실패했습니다.");
+          setSubmitting(false);
+          return;
+        }
+        newUrl = data?.result?.profileImgUrl || "";
+        setProfile((p) => ({ ...p, profileImgUrl: newUrl }));
+      }
+
+      showToast("저장 완료!");
+      if (newUrl) {
+        DeviceEventEmitter.emit("PROFILE_UPDATED", `${newUrl}?t=${Date.now()}`);
+      }
+      navigation.goBack();
+    } catch (e) {
+      console.log("upload error: ", e);
+      showToast("오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <SafeAreaView style={theme.container}>
@@ -51,31 +119,38 @@ export default function EditProfile({ navigation }) {
           style={styles.profileImage}
         />
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={pickImage} disabled={submitting}>
           <Text style={styles.profileImgText}>프로필 이미지</Text>
         </TouchableOpacity>
         <View style={styles.btnGroup}>
-          {title.map((text, index) => (
+          {sections.map((title) => (
             <EditProfileNavBtn
-              key={index}
-              title={text}
-              content={profile[text]}
-              navFunc={() => {
+              key={title}
+              title={title}
+              content={
+                title === "닉네임"
+                  ? profile.nickname
+                  : title === "성별"
+                  ? genderLabel(profile.gender)
+                  : undefined
+              }
+              navFunc={() =>
                 navigation.navigate("EditDetail", {
-                  title: text,
-                  content: [profile[text]],
-                });
-              }}
+                  title,
+                  content: {
+                    nickname: profile.nickname ?? "",
+                    gender: profile.gender ?? "",
+                    introduceMessage: profile.introduceMessage ?? "",
+                  },
+                })
+              }
             />
           ))}
         </View>
       </ScrollView>
-      <ConfirmBtn
-        confirmFunc={() => {
-          showToast("저장 완료!");
-          navigation.goBack();
-        }}
-      />
+      <View style={{ opacity: submitting ? 0.6 : 1 }}>
+        <ConfirmBtn confirmFunc={handleConfirm} disabled={submitting} />
+      </View>
     </SafeAreaView>
   );
 }
