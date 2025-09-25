@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ScrollView,
   View,
@@ -10,22 +10,11 @@ import {
 } from "react-native";
 import BottomBtn from "../../component/BottomBtn";
 import { showToast } from "../../component/Toast";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { enrollClub } from "../../api/club/club";
 
 export default function SelectClub({ navigation, route }) {
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [teamId, setTeamId] = useState(null);
-
-  useEffect(() => {
-    const loadTeamId = async () => {
-      const data = await AsyncStorage.getItem("teamId");
-      const parsedData = data ? parseInt(data, 10) : null;
-      setSelectedTeam(parsedData);
-      setTeamId(parsedData);
-    };
-    loadTeamId();
-  }, []);
 
   const handleClub = async () => {
     if (route.params && route.params.from === "myTravelInning") {
@@ -163,7 +152,6 @@ export default function SelectClub({ navigation, route }) {
           />
         </View>
       </ScrollView>
-      {/* 버튼 */}
       <BottomBtn text="다음" onPress={handleClub} isDisabled={!selectedTeam} />
     </SafeAreaView>
   );
