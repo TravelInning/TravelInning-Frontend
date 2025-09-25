@@ -1,24 +1,11 @@
-import {
-  Image,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-} from "react-native";
+import { SafeAreaView, StyleSheet, View } from "react-native";
 import { SCREEN_HEIGHT, SCREEN_WIDTH, theme } from "../../../colors/color";
-import { showToast } from "../../../component/Toast";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Header } from "../../../component/Header/Header";
 import CancleConfirmModal from "../../../component/CancleConfirmModal";
-import { ConfirmBtn } from "../../../component/MyPage/Profile/ConfirmBtn";
 import { EditProfileNavBtn } from "../../../component/MyPage/Profile/EditProfileNavBtn";
-import { deleteAccount } from "../../../api/mypage/account";
-import { handleAccountDelete } from "../../../utils/accountUtils";
 
 export default function EditAccount({ navigation }) {
-  const [phoneNumber, setPhoneNumber] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
 
   return (
@@ -32,26 +19,7 @@ export default function EditAccount({ navigation }) {
             setModalVisible(true);
           }}
         />
-        <EditProfileNavBtn
-          title={"전화번호"}
-          content={"01000000000"}
-          navFunc={() => {
-            navigation.navigate("EditPhone", {
-              title: "전화번호 변경",
-              content: "0100000000",
-            });
-          }}
-        />
-        <TouchableOpacity onPress={() => handleAccountDelete(navigation)}>
-          <Text style={styles.deleteAccount}>계정 삭제</Text>
-        </TouchableOpacity>
       </View>
-      <ConfirmBtn
-        confirmFunc={() => {
-          showToast("저장 완료!");
-          navigation.goBack();
-        }}
-      />
       <CancleConfirmModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
