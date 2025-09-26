@@ -14,7 +14,7 @@ import SignUpTerms from "./screens/SignUp/SignUpTerms";
 import LoginScreen from "./screens/Login/LoginScreen";
 import SignUpPhoneNumber from "./screens/SignUp/SignUpPhoneNumber";
 import SignUpEmail from "./screens/SignUp/SignUpEmail";
-import ChatScreen from "./screens/Chat/ChatScreen";
+import ChatCompanionScreen from "./screens/Chat/ChatCompanionScreen";
 import CompanionNav from "./screens/Companion/CompanionNav";
 import ChatListScreen from "./screens/Chat/ChatListScreen";
 import ChatListDetailScreen from "./screens/Chat/ChatListDetailScreen";
@@ -44,6 +44,7 @@ import Onboarding from "./screens/Onboarding/Onboarding";
 import EditAccount from "./screens/MyPage/account/EditAccount";
 import EditPhone from "./screens/MyPage/account/EditPhone";
 import StoryPostDetail from "./screens/Story/StoryPostDetail";
+import ChatStoryScreen from "./screens/Chat/ChatStoryScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -183,7 +184,7 @@ export default function App() {
           />
           <Stack.Screen
             name="Chat"
-            component={ChatScreen}
+            component={ChatCompanionScreen}
             options={{
               headerShown: false,
             }}
@@ -207,7 +208,6 @@ export default function App() {
             component={CompanionPostDetail}
             options={{
               headerShown: false,
-              // animation: "slide_from_right",
             }}
           />
           <Stack.Screen
@@ -332,6 +332,13 @@ export default function App() {
           <Stack.Screen
             name="StoryPostDetail"
             component={StoryPostDetail}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="ChatStory"
+            component={ChatStoryScreen}
             options={{
               headerShown: false,
             }}

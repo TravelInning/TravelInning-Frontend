@@ -86,3 +86,10 @@ export function getRemainingMMSS(createdAt, limitTime) {
     return null;
   }
 }
+
+export const toMMSS = (sec) => {
+  if (typeof sec !== "number" || sec < 0) return "00:00";
+  const m = String(Math.floor(sec / 60)).padStart(2, "0");
+  const s = String(sec % 60).padStart(2, "0");
+  return `${m}:${s}`;
+};

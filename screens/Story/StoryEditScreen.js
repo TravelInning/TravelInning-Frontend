@@ -303,6 +303,7 @@ export default function StoryEditScreen({ navigation }) {
             ? ["야구", "기사/뉴스", "일상", "성/연애"]
             : ["30분", "1시간", "2시간", "3시간"]
         }
+        currentKeyword={filterNumber === 1 ? topic : limitedTime}
         setSelected={filterNumber === 1 ? setTopic : setLimitedTime}
       />
     </SafeAreaView>
