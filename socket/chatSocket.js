@@ -1,4 +1,5 @@
 import io from "socket.io-client";
+import { normalizeRoomId } from "../utils/normalizeRoomId";
 
 let socket = null;
 let pendingQueue = [];
@@ -7,7 +8,8 @@ const joinedRooms = new Set();
 export const initSocket = (baseURL) => {
   if (socket) return socket;
   socket = io(baseURL, {
-    transports: ["websocket"],
+    path: "/socket.io",
+    transports: ["websocket", "polling"],
     reconnection: true,
     reconnectionAttempts: Infinity,
     reconnectionDelay: 1000,
@@ -23,9 +25,15 @@ export const initSocket = (baseURL) => {
     }
   });
 
-  socket.on("connect_error", (error) =>
-    console.log("[socket] connect_error:", error)
-  );
+  socket.on("connect_error", (err) => {
+    console.log(
+      "[socket] connect_error:",
+      err?.message,
+      err?.description,
+      err?.context
+    );
+  });
+
   socket.on("error", (error) => console.log("[socket] error:", error));
   socket.on("disconnect", (reason) =>
     console.log("[socket] disconnect:", reason)
@@ -46,10 +54,7 @@ export const disconnectSocket = () => {
   }
 };
 
-const toUuid = (id) => {
-  const m = String(id).match(/^CR-([0-9a-fA-F-]{36})$/);
-  return m ? m[1] : id;
-};
+const toUuid = (id) => normalizeRoomId(id);
 
 const rawJoin = (roomId, userId) =>
   new Promise((resolve) => {

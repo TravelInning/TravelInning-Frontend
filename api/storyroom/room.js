@@ -54,7 +54,6 @@ export const createStoryPost = async ({
   }
 };
 
-// (로그인 필요) 게시글 상세 조회
 export const loadStoryPostDetail = async (postId) => {
   try {
     const { data } = await apiClient.get(`/api/storyRoom/post/${postId}`);
@@ -87,6 +86,9 @@ export const deleteStoryPost = async (postId) => {
     else showToast("게시글 삭제에 실패했어요.");
     return !!data?.isSuccess;
   } catch (error) {
+    const status = error?.response?.status;
+    const body = error?.response?.data;
+    console.log("delete post error:", status, body);
     showToast("게시글 삭제 실패! 다시 시도해주세요.");
     return false;
   }

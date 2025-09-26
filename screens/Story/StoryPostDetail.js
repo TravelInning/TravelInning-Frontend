@@ -19,7 +19,6 @@ import OptionModal from "../../component/common/OptionModal";
 import { Header } from "../../component/Header/Header";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getRemainingMMSS, timeAgo } from "../../utils/time";
-import { openOrCreateOneOnOne } from "../../api/chat/openOrCreate";
 import { deleteStoryPost, loadStoryPostDetail } from "../../api/storyroom/room";
 import {
   addStoryPostScrap,
@@ -77,20 +76,14 @@ const StoryPostDetail = ({ navigation, route }) => {
   };
 
   const onClickChat = async () => {
-    try {
-      const { roomId, peerName: name } = await openOrCreateOneOnOne(id);
-      if (!roomId) {
-        showToast("대화방을 만들 수 없어요. 잠시 후 다시 시도해주세요.");
-        return;
-      }
-      navigation.navigate("Chat", {
-        initialRoomId: roomId,
-        postId: id,
-        peerName: name || post?.authorName || "상대 닉네임",
-      });
-    } catch (e) {
-      showToast("대화방 열기에 실패했어요.");
+    if (!post?.roomId) {
+      showToast("채팅방을 준비 중이에요. 잠시 후 다시 시도해주세요.");
+      return;
     }
+    navigation.navigate("ChatStory", {
+      roomId: post.roomId,
+      topicText: post.content,
+    });
   };
 
   return (
@@ -138,7 +131,7 @@ const StoryPostDetail = ({ navigation, route }) => {
                 <Text style={styles.time}>{timeAgo(post?.createdAt)}</Text>
               </View>
             </View>
-            {post?.authorName !== userName && endLabel && (
+            {endLabel && (
               <TouchableOpacity
                 onPress={onClickChat}
                 style={{ alignItems: "center", gap: 5 }}

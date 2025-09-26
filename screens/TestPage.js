@@ -72,6 +72,13 @@ export default function TestPage({ navigation, route }) {
         >
           <Text style={styles.buttonText}>온보딩</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          onPress={() => navigation.push("ChatTest")}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>채팅테스트</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

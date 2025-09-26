@@ -11,7 +11,13 @@ import {
 import { theme, SCREEN_HEIGHT } from "../colors/color";
 import Check from "../assets/icon/check_blue.svg";
 
-const CheckFilterModal = ({ visible, onClose, keywordArry, setSelected }) => {
+const CheckFilterModal = ({
+  visible,
+  onClose,
+  keywordArry,
+  currentKeyword,
+  setSelected,
+}) => {
   const slideAnim = useRef(new Animated.Value(300)).current;
   const [selectedKeyword, setSelectedKeyword] = useState("");
 
@@ -32,8 +38,14 @@ const CheckFilterModal = ({ visible, onClose, keywordArry, setSelected }) => {
   }, [visible]);
 
   useEffect(() => {
-    console.log(selectedKeyword);
-  }, [selectedKeyword]);
+    if (visible) {
+      if (keywordArry.includes(currentKeyword)) {
+        setSelectedKeyword(currentKeyword);
+      } else {
+        setSelectedKeyword("");
+      }
+    }
+  }, [visible, currentKeyword, keywordArry]);
 
   const toggleKeyword = (keyword) => {
     setSelectedKeyword((prevSelected) =>

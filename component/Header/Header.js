@@ -1,4 +1,4 @@
-import { TouchableOpacity, View, Text } from "react-native";
+import { TouchableOpacity, View, Text, StyleSheet, Image } from "react-native";
 import { theme } from "../../colors/color";
 import Left from "../../assets/icon/left_arrow.svg";
 import { useNavigation } from "@react-navigation/native";
@@ -12,10 +12,11 @@ import { useNavigation } from "@react-navigation/native";
  *
  * @param {Object} props - Header 컴포넌트 props
  * @param {string} [props.title=""] - 헤더 가운데 표시할 제목
+ * @param {React.NodeRequire} [props.titleIcon] - 제목과 표시할 아이콘 경로
  * @param {React.ReactNode} [props.children] - 오른쪽에 표시할 커스텀 요소
  * @returns {JSX.Element} 헤더 UI
  */
-export const Header = ({ title = "", children }) => {
+export const Header = ({ title = "", children, titleIcon }) => {
   const navigation = useNavigation();
 
   return (
@@ -23,16 +24,33 @@ export const Header = ({ title = "", children }) => {
       <TouchableOpacity onPress={() => navigation.pop()} style={{ width: 40 }}>
         <Left width={8} height={15} />
       </TouchableOpacity>
-      <Text
-        style={{
-          fontSize: 18,
-          fontFamily: "Pretendard-SemiBold",
-          color: theme.main_black,
-        }}
-      >
-        {title}
-      </Text>
+      <View style={styles.row}>
+        {titleIcon && <Image source={titleIcon} style={styles.icon} />}
+        <Text
+          style={{
+            fontSize: 18,
+            fontFamily: "Pretendard-SemiBold",
+            color: theme.main_black,
+          }}
+        >
+          {title}
+        </Text>
+      </View>
       <View style={{ minWidth: 40, alignItems: "flex-end" }}>{children}</View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  icon: {
+    width: 12,
+    height: 12,
+    resizeMode: "contain",
+    marginTop: 2,
+  },
+});

@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { Shadow } from "react-native-shadow-2";
 import { SCREEN_WIDTH, theme } from "../../colors/color";
 
-const Message = ({ item, handleLongPress }) => {
+const Message = ({ item, handleLongPress = () => {} }) => {
   const isLeft = item.side === "left";
   const isSystem = item.text?.startsWith("[SYSTEM]");
 
