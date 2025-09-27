@@ -22,6 +22,7 @@ import {
   changePostState,
   deletePost,
   loadCompanionPosts,
+  searchCompanionPosts,
 } from "../../api/companion/post";
 import { PostCard } from "../../component/Companion/PostCard";
 import { addPostScrap, cancelPostScrap } from "../../api/companion/scrap";
@@ -65,6 +66,9 @@ export default function CompanionScreen() {
     statusFilter: "ALL",
   });
 
+  const [mode, setMode] = useState("LIST"); // "LIST", "SEARCH"
+  const [keyword, setKeyword] = useState("");
+
   const [filter1State, setFilter1State] = useState("최신순");
   const [filter2State, setFilter2State] = useState("전체 조건");
   const [filterVisible, setFilterVisible] = useState(false);
@@ -102,6 +106,7 @@ export default function CompanionScreen() {
 
   useEffect(() => {
     if (!isFocused) return;
+    if (mode === "SEARCH") return;
 
     let cancelled = false;
     (async () => {
@@ -112,7 +117,7 @@ export default function CompanionScreen() {
     return () => {
       cancelled = true;
     };
-  }, [isFocused, postLoadCondition]);
+  }, [isFocused, postLoadCondition, mode]);
 
   useEffect(() => {
     setPostLoadCondition((prev) => {
@@ -127,6 +132,32 @@ export default function CompanionScreen() {
     });
   }, [filter1State, filter2State]);
 
+  const runSearch = useCallback(async () => {
+    const q = keyword.trim();
+    if (!q) return;
+
+    setMode("SEARCH");
+
+    setFilter1State("최신순");
+    setFilter2State("전체 조건");
+    setPostLoadCondition((prev) => ({
+      ...prev,
+      page: 0,
+      sortType: "LATEST",
+      statusFilter: "ALL",
+    }));
+
+    const content = await searchCompanionPosts({
+      keyword: q,
+      page: 0,
+      size: 10,
+      sort: "createdAt,DESC",
+    });
+
+    setPosts(content ?? []);
+    showToast("검색되었습니다");
+  }, [keyword]);
+
   const handleToggleScrap = useCallback(async (postId, next) => {
     try {
       if (next) await addPostScrap(postId);
@@ -137,16 +168,23 @@ export default function CompanionScreen() {
       );
 
       setStoryPosts((prev) => {
-        let updated = prev;
         if (next) {
-          const post = posts.find((p) => p.id === postId);
-          if (post) {
-            updated = [...prev, { ...post, scraped: true }];
+          const exists = prev.some((p) => p.id === postId);
+          if (exists) {
+            return sortCompanionStoryPosts(
+              prev.map((p) => (p.id === postId ? { ...p, scraped: true } : p))
+            );
           }
+          let added;
+          setPosts((cur) => {
+            const target = cur.find((p) => p.id === postId);
+            added = target ? [...prev, { ...target, scraped: true }] : prev;
+            return cur;
+          });
+          return sortCompanionStoryPosts(added);
         } else {
-          updated = prev.filter((p) => p.id !== postId);
+          return sortCompanionStoryPosts(prev.filter((p) => p.id !== postId));
         }
-        return sortCompanionStoryPosts(updated);
       });
     } catch (e) {
       showToast("스크랩 오류! 다시 시도해주세요.");
@@ -186,6 +224,23 @@ export default function CompanionScreen() {
               <TextInput
                 placeholder="키워드로 동행찾기"
                 style={styles.searchInput}
+                value={keyword}
+                onChangeText={(t) => {
+                  setKeyword(t);
+                  if (mode === "SEARCH" && t.trim().length === 0) {
+                    setFilter1State("최신순");
+                    setFilter2State("전체 조건");
+                    setPostLoadCondition((prev) => ({
+                      ...prev,
+                      page: 0,
+                      sortType: "LATEST",
+                      statusFilter: "ALL",
+                    }));
+                    setMode("LIST");
+                  }
+                }}
+                returnKeyType="search"
+                onSubmitEditing={runSearch}
               />
             </View>
           </Shadow>
@@ -222,6 +277,7 @@ export default function CompanionScreen() {
           {/* filter1 */}
           <TouchableOpacity
             ref={filter1ButtonRef}
+            disabled={mode === "SEARCH"}
             onPress={() => openModal(filter1ButtonRef, "filter1")}
             style={theme.rowContainer}
           >
@@ -238,6 +294,7 @@ export default function CompanionScreen() {
           {/* filter2 */}
           <TouchableOpacity
             ref={filter2ButtonRef}
+            disabled={mode === "SEARCH"}
             onPress={() => openModal(filter2ButtonRef, "filter2")}
             style={{ ...theme.rowContainer, marginLeft: 18 }}
           >

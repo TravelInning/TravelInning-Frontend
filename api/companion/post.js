@@ -143,3 +143,21 @@ export const updatePost = async ({
     return false;
   }
 };
+
+export const searchCompanionPosts = async ({
+  keyword,
+  page = 0,
+  size = 10,
+  sort = "createdAt,DESC",
+}) => {
+  try {
+    const { data } = await apiClient.get("/api/companionPost/search", {
+      params: { keyword, page, size, sort },
+    });
+    return data?.result?.content ?? [];
+  } catch (error) {
+    console.log("search post error: ", error);
+    showToast("검색 중 오류가 발생했습니다! 다시 시도해주세요.");
+    return [];
+  }
+};
