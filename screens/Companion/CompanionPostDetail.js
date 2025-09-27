@@ -7,7 +7,11 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { changePostState, loadPost } from "../../api/companion/post";
+import {
+  changePostState,
+  deletePost,
+  loadPost,
+} from "../../api/companion/post";
 import { theme } from "../../colors/color";
 import Share from "../../assets/icon/companion/share.svg";
 import SeeMore from "../../assets/icon/companion/see_more.svg";
