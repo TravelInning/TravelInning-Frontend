@@ -1,4 +1,3 @@
-// hooks/useStoryChatRoom.js
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Keyboard } from "react-native";
@@ -16,15 +15,14 @@ import {
   leaveStoryRoom,
   fetchStoryMessages,
   fetchRemainingSeconds,
-  fetchParticipantsCount,
 } from "../api/storyroom/chat";
 
-const dedup = (arr) => {
+// 서버 id로만 dedup (echo-id와 서버 id 섞여 들어와도 서버 id 우선)
+const dedupById = (arr) => {
   const seen = new Set();
   const out = [];
   for (const m of arr) {
-    const key =
-      (m.id && String(m.id)) || `${m.createdAt}|${m.senderId}|${m.text}`;
+    const key = String(m.id);
     if (seen.has(key)) continue;
     seen.add(key);
     out.push(m);
@@ -33,18 +31,24 @@ const dedup = (arr) => {
 };
 
 // 서버 → UI 표준화
-const mapIncoming = (raw, myId) => ({
-  id: raw.id || `tmp-${Date.now()}`,
-  senderId: raw.senderId,
-  senderName:
-    Number(raw.senderId) === Number(myId) ? "me" : raw.senderName || "참가자",
-  side: Number(raw.senderId) === Number(myId) ? "right" : "left",
-  text: raw.message ?? raw.content ?? "",
-  time: hhmm(raw.createdAt),
-  createdAt: raw.createdAt || new Date().toISOString(),
-  fromBlockedUser: raw.fromBlockedUser,
-  role: raw.senderRole,
-});
+const mapIncoming = (raw, myId) => {
+  const isMe = Number(raw.senderId) === Number(myId);
+  return {
+    id: raw.id || `tmp-${Date.now()}-${Math.random()}`,
+    senderId: raw.senderId,
+    senderName: raw.senderName || (isMe ? "나" : `user#${raw.senderId}`),
+    avatarUrl: raw.senderProfileUrl || null,
+    side: isMe ? "right" : "left",
+    text: raw.message ?? raw.content ?? "",
+    time: hhmm(raw.createdAt || new Date().toISOString()),
+    createdAt: raw.createdAt || new Date().toISOString(),
+    fromBlockedUser: raw.fromBlockedUser,
+    role: raw.senderRole,
+  };
+};
+
+// “최초 1회 입장 알림” 캐시 키
+const JOIN_ONCE_KEY = (roomId, userId) => `sr_join_once_${roomId}_${userId}`;
 
 export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
   const listRef = useRef(null);
@@ -56,17 +60,22 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const [cursor, setCursor] = useState(undefined); // nextCursor를 커서로 사용
+  const [cursor, setCursor] = useState(undefined); // 서버 nextCursor 사용
   const [hasMoreOlder, setHasMoreOlder] = useState(true);
   const [loadingOlder, setLoadingOlder] = useState(false);
 
   const [remainSec, setRemainSec] = useState(null);
-  const [participants, setParticipants] = useState(0);
 
   const [inputDisabled, setInputDisabled] = useState(false);
 
   const [expired, setExpired] = useState(false);
   const expiredRef = useRef(false);
+
+  // 내 닉네임(입장 메시지용)
+  const [myName, setMyName] = useState(null);
+
+  // 같은 포커스 주기에서 enter 중복 호출 방지
+  const enteredRef = useRef(false);
 
   // me
   useFocusEffect(
@@ -83,30 +92,104 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
     }, [])
   );
 
-  // 입장/퇴장 life-cycle
+  // 내 닉네임 로드
+  useEffect(() => {
+    (async () => {
+      const n = await AsyncStorage.getItem("userName");
+      setMyName(n || "참가자");
+    })();
+  }, []);
+
+  // “예전에 들어온 적이 있는지” 판단
+  const detectHasEverEntered = useCallback(
+    async (loadedUi) => {
+      // 캐시 먼저 확인
+      const cached = await AsyncStorage.getItem(JOIN_ONCE_KEY(roomId, userId));
+      if (cached === "1") return true;
+
+      // 히스토리상 내가 보낸 메시지 혹은 내 입장 시스템 문구가 있으면 true
+      const iSentBefore = loadedUi?.some(
+        (m) => Number(m.senderId) === Number(userId)
+      );
+
+      const myJoinText = `[SYSTEM] ${myName || "참가자"}님이 입장했습니다.`;
+      const iSentJoinBefore = loadedUi?.some(
+        (m) => typeof m.text === "string" && m.text === myJoinText
+      );
+
+      return Boolean(iSentBefore || iSentJoinBefore);
+    },
+    [roomId, userId, myName]
+  );
+
+  // 최초 1회 입장 알림 보내기
+  const announceJoinOnce = useCallback(async () => {
+    try {
+      const s = getSocket();
+      if (!s || !s.connected) return;
+
+      await joinRoomDual(roomId, userId); // 안전 조인
+      const msg = `[SYSTEM] ${myName || "참가자"}님이 입장했습니다.`;
+
+      const saved = await sendMessageDual(roomId, userId, msg);
+      if (saved) {
+        const ui = mapIncoming(saved, userId);
+        setMessages((prev) => dedupById([...prev, ui]));
+      } else {
+        // ack 실패 시 로컬 에코(서버가 다시 브로드캐스트하면 dedupById가 처리)
+        const echo = mapIncoming(
+          {
+            id: `echo-${Date.now()}`,
+            senderId: userId,
+            message: msg,
+            createdAt: new Date().toISOString(),
+          },
+          userId
+        );
+        setMessages((prev) => dedupById([...prev, echo]));
+      }
+      await AsyncStorage.setItem(JOIN_ONCE_KEY(roomId, userId), "1");
+    } catch {
+      // 조용히 실패 무시
+    }
+  }, [roomId, userId, myName]);
+
+  // 입장/퇴장 + 소켓 수신/초기 로드 + 남은시간(로컬 타이머)
   useFocusEffect(
     useCallback(() => {
       let mounted = true;
+      let tickTimer = null;
+      let deadlineMs = null;
+
       (async () => {
         if (!roomId || !userId) return;
-        await enterStoryRoom(roomId, userId).catch(() => {});
+
+        // enter: 같은 포커스 사이클에서 중복 방지
+        if (!enteredRef.current) {
+          enteredRef.current = true;
+          await enterStoryRoom(roomId, userId).catch(() => {});
+        }
+
+        // 소켓 초기화/조인
         initSocket(baseURL);
         const s = getSocket();
 
         const onConnect = () => joinRoomDual(roomId, userId);
         const onReceive = (raw) => {
-          console.log("[story][receiveMessage] raw =", JSON.stringify(raw));
           const ui = mapIncoming(raw, userId);
-          setMessages((prev) => dedup([...prev, ui]));
+          setMessages((prev) => dedupById([...prev, ui]));
         };
 
+        s.off("connect", onConnect);
         s.on("connect", onConnect);
+        s.removeAllListeners?.("receiveMessage");
         s.on("receiveMessage", onReceive);
 
         if (s.connected) joinRoomDual(roomId, userId);
 
-        // 초기 메시지
+        // 초기 메시지 로드
         setLoading(true);
+        let initialUi = [];
         try {
           const page = await fetchStoryMessages({
             roomId,
@@ -114,61 +197,69 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
             size: 20,
             direction: "prev",
           });
-          const ui = (page?.messages ?? [])
+          initialUi = (page?.messages ?? [])
             .map((m) => mapIncoming(m, userId))
             .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-          setMessages(dedup(ui));
-          setCursor(page?.nextCursor); // 서버 스펙: nextCursor를 다음 페이지용으로 사용
+          setMessages(dedupById(initialUi));
+          setCursor(page?.nextCursor);
           setHasMoreOlder(!!page?.nextCursor);
         } finally {
           setLoading(false);
         }
 
-        // 폴링: 남은 시간
-        const remainInt = setInterval(async () => {
-          try {
-            const sec = await fetchRemainingSeconds(roomId);
-            if (!mounted) return;
+        // ★ 최초 진입이면 시스템 입장 알림 1회 전송
+        const hasEver = await detectHasEverEntered(initialUi);
+        if (!hasEver) {
+          await announceJoinOnce();
+        }
 
-            setRemainSec(sec);
-            const isOver = !(typeof sec === "number" && sec > 0);
-            setInputDisabled(isOver);
+        // --- 남은 시간: 최초 1회만 서버에서 초 단위로 받아와서 로컬 타이머로 감소 ---
+        try {
+          const sec = await fetchRemainingSeconds(roomId);
+          if (!mounted) return;
 
-            // ★ 최초 만료 감지 시 처리
-            if (isOver && !expiredRef.current) {
+          if (typeof sec === "number" && sec > 0) {
+            deadlineMs = Date.now() + sec * 1000;
+          } else {
+            deadlineMs = Date.now(); // 이미 만료
+          }
+
+          // 1초마다 로컬 타이머
+          tickTimer = setInterval(() => {
+            if (!deadlineMs) return;
+            const left = Math.ceil((deadlineMs - Date.now()) / 1000);
+            const next = Math.max(0, left);
+            setRemainSec(next);
+            setInputDisabled(next <= 0);
+
+            if (next <= 0 && !expiredRef.current) {
               expiredRef.current = true;
               setExpired(true);
-              // 퇴장 REST (실패해도 무시)
               leaveStoryRoom(roomId, userId).catch(() => {});
-              // 소켓 정리(선택)
               disconnectSocket();
+              clearInterval(tickTimer);
+              // if (resyncTimer) clearInterval(resyncTimer);
             }
-          } catch {}
-        }, 3000);
-
-        // 폴링: 인원수
-        const partInt = setInterval(async () => {
-          try {
-            const cnt = await fetchParticipantsCount(roomId);
-            if (!mounted) return;
-            setParticipants(Number.isFinite(cnt) ? cnt : 0);
-          } catch {}
-        }, 10000);
-
-        return () => {
-          mounted = false;
-          s.off("connect", onConnect);
-          s.off("receiveMessage", onReceive);
-          clearInterval(remainInt);
-          clearInterval(partInt);
-          // 퇴장
-          leaveStoryRoom(roomId, userId).catch(() => {});
-        };
+          }, 1000);
+        } catch {}
       })();
-    }, [roomId, userId, baseURL])
+
+      return () => {
+        mounted = false;
+        const s = getSocket();
+        s?.off?.("connect");
+        s?.off?.("receiveMessage");
+        if (tickTimer) clearInterval(tickTimer);
+
+        if (roomId && userId) {
+          leaveStoryRoom(roomId, userId).catch(() => {});
+        }
+        enteredRef.current = false;
+      };
+    }, [roomId, userId, baseURL, detectHasEverEntered, announceJoinOnce])
   );
 
-  // 더 불러오기(위로 스크롤)
+  // 과거 더 불러오기(위 스크롤)
   const loadOlder = useCallback(async () => {
     if (!roomId || !userId || !hasMoreOlder || loadingOlder) return;
     try {
@@ -177,14 +268,14 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
         roomId,
         meId: userId,
         size: 20,
-        cursor, // 이전 요청의 nextCursor
-        direction: "next", // 서버 스펙에 맞춰 조정(데이터 형태에 맞게 prev/next 써보며 확인)
+        cursor, // 이전 요청에서 받은 nextCursor
+        direction: "next",
       });
       const older = (page?.messages ?? [])
         .map((m) => mapIncoming(m, userId))
         .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
-      setMessages((prev) => dedup([...older, ...prev]));
+      setMessages((prev) => dedupById([...older, ...prev]));
       setCursor(page?.nextCursor);
       setHasMoreOlder(!!page?.nextCursor);
     } finally {
@@ -192,18 +283,25 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
     }
   }, [roomId, userId, cursor, hasMoreOlder, loadingOlder]);
 
-  // 보내기
+  // 보내기 (ack 우선, 실패 시 로컬 에코)
   const onSend = useCallback(
     async (text) => {
       const content = (text || "").trim();
       if (!content || !userId || !roomId || inputDisabled) return false;
+
       const s = getSocket();
       if (!s || !s.connected) return false;
 
-      await joinRoomDual(roomId, userId); // 안전
-      const ok = await sendMessageDual(roomId, userId, content);
-      if (!ok) return false;
+      await joinRoomDual(roomId, userId);
 
+      const saved = await sendMessageDual(roomId, userId, content);
+      if (saved) {
+        const ui = mapIncoming(saved, userId);
+        setMessages((prev) => dedupById([...prev, ui]));
+        return true;
+      }
+
+      // ack 실패 → 로컬 에코 (서버 브로드캐스트 들어오면 dedupById가 정리)
       const echo = mapIncoming(
         {
           id: `echo-${Date.now()}`,
@@ -213,28 +311,36 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
         },
         userId
       );
-      setMessages((prev) => dedup([...prev, echo]));
+      setMessages((prev) => dedupById([...prev, echo]));
       return true;
     },
     [roomId, userId, inputDisabled]
   );
 
-  // UI 그룹핑(시간/말풍선 붙이기)
-  const computed = useMemo(() => {
+  // UI 그룹핑(같은 사람일 때만 묶기)
+  const messagesComputed = useMemo(() => {
     const arr = messages;
     return arr.map((m, i) => {
       const prev = arr[i - 1];
       const next = arr[i + 1];
-      const showPeerHeader =
-        m.side === "left" &&
-        !(prev && prev.side === "left" && sameMinute(prev.time, m.time));
-      const marginBottom = next && next.side !== m.side ? 40 : 10;
-      const isGroupEnd = !(
+
+      const sameSenderWithPrev =
+        prev &&
+        prev.side === m.side &&
+        prev.senderId === m.senderId &&
+        sameMinute(prev.time, m.time);
+
+      const sameSenderWithNext =
         next &&
         next.side === m.side &&
-        sameMinute(next.time, m.time)
-      );
-      return { ...m, showPeerHeader, marginBottom, isGroupEnd };
+        next.senderId === m.senderId &&
+        sameMinute(next.time, m.time);
+
+      const showPeerHeader = m.side === "left" && !sameSenderWithPrev;
+      const isGroupEnd = !sameSenderWithNext;
+      const marginBottom = isGroupEnd ? 40 : 10;
+
+      return { ...m, showPeerHeader, isGroupEnd, marginBottom };
     });
   }, [messages]);
 
@@ -268,13 +374,13 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
     roomId,
     setRoomId,
     userId,
-    messages: computed,
+    messages: messagesComputed,
     loading,
     loadingOlder,
     onSend,
     handleScroll,
     remainSec,
-    participants,
+    // participants,
     inputDisabled,
     expired,
   };

@@ -51,7 +51,7 @@ export const loadMessages = async ({
     const params = { size, dir };
     if (cursor != null) params.cursor = cursor;
     const { data } = await apiClient.get(
-      `/api/compnaion/chats/rooms/${roomId}/messages`,
+      `/api/companion/chats/rooms/${roomId}/messages`,
       { params }
     );
     return data?.result;

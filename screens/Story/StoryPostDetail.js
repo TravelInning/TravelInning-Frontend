@@ -25,6 +25,7 @@ import {
   cancelStoryPostScrap,
 } from "../../api/storyroom/scrap";
 import { TOPIC_MAP } from "../../constants/mapping";
+import useRemainingMMSS from "../../hooks/useRemainingMMSS";
 
 const StoryPostDetail = ({ navigation, route }) => {
   const { id } = route.params;
@@ -55,10 +56,13 @@ const StoryPostDetail = ({ navigation, route }) => {
     handleUserName();
   }, []);
 
-  const endLabel = useMemo(
-    () => getRemainingMMSS(post?.createdAt, post?.limitTime),
-    [post]
-  );
+  const endLabel = useRemainingMMSS({
+    createdAt: post?.createdAt,
+    limitTime: post?.limitTime,
+    tickMs: 2000,
+  });
+
+  const isClosed = !endLabel;
 
   const toggleScrap = async () => {
     if (pending) return;
@@ -107,7 +111,7 @@ const StoryPostDetail = ({ navigation, route }) => {
         <View style={{ ...styles.container, paddingBottom: 12 }}>
           <View style={styles.chipContainer}>
             <Text style={styles.topic}>{TOPIC_MAP[post?.topic]}</Text>
-            {endLabel ? (
+            {!isClosed ? (
               <Text style={styles.remainTime}>{endLabel}에 문이 닫혀요!</Text>
             ) : (
               <Text

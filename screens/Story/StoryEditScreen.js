@@ -149,13 +149,13 @@ export default function StoryEditScreen({ navigation }) {
         limitTime: limitEnum,
         images,
       });
-    } catch {
-    } finally {
       if (created) {
         setContentText("");
         setImages([]);
         navigation.goBack();
       }
+    } catch {
+    } finally {
       setLoading(false);
     }
   };

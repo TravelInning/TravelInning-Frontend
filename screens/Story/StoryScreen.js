@@ -184,7 +184,7 @@ export default function StoryScreen({ navigation }) {
         ) : (
           <TouchableOpacity
             onPress={() => {
-              setFilter1("전체");
+              setFilter1("최신순");
               setFilter2("전체 조건");
               setFilter3("전체 조건");
             }}

@@ -100,12 +100,7 @@ export default function ChatBaseScreen({
         <FlatList
           ref={listRef}
           data={messages}
-          keyExtractor={(m, i) =>
-            (m.id ??
-              `${m.createdAt ?? ""}|${m.senderId ?? ""}|${m.text ?? ""}`) +
-            "-" +
-            i
-          }
+          keyExtractor={(m) => String(m.id)}
           renderItem={renderItem}
           contentContainerStyle={styles.messagesContainer}
           onScroll={handleScroll}

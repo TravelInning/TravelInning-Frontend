@@ -2,6 +2,19 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { Shadow } from "react-native-shadow-2";
 import { SCREEN_WIDTH, theme } from "../../colors/color";
 
+const getInitial = (name) => (name?.trim?.()[0] || "?").toUpperCase();
+
+const Avatar = ({ uri, name }) => {
+  if (uri) {
+    return <Image source={{ uri }} style={styles.userIcon} />;
+  }
+  return (
+    <View style={styles.initialAvatar}>
+      <Text style={styles.initialText}>{getInitial(name)}</Text>
+    </View>
+  );
+};
+
 const Message = ({ item, handleLongPress = () => {} }) => {
   const isLeft = item.side === "left";
   const isSystem = item.text?.startsWith("[SYSTEM]");
@@ -20,12 +33,9 @@ const Message = ({ item, handleLongPress = () => {} }) => {
             marginBottom: 8,
           }}
         >
-          <Image
-            source={require("../../assets/images/companion/logo.png")}
-            style={styles.userIcon}
-          />
+          <Avatar uri={item.avatarUrl} name={item.senderName} />
           <Text style={{ fontFamily: "Pretendard-SemiBold", fontSize: 12 }}>
-            {item.senderName || "상대 닉네임"}
+            {item.senderName || "참가자"}
           </Text>
         </View>
       )}
@@ -91,10 +101,7 @@ const styles = StyleSheet.create({
     color: "#6B6B6B",
     textDecorationLine: "underline",
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-  },
+  row: { flexDirection: "row", alignItems: "flex-end" },
   rowLeft: { justifyContent: "flex-start" },
   rowRight: { justifyContent: "flex-end" },
 
@@ -104,6 +111,21 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     marginRight: 5,
     resizeMode: "cover",
+    backgroundColor: "#eee",
+  },
+  initialAvatar: {
+    width: 20,
+    height: 20,
+    borderRadius: 7,
+    marginRight: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#E6F0FF", // 톤다운 블루
+  },
+  initialText: {
+    fontFamily: "Pretendard-SemiBold",
+    fontSize: 11,
+    color: theme.main_blue,
   },
 
   messageBubble: {
