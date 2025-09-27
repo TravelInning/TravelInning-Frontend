@@ -12,13 +12,12 @@ import {
 } from "../socket/chatSocket";
 import { loadMessages, createOneChat, loadRoomSummary } from "../api/chat/chat";
 
-const dedupMessages = (arr) => {
+// 중복 제거: 서버 id만 신뢰
+const dedupById = (arr) => {
   const seen = new Set();
   const out = [];
   for (const m of arr) {
-    const key =
-      (m.id && String(m.id)) ||
-      `${m.createdAt ?? ""}|${m.senderId ?? ""}|${m.text ?? ""}`;
+    const key = String(m.id);
     if (seen.has(key)) continue;
     seen.add(key);
     out.push(m);
@@ -27,19 +26,23 @@ const dedupMessages = (arr) => {
 };
 
 // 서버 → UI 표준화
-const mapIncoming = (raw, myId) => ({
-  id: raw.id || `tmp-${Date.now()}`,
-  senderId: raw.senderId,
-  senderName:
-    Number(raw.senderId) === Number(myId) ? "me" : raw.senderName || "상대",
-  side: Number(raw.senderId) === Number(myId) ? "right" : "left",
-  text: raw.message ?? raw.content ?? "",
-  time: hhmm(raw.createdAt),
-  createdAt: raw.createdAt || new Date().toISOString(),
-  fromBlockedUser: raw.fromBlockedUser,
-});
+const mapIncoming = (raw, myId) => {
+  const isMe = Number(raw.senderId) === Number(myId);
+  return {
+    id: raw.id || `tmp-${Date.now()}-${Math.random()}`,
+    senderId: raw.senderId,
+    senderName: raw.senderName || (isMe ? "나" : `user#${raw.senderId}`),
+    avatarUrl: raw.senderProfileUrl || null,
+    side: isMe ? "right" : "left",
+    text: raw.message ?? raw.content ?? "",
+    time: hhmm(raw.createdAt || new Date().toISOString()),
+    createdAt: raw.createdAt || new Date().toISOString(),
+    fromBlockedUser: raw.fromBlockedUser,
+    role: raw.senderRole,
+  };
+};
 
-const JOIN_SEND_DELAY_MS = 150;
+const JOIN_SEND_DELAY_MS = 120;
 
 export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
   const listRef = useRef(null);
@@ -58,7 +61,7 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
   const [hasMoreOlder, setHasMoreOlder] = useState(true);
   const [nextCursor, setNextCursor] = useState(undefined);
 
-  // userId
+  // me
   useFocusEffect(
     useCallback(() => {
       let alive = true;
@@ -73,7 +76,7 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
     }, [])
   );
 
-  // socket 조인
+  // socket
   useEffect(() => {
     if (!userId) {
       disconnectSocket();
@@ -89,10 +92,13 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
 
     const onReceive = (rawMsg) => {
       const ui = mapIncoming(rawMsg, userId);
-      setMessages((prev) => dedupMessages([...prev, ui]));
+      setMessages((prev) => dedupById([...prev, ui]));
     };
 
+    // 리스너 중복 방지
+    s.off("connect", onConnect);
     s.on("connect", onConnect);
+    s.removeAllListeners?.("receiveMessage");
     s.on("receiveMessage", onReceive);
 
     if (roomId && s.connected) joinRoomDual(roomId, userId);
@@ -103,27 +109,31 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
     };
   }, [userId, roomId, baseURL]);
 
-  // isOwner, isGroup
+  // isOwner, isGroup (서버 스펙에 맞게 postId/roomId 중 필요한 값 사용)
   useEffect(() => {
     (async () => {
-      if (!roomId) return;
-      const sum = await loadRoomSummary(roomId);
+      if (!postId) return;
+      const sum = await loadRoomSummary(postId);
       setIsOwner(!!sum?.authorView);
       setIsGroup(!!sum?.group);
     })();
-  }, [roomId]);
+  }, [postId]);
 
-  // messages 로드
+  // 초기 메시지
   useEffect(() => {
     (async () => {
       if (!roomId || !userId) return;
       setLoading(true);
       try {
-        const page = await loadMessages({ roomId, size: 20, dir: "next" });
+        const page = await loadMessages({
+          roomId,
+          size: 20,
+          dir: "next",
+        });
         const ui = (page?.messages ?? [])
           .map((m) => mapIncoming(m, userId))
           .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        setMessages(dedupMessages(ui));
+        setMessages(dedupById(ui));
         setNextCursor(page?.nextCursor);
         setHasMoreOlder(!!page?.nextCursor);
       } catch (error) {
@@ -143,7 +153,7 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
     return created.roomId;
   }, [roomId, postId]);
 
-  // 메시지 보내기
+  // 메시지 보내기 (ack 우선, 실패 시 로컬 에코)
   const onSend = useCallback(
     async (text) => {
       const content = (text || "").trim();
@@ -152,17 +162,19 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
         const ensured = await ensureRoom();
 
         const s = getSocket();
-        if (!s || !s.connected) {
-          return false;
-        }
+        if (!s || !s.connected) return false;
 
         await joinRoomDual(ensured, userId);
         await new Promise((r) => setTimeout(r, JOIN_SEND_DELAY_MS));
 
-        const ok = await sendMessageDual(ensured, userId, content);
-        if (!ok) return false;
+        const saved = await sendMessageDual(ensured, userId, content);
+        if (saved) {
+          const ui = mapIncoming(saved, userId);
+          setMessages((prev) => dedupById([...prev, ui]));
+          return true;
+        }
 
-        // 로컬 echo
+        // ack 실패 → 로컬 에코
         const localEcho = mapIncoming(
           {
             id: `echo-${Date.now()}`,
@@ -172,8 +184,7 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
           },
           userId
         );
-        setMessages((prev) => dedupMessages([...prev, localEcho]));
-
+        setMessages((prev) => dedupById([...prev, localEcho]));
         return true;
       } catch (error) {
         console.log("[chat] onSend error:", error);
@@ -198,7 +209,7 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
         .map((m) => mapIncoming(m, userId))
         .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
-      setMessages((prev) => dedupMessages([...older, ...prev]));
+      setMessages((prev) => dedupById([...older, ...prev]));
       setNextCursor(page?.nextCursor);
       setHasMoreOlder(!!page?.nextCursor);
     } finally {
@@ -206,22 +217,30 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
     }
   }, [roomId, hasMoreOlder, loadingOlder, nextCursor, userId]);
 
-  // UI 그룹핑
+  // UI 그룹핑 (senderId까지 동일해야 묶임)
   const messagesComputed = useMemo(() => {
     const arr = messages;
     return arr.map((m, i) => {
       const prev = arr[i - 1];
       const next = arr[i + 1];
-      const showPeerHeader =
-        m.side === "left" &&
-        !(prev && prev.side === "left" && sameMinute(prev.time, m.time));
-      const marginBottom = next && next.side !== m.side ? 40 : 10;
-      const isGroupEnd = !(
+
+      const sameSenderWithPrev =
+        prev &&
+        prev.side === m.side &&
+        prev.senderId === m.senderId &&
+        sameMinute(prev.time, m.time);
+
+      const sameSenderWithNext =
         next &&
         next.side === m.side &&
-        sameMinute(next.time, m.time)
-      );
-      return { ...m, showPeerHeader, marginBottom, isGroupEnd };
+        next.senderId === m.senderId &&
+        sameMinute(next.time, m.time);
+
+      const showPeerHeader = m.side === "left" && !sameSenderWithPrev;
+      const isGroupEnd = !sameSenderWithNext;
+      const marginBottom = isGroupEnd ? 40 : 10;
+
+      return { ...m, showPeerHeader, isGroupEnd, marginBottom };
     });
   }, [messages]);
 

@@ -64,7 +64,7 @@ const StoryBox = ({ item, onToggleScrap, onBlockRoom }) => {
             source={
               imgUri
                 ? { uri: imgUri }
-                : require("../../assets/images/companion/logo.png")
+                : require("../../assets/images/chat/base_profile.png")
             }
             style={styles.photo}
           />
