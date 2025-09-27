@@ -19,7 +19,6 @@ import { showToast } from "../../component/Toast";
 import { addPostScrap, cancelPostScrap } from "../../api/companion/scrap";
 import OptionModal from "../../component/common/OptionModal";
 import { Header } from "../../component/Header/Header";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { timeAgo } from "../../utils/time";
 import { openOrCreateOneOnOne } from "../../api/chat/openOrCreate";
 import { SafeAreaView } from "react-native-safe-area-context";

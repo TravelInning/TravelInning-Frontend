@@ -95,6 +95,7 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
 
         const onConnect = () => joinRoomDual(roomId, userId);
         const onReceive = (raw) => {
+          console.log("[story][receiveMessage] raw =", JSON.stringify(raw));
           const ui = mapIncoming(raw, userId);
           setMessages((prev) => dedup([...prev, ui]));
         };

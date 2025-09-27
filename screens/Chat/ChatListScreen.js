@@ -1,23 +1,20 @@
 import { StyleSheet, SafeAreaView, FlatList } from "react-native";
-import ChatBox from "../../component/chat/ChatBox";
 import { useEffect, useState } from "react";
-import { loadChatList } from "../../api/chat/chat";
+import { loadChatList, loadPostLists } from "../../api/chat/chat";
 import { useIsFocused } from "@react-navigation/native";
+import PostBox from "../../component/chat/PostBox";
 
 export default function ChatListScreen({ navigation }) {
-  const [cursor, setCursor] = useState(null);
-  const [rooms, setRooms] = useState([]);
+  const [posts, setPosts] = useState([]);
   const isFocused = useIsFocused();
 
   useEffect(() => {
     if (isFocused) {
       (async () => {
-        const result = await loadChatList(cursor, 10);
-        // console.log("chat list: ", result);
+        const result = await loadPostLists();
 
         if (!result) return;
-        if (cursor == null) setRooms(result.rooms || []);
-        else setRooms((prev) => [...prev, ...(result.rooms || [])]);
+        setPosts(result);
       })();
     }
   }, [isFocused]);
@@ -25,9 +22,17 @@ export default function ChatListScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={rooms}
-        keyExtractor={(item) => String(item.roomId)}
-        renderItem={({ item }) => <ChatBox item={item} />}
+        data={posts}
+        keyExtractor={(item) => String(item.postId)}
+        renderItem={({ item }) => (
+          <PostBox
+            postId={item.postId}
+            title={item.title}
+            content={item.content}
+            date={item.createdAt}
+            imageUrl={item.thumbnailUrl}
+          />
+        )}
         style={{ flex: 1 }}
         scrollEventThrottle={16}
       />

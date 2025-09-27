@@ -4,83 +4,105 @@ import { theme } from "../../colors/color";
 import { useNavigation } from "@react-navigation/native";
 import { hhmm } from "../../utils/time";
 
-const ChatBox = ({ item, isGroup }) => {
-  const images = [
-    require("../../assets/images/selectphoto/photo1.png"),
-    require("../../assets/images/selectphoto/photo1.png"),
-    require("../../assets/images/selectphoto/photo1.png"),
-    require("../../assets/images/selectphoto/photo1.png"),
-  ];
-
+const ChatBox = ({ item }) => {
   const navigation = useNavigation();
 
   const {
-    group,
-    lastAt,
-    lastMessage,
     roomId,
+    group,
     postId,
-    roomTitle,
-    lastMesaageId,
+    participants,
+    participantProfileImages,
+    lastMessage,
+    lastAt,
+    unreadCount,
   } = item;
 
+  const images = participantProfileImages.slice(0, 4);
+  while (images.length < 4) {
+    images.push(null);
+  }
+
+  console.log("participantProfileImages: ", participantProfileImages);
+
   return (
-    <Pressable
-      onPress={() =>
-        navigation.navigate("Chat", {
-          initialRoomId: roomId,
-          postId,
-          peerName: roomTitle,
-        })
-      }
-      style={({ pressed }) => [
-        styles.chatContainer,
-        { backgroundColor: !pressed ? "#FFF" : theme.gray50 },
-      ]}
+    <Shadow
+      distance={2}
+      startColor="rgba(0, 0, 0, 0.1)"
+      finalColor="rgba(0, 0, 0, 0)"
+      style={{ borderRadius: 20 }}
     >
-      {group ? (
-        <View style={styles.imageGrid}>
-          {images.map((image, index) => (
-            <Image key={index} source={image} style={styles.groupImg} />
-          ))}
+      <Pressable
+        onPress={() =>
+          navigation.navigate("Chat", {
+            initialRoomId: roomId,
+            postId,
+            peerName: "",
+          })
+        }
+        style={({ pressed }) => [
+          styles.boxContainer,
+          { backgroundColor: !pressed ? "#FFF" : theme.gray50 },
+        ]}
+      >
+        {group && participantProfileImages?.length > 0 ? (
+          <View style={styles.imageGrid}>
+            {images.map((url, index) => (
+              <Image
+                key={index}
+                source={
+                  url
+                    ? { uri: url }
+                    : require("../../assets/images/chat/base_profile.png")
+                }
+                style={styles.groupImg}
+              />
+            ))}
+          </View>
+        ) : (
+          <Image
+            source={
+              participantProfileImages?.[0]
+                ? { uri: participantProfileImages[0] }
+                : require("../../assets/images/chat/base_profile.png")
+            }
+            style={styles.aloneImg}
+          />
+        )}
+
+        <View style={styles.textContainer}>
+          <Text style={styles.mediumText}>
+            {!group ? `상대 닉네임과의 1:1 채팅` : "단체대화방"}
+          </Text>
+          <Text numberOfLines={1} style={styles.smallText}>
+            {lastMessage}
+          </Text>
         </View>
-      ) : (
-        <View>
-          <Image source={images[0]} style={styles.aloneImg} />
-          <View style={{ position: "absolute", right: -5, bottom: -4 }}>
-            <Shadow
-              distance={2}
-              startColor="rgba(0, 0, 0, 0.1)"
-              finalColor="rgba(0, 0, 0, 0)"
-            >
-              <View style={styles.receivedCodeContainer}>
-                <Image
-                  source={require("../../assets/images/chat/receivedCode.png")}
-                  style={{ width: 12, resizeMode: "contain" }}
-                />
-              </View>
-            </Shadow>
+        <View style={styles.infoContainer}>
+          <Text style={styles.timeText}>{hhmm(lastAt)}</Text>
+          <View
+            style={[
+              styles.circle,
+              !unreadCount && { backgroundColor: "transparent" },
+            ]}
+          >
+            <Text style={styles.chatNumberText}>{unreadCount}</Text>
           </View>
         </View>
-      )}
-
-      <View style={[styles.textContainer, { marginHorizontal: 14 }]}>
-        <Text style={styles.mediumText}>{roomTitle}</Text>
-        <Text numberOfLines={1} style={styles.smallText}>
-          {lastMessage}
-        </Text>
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.timeText}>{hhmm(lastAt)}</Text>
-        <View style={styles.circle}>
-          <Text style={styles.chatNumberText}>2</Text>
-        </View>
-      </View>
-    </Pressable>
+      </Pressable>
+    </Shadow>
   );
 };
 
 const styles = StyleSheet.create({
+  boxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    padding: 12,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+  },
   textContainer: { flex: 1, marginHorizontal: 12 },
   infoContainer: {
     alignItems: "center",
@@ -92,7 +114,8 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     width: 64,
     height: 64,
-    marginLeft: -1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   groupImg: {
     width: 28,

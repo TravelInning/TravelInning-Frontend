@@ -1,23 +1,36 @@
 import { showToast } from "../../component/Toast";
 import apiClient from "../../utils/apiClient";
 
-export const loadChatList = async (cursor, size = 20) => {
+export const loadPostLists = async () => {
   try {
-    const params = { size };
-    if (cursor != null) params.cursor = cursor;
-    const { data } = await apiClient.get("/api/chats/rooms", { params });
-    console.log("load chat list: ", data.result.rooms);
+    const { data } = await apiClient.get(`api/chats/companion/active-posts`);
     return data?.result;
   } catch (error) {
-    console.error("loadChatList error: ", error);
-    showToast("채팅을 불러오지 못했습니다! 다시 시도해주세요.");
+    showToast("채팅내역을 불러오는데 실패했습니다. 다시 시도해주세요.");
+    console.log("loadPostLists error: ", error);
     return null;
   }
 };
 
-export const loadRoomSummary = async (roomId) => {
+export const loadPostChatLists = async (postId) => {
   try {
-    const { data } = await apiClient.get(`/api/chats/rooms/${roomId}/summary`);
+    const { data } = await apiClient.get(
+      `api/chats/companion/${postId}/active-rooms`
+    );
+    console.log("load post chat list : ", data.result);
+    return data?.result;
+  } catch (error) {
+    showToast("정보를 불러오는데 실패했습니다. 다시 시도해주세요.");
+    console.log("loadPostChatLists error: ", error);
+    return null;
+  }
+};
+
+export const loadRoomSummary = async (postId) => {
+  try {
+    console.log(postId);
+    const { data } = await apiClient.get(`/api/chats/rooms/${postId}/summary`);
+    console.log("load summary : ", data.result);
     return data?.result;
   } catch (error) {
     console.error(

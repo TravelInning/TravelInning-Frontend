@@ -44,6 +44,7 @@ export default function StoryEditScreen({ navigation }) {
   const [filterNumber, setFilterNumber] = useState(1);
   const [topic, setTopic] = useState("야구");
   const [limitedTime, setLimitedTime] = useState("제한시간");
+  const [loading, setLoading] = useState(false);
 
   // keyboard detector
   useLayoutEffect(() => {
@@ -123,6 +124,9 @@ export default function StoryEditScreen({ navigation }) {
   };
 
   const handleConfirm = async () => {
+    if (loading) return;
+    setLoading(true);
+
     if (!contentText.trim()) {
       showToast("내용을 입력해주세요.");
       return;
@@ -138,16 +142,21 @@ export default function StoryEditScreen({ navigation }) {
       return;
     }
 
-    const created = await createStoryPost({
-      content: contentText,
-      topic: topicEnum,
-      limitTime: limitEnum,
-      images,
-    });
-    if (created) {
-      setContentText("");
-      setImages([]);
-      navigation.goBack();
+    try {
+      const created = await createStoryPost({
+        content: contentText,
+        topic: topicEnum,
+        limitTime: limitEnum,
+        images,
+      });
+    } catch {
+    } finally {
+      if (created) {
+        setContentText("");
+        setImages([]);
+        navigation.goBack();
+      }
+      setLoading(false);
     }
   };
 
@@ -231,7 +240,7 @@ export default function StoryEditScreen({ navigation }) {
         {!isKeyboardVisible && (
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              disabled={contentText.length <= 0}
+              disabled={contentText.length <= 0 || loading}
               activeOpacity={0.5}
               onPress={handleConfirm}
               style={[
