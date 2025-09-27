@@ -115,22 +115,18 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  const modalOptions = useMemo(
-    () => [
+  const renderPlaceCard = useCallback(({ item }) => {
+    const modalOptions = [
       {
         type: "reject",
         text: "더 이상 추천받지 않음",
         color: "#f00",
-        onPress: (id) => handlePlaceBlock(id),
+        onPress: () => handlePlaceBlock(item.id),
       },
-    ],
-    []
-  );
+    ];
 
-  const renderPlaceCard = useCallback(
-    ({ item }) => <PlaceCard place={item} modalOptions={modalOptions} />,
-    [modalOptions]
-  );
+    return <PlaceCard place={item} modalOptions={modalOptions} />;
+  }, []);
 
   return (
     <SafeAreaView style={theme.container}>

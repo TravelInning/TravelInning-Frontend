@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -112,7 +111,7 @@ export default function StoryNav({ navigation }) {
           />
           <Tab.Screen
             name="이야기해요"
-            component={StoryScreen}
+            component={EmptyScreen}
             options={{ tabBarLabel: "이야기해요" }}
           />
         </Tab.Navigator>
@@ -120,6 +119,21 @@ export default function StoryNav({ navigation }) {
     </SafeAreaView>
   );
 }
+
+const EmptyScreen = () => {
+  return (
+    <View
+      style={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fff",
+      }}
+    >
+      <Text>공사중</Text>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   header: {
