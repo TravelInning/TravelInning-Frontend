@@ -1,10 +1,12 @@
-import { SafeAreaView, StyleSheet, View, Text, Image } from "react-native";
+import { StyleSheet, View, Text, Image } from "react-native";
 import { theme } from "../../colors/color";
 import { SignUpBtn, SignUpStyle } from "../../component/SignUpComp";
+import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SuccessScreen({ navigation }) {
   return (
-    <SafeAreaView style={theme.container}>
+    <SafeAreaView style={styles.container}>
       <View style={SignUpStyle.subContainer}>
         <Text style={styles.title}>
           {"새로운 비밀번호로\n변경 완료되었습니다."}
@@ -45,6 +47,10 @@ export default function SuccessScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
   title: {
     fontFamily: "Pretendard-ExtraBold",
     fontSize: 28,

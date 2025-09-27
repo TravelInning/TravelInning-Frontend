@@ -1,30 +1,33 @@
 import {
   ImageBackground,
-  SafeAreaView,
   StyleSheet,
   View,
   Text,
-  TouchableOpacity,
   FlatList,
   Pressable,
 } from "react-native";
 import { SCREEN_HEIGHT, theme } from "../../colors/color";
 import { LinearGradient } from "expo-linear-gradient";
-import { AloneChatBox, GroupChatBox } from "../../component/chat/ChatComp";
-import { useEffect } from "react";
-import { loadRoomSummary } from "../../api/chat/chat";
+import ChatBox from "../../component/chat/ChatBox";
+import { useEffect, useState } from "react";
+import { loadPostChatLists, loadRoomSummary } from "../../api/chat/chat";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ChatListDetailScreen({ route, navigation }) {
-  const [data, setData] = useState(null);
+  const { postId } = route.params;
 
-  const { roomId, postId } = route.params;
+  const [header, setHeader] = useState({});
+  const [rooms, setRooms] = useState([]);
 
-  useEffect(
-    (async () => {
-      await loadRoomSummary();
-    })(),
-    []
-  );
+  useEffect(() => {
+    const loadData = async () => {
+      // const headerData = await loadRoomSummary(postId);
+      // setHeader(headerData);
+      const roomData = await loadPostChatLists(postId);
+      setRooms(roomData.rooms);
+    };
+    loadData();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -53,44 +56,42 @@ export default function ChatListDetailScreen({ route, navigation }) {
             <Pressable
               style={({ pressed }) => [
                 styles.showPostButton,
-                { borderColor: !pressed ? "#69B7FF" : theme.main_blue }, // 눌렀을 때 색상 변경
+                { borderColor: !pressed ? "#69B7FF" : theme.main_blue },
               ]}
-              onPress={() => console.log("Pressed!")}
+              onPress={() =>
+                navigation.navigate("CompanionPostDetail", { id: postId })
+              }
             >
               <Text style={styles.showPostButtonText}>
                 {"해당 게시글 보러가기 >"}
               </Text>
             </Pressable>
           </View>
-          <View
-            style={{
-              flex: 1,
-              alignItems: "center",
-              justifyContent: "flex-end",
-            }}
-          >
-            <Text style={styles.smallText}>단체 채팅방 초대 코드</Text>
-            <View style={styles.rowContainer}>
-              <Text style={styles.codeText}>QZEJRnp1</Text>
-              <TouchableOpacity activeOpacity={0.5} style={styles.button}>
-                <Text style={styles.smallText}>복사</Text>
-              </TouchableOpacity>
+          {/* {header.authorView && (
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Text style={styles.smallText}>단체 채팅방 초대 코드</Text>
+              <View style={styles.rowContainer}>
+                <Text style={styles.codeText}>QZEJRnp1</Text>
+                <TouchableOpacity activeOpacity={0.5} style={styles.button}>
+                  <Text style={styles.smallText}>복사</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
+          )} */}
         </View>
       </ImageBackground>
       <View style={styles.chatConatiner}>
         <Text style={styles.mediumText}>이 게시글로 시작된 대화</Text>
-        {/* <FlatList
-          data={DATA}
-          renderItem={renderItem}
-          keyExtractor={item => item.id} /> */}
         <FlatList
-          data={[0, 1, 2, 3]}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => {
-            return item % 2 === 0 ? <AloneChatBox /> : <GroupChatBox />;
-          }}
+          data={rooms}
+          keyExtractor={(item) => String(item.roomId)}
+          renderItem={({ item }) => <ChatBox item={item} />}
           style={{ flex: 1 }}
           contentContainerStyle={{
             padding: 2,
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "space-between",
     paddingHorizontal: 30,
-    paddingTop: SCREEN_HEIGHT / 20,
+    paddingTop: SCREEN_HEIGHT / 30,
     paddingBottom: 24,
     borderBottomWidth: 1,
     borderColor: "#F4F4F4",

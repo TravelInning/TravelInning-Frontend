@@ -50,7 +50,6 @@ export default function ChatCompanionScreen({ navigation, route }) {
 
     if (data?.isSuccess) {
       if (!data?.result?.inviteCode) return;
-      await controller.onSend(`[SYSTEM] 그룹 대화방이 생성되었습니다.`);
       const msg = `[초대 코드]${
         data.result.inviteCode
       }${"\n"}말풍선을 꾹 눌러서 입장하세요!`;

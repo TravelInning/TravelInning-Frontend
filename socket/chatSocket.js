@@ -80,9 +80,25 @@ const rawSend = (roomId, senderId, message) =>
   new Promise((resolve) => {
     if (!socket || !socket.connected) return resolve(false);
     const payload = { roomId, senderId, message };
-    const ack = () => {};
-    socket.emit("sendMessage", payload, ack);
-    resolve(true);
+    console.log("[sendMessage] payload =", payload);
+
+    let settled = false;
+    const t = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        console.log("[sendMessage] ack TIMEOUT (no ack within 5s)");
+        resolve(null);
+      }
+    }, 5000);
+
+    socket.emit("sendMessage", payload, (serverMsg) => {
+      if (!settled) {
+        settled = true;
+        clearTimeout(t);
+        console.log("[sendMessage] ack serverMsg =", JSON.stringify(serverMsg));
+        resolve(serverMsg || null);
+      }
+    });
   });
 
 export const sendMessageDual = async (displayRoomId, userId, message) => {

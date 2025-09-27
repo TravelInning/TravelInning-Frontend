@@ -73,17 +73,23 @@ export default function HomeScreen({ navigation }) {
   });
 
   useEffect(() => {
+    (async () => {
+      const data = await loadClub();
+      if (!data) {
+        navigation.replace("SelectClub");
+        return;
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
     if (isFocused) {
       const handleHeader = async () => {
-        const { result } = await loadClub();
-        if (!result.teamId) {
-          navigation.replace("SelectClub");
-          return;
-        }
-        const teamId = result.teamId;
+        const data = await loadClub();
+        const teamId = data.result.teamId;
         setFilter((prev) => ({ ...prev, teamId: teamId }));
-        const data = await loadHeader(teamId);
-        setHeaderData(data);
+        const header = await loadHeader(teamId);
+        setHeaderData(header);
       };
 
       handleHeader();
