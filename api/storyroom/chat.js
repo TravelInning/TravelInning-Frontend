@@ -11,7 +11,8 @@ export const enterStoryRoom = async (roomId, memberId) => {
       params: { memberId },
     }
   );
-  return data?.isSuccess === true;
+  console.log(data);
+  return data;
 };
 
 export const leaveStoryRoom = async (roomId, memberId) => {

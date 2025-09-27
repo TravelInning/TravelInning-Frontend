@@ -1,3 +1,4 @@
+// hooks/useStoryChatRoom.js
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Keyboard } from "react-native";
@@ -12,12 +13,11 @@ import {
 } from "../socket/chatSocket";
 import {
   enterStoryRoom,
-  leaveStoryRoom,
   fetchStoryMessages,
   fetchRemainingSeconds,
 } from "../api/storyroom/chat";
 
-// 서버 id로만 dedup (echo-id와 서버 id 섞여 들어와도 서버 id 우선)
+// 서버 id 기준 dedup
 const dedupById = (arr) => {
   const seen = new Set();
   const out = [];
@@ -47,9 +47,6 @@ const mapIncoming = (raw, myId) => {
   };
 };
 
-// “최초 1회 입장 알림” 캐시 키
-const JOIN_ONCE_KEY = (roomId, userId) => `sr_join_once_${roomId}_${userId}`;
-
 export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
   const listRef = useRef(null);
   const atBottomRef = useRef(true);
@@ -64,20 +61,16 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
   const [hasMoreOlder, setHasMoreOlder] = useState(true);
   const [loadingOlder, setLoadingOlder] = useState(false);
 
-  const [remainSec, setRemainSec] = useState(null);
-
+  const [remainSec, setRemainSec] = useState(null); // 로컬 타이머로 감소
   const [inputDisabled, setInputDisabled] = useState(false);
 
   const [expired, setExpired] = useState(false);
   const expiredRef = useRef(false);
 
-  // 내 닉네임(입장 메시지용)
+  // 입장 문구용 내 닉네임
   const [myName, setMyName] = useState(null);
 
-  // 같은 포커스 주기에서 enter 중복 호출 방지
-  const enteredRef = useRef(false);
-
-  // me
+  // me(userId) 로드
   useFocusEffect(
     useCallback(() => {
       let alive = true;
@@ -100,61 +93,7 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
     })();
   }, []);
 
-  // “예전에 들어온 적이 있는지” 판단
-  const detectHasEverEntered = useCallback(
-    async (loadedUi) => {
-      // 캐시 먼저 확인
-      const cached = await AsyncStorage.getItem(JOIN_ONCE_KEY(roomId, userId));
-      if (cached === "1") return true;
-
-      // 히스토리상 내가 보낸 메시지 혹은 내 입장 시스템 문구가 있으면 true
-      const iSentBefore = loadedUi?.some(
-        (m) => Number(m.senderId) === Number(userId)
-      );
-
-      const myJoinText = `[SYSTEM] ${myName || "참가자"}님이 입장했습니다.`;
-      const iSentJoinBefore = loadedUi?.some(
-        (m) => typeof m.text === "string" && m.text === myJoinText
-      );
-
-      return Boolean(iSentBefore || iSentJoinBefore);
-    },
-    [roomId, userId, myName]
-  );
-
-  // 최초 1회 입장 알림 보내기
-  const announceJoinOnce = useCallback(async () => {
-    try {
-      const s = getSocket();
-      if (!s || !s.connected) return;
-
-      await joinRoomDual(roomId, userId); // 안전 조인
-      const msg = `[SYSTEM] ${myName || "참가자"}님이 입장했습니다.`;
-
-      const saved = await sendMessageDual(roomId, userId, msg);
-      if (saved) {
-        const ui = mapIncoming(saved, userId);
-        setMessages((prev) => dedupById([...prev, ui]));
-      } else {
-        // ack 실패 시 로컬 에코(서버가 다시 브로드캐스트하면 dedupById가 처리)
-        const echo = mapIncoming(
-          {
-            id: `echo-${Date.now()}`,
-            senderId: userId,
-            message: msg,
-            createdAt: new Date().toISOString(),
-          },
-          userId
-        );
-        setMessages((prev) => dedupById([...prev, echo]));
-      }
-      await AsyncStorage.setItem(JOIN_ONCE_KEY(roomId, userId), "1");
-    } catch {
-      // 조용히 실패 무시
-    }
-  }, [roomId, userId, myName]);
-
-  // 입장/퇴장 + 소켓 수신/초기 로드 + 남은시간(로컬 타이머)
+  // 입장/소켓/초기 메시지/남은시간(로컬 타이머)
   useFocusEffect(
     useCallback(() => {
       let mounted = true;
@@ -164,13 +103,15 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
       (async () => {
         if (!roomId || !userId) return;
 
-        // enter: 같은 포커스 사이클에서 중복 방지
-        if (!enteredRef.current) {
-          enteredRef.current = true;
-          await enterStoryRoom(roomId, userId).catch(() => {});
-        }
+        // 1) 입장 (백엔드가 첫입장/재입장 판단)
+        // enterStoryRoom는 아래 형태로 값을 돌려주도록 구현되어 있어야 함:
+        // { isSuccess: true, result: "입장 완료" | "이미 입장된 사용자입니다." | ... }
+        let enterRes = null;
+        try {
+          enterRes = await enterStoryRoom(roomId, userId); // <-- 백엔드 응답 객체를 리턴하도록 API 함수가 구현되어 있어야 함
+        } catch {}
 
-        // 소켓 초기화/조인
+        // 2) 소켓 연결 및 조인
         initSocket(baseURL);
         const s = getSocket();
 
@@ -187,9 +128,8 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
 
         if (s.connected) joinRoomDual(roomId, userId);
 
-        // 초기 메시지 로드
+        // 3) 초기 메시지 로드
         setLoading(true);
-        let initialUi = [];
         try {
           const page = await fetchStoryMessages({
             roomId,
@@ -197,23 +137,44 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
             size: 20,
             direction: "prev",
           });
-          initialUi = (page?.messages ?? [])
+          const ui = (page?.messages ?? [])
             .map((m) => mapIncoming(m, userId))
             .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-          setMessages(dedupById(initialUi));
+          setMessages(dedupById(ui));
           setCursor(page?.nextCursor);
           setHasMoreOlder(!!page?.nextCursor);
         } finally {
           setLoading(false);
         }
 
-        // ★ 최초 진입이면 시스템 입장 알림 1회 전송
-        const hasEver = await detectHasEverEntered(initialUi);
-        if (!hasEver) {
-          await announceJoinOnce();
-        }
+        // 4) 첫 입장인 경우에만 시스템 입장 문구 1회 전송
+        try {
+          const firstEnter =
+            typeof enterRes?.result === "string" &&
+            enterRes.result.includes("입장 완료");
+          if (firstEnter) {
+            const msg = `[SYSTEM] ${myName || "참가자"}님이 입장했습니다.`;
+            const saved = await sendMessageDual(roomId, userId, msg);
+            if (saved) {
+              const ui = mapIncoming(saved, userId);
+              setMessages((prev) => dedupById([...prev, ui]));
+            } else {
+              // ack 실패 시 로컬 에코
+              const echo = mapIncoming(
+                {
+                  id: `echo-${Date.now()}`,
+                  senderId: userId,
+                  message: msg,
+                  createdAt: new Date().toISOString(),
+                },
+                userId
+              );
+              setMessages((prev) => dedupById([...prev, echo]));
+            }
+          }
+        } catch {}
 
-        // --- 남은 시간: 최초 1회만 서버에서 초 단위로 받아와서 로컬 타이머로 감소 ---
+        // 5) 남은 시간: 최초 1회만 서버에서 받아서 로컬 1초 타이머로 감소
         try {
           const sec = await fetchRemainingSeconds(roomId);
           if (!mounted) return;
@@ -224,7 +185,6 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
             deadlineMs = Date.now(); // 이미 만료
           }
 
-          // 1초마다 로컬 타이머
           tickTimer = setInterval(() => {
             if (!deadlineMs) return;
             const left = Math.ceil((deadlineMs - Date.now()) / 1000);
@@ -235,10 +195,9 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
             if (next <= 0 && !expiredRef.current) {
               expiredRef.current = true;
               setExpired(true);
-              leaveStoryRoom(roomId, userId).catch(() => {});
+              // 만료 시 소켓만 정리 (leave 호출 불필요)
               disconnectSocket();
               clearInterval(tickTimer);
-              // if (resyncTimer) clearInterval(resyncTimer);
             }
           }, 1000);
         } catch {}
@@ -250,13 +209,9 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
         s?.off?.("connect");
         s?.off?.("receiveMessage");
         if (tickTimer) clearInterval(tickTimer);
-
-        if (roomId && userId) {
-          leaveStoryRoom(roomId, userId).catch(() => {});
-        }
-        enteredRef.current = false;
+        // 백엔드가 입장 상태/인원수 누적 방지 처리 → leave 호출 불필요
       };
-    }, [roomId, userId, baseURL, detectHasEverEntered, announceJoinOnce])
+    }, [roomId, userId, baseURL, myName])
   );
 
   // 과거 더 불러오기(위 스크롤)
@@ -380,7 +335,6 @@ export const useStoryChatRoom = ({ roomId: initialRoomId, baseURL }) => {
     onSend,
     handleScroll,
     remainSec,
-    // participants,
     inputDisabled,
     expired,
   };
