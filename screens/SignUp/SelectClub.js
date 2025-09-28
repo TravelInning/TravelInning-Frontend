@@ -18,7 +18,7 @@ export default function SelectClub({ navigation, route }) {
 
   const handleClub = async () => {
     if (route.params && route.params.from === "myTravelInning") {
-      route.params.setRivalClub(selectedTeam);
+      route.params.setRivalClub(teamId);
       navigation.goBack();
     } else {
       const isSucccess = await enrollClub(teamId);

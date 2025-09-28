@@ -1,12 +1,24 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { TouchableOpacity, Image, StyleSheet } from "react-native";
 import CancleConfirmModal from "../../component/CancleConfirmModal";
 import { SOCKET_URL } from "@env";
 import { showToast } from "../../component/Toast";
-import { leaveChat, createGroupChat, joinByInvite } from "../../api/chat/chat";
+import {
+  leaveChat,
+  createGroupChat,
+  joinByInvite,
+  markRoomRead,
+} from "../../api/chat/chat";
 import { useChatRoom } from "../../hooks/useChatRoom";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChatBaseScreen from "./ChatBaseScreen";
+import { useFocusEffect } from "@react-navigation/native";
 
 const INVITE_RE = /\[초대 코드\]([A-Za-z0-9]+)/;
 
@@ -16,20 +28,22 @@ export default function ChatCompanionScreen({ navigation, route }) {
     initialRoomId = null,
     peerName = "상대 닉네임",
   } = route.params || {};
+
   const controller = useChatRoom({
     initialRoomId,
     postId,
     baseURL: SOCKET_URL,
   });
 
+  useEffect(() => {
+    if (initialRoomId && initialRoomId !== controller.roomId) {
+      controller.setRoomId?.(initialRoomId);
+    }
+  }, [initialRoomId, controller.roomId]);
+
   const [inviteModalVisible, setInviteModalVisible] = useState(false);
   const [moveToModalVisible, setMoveToModalVisible] = useState(false);
   const [inviteCode, setInviteCode] = useState(null);
-
-  const headerTitle = useMemo(
-    () => (!controller.isGroup ? peerName : "그룹 대화방"),
-    [controller.isGroup, peerName]
-  );
 
   const handleLongPress = useCallback((item) => {
     if (!item?.text) return;
@@ -40,13 +54,57 @@ export default function ChatCompanionScreen({ navigation, route }) {
     }
   }, []);
 
+  const latestRef = useRef({
+    roomId: null,
+    lastId: null,
+  });
+  const lastSentRef = useRef(0);
+
+  useEffect(() => {
+    latestRef.current = {
+      roomId: controller.roomId,
+      lastId: controller.lastServerMessageId ?? 0,
+    };
+  }, [controller.roomId, controller.lastServerMessageId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        const { roomId, lastId } = latestRef.current || {};
+        if (!roomId || !lastId) return;
+        if (lastId <= lastSentRef.current) return;
+        markRoomRead(roomId, lastId).then((ok) => {
+          if (ok) lastSentRef.current = lastId;
+        });
+      };
+    }, [])
+  );
+
+  const joinedSystemOnceRef = useRef(false);
+
+  useEffect(() => {
+    if (
+      route?.params?.justJoined &&
+      controller.roomId &&
+      !joinedSystemOnceRef.current
+    ) {
+      joinedSystemOnceRef.current = true;
+      (async () => {
+        const userName = (await AsyncStorage.getItem("userName")) || "사용자";
+        const sys = `[SYSTEM] ${userName}님이 대화방에 입장했습니다.`;
+        await controller.onSend(sys);
+      })();
+    }
+  }, [route?.params?.justJoined, controller.roomId]);
+
   const sendInviteCode = async () => {
     const userId = controller.userId;
     if (!userId) {
       showToast("잠시 후 다시 시도해주세요.");
       return;
     }
-    const data = await createGroupChat(postId, controller.userId);
+
+    const data = await createGroupChat(postId, userId);
 
     if (data?.isSuccess) {
       if (!data?.result?.inviteCode) return;
@@ -56,15 +114,7 @@ export default function ChatCompanionScreen({ navigation, route }) {
       const ok = await controller.onSend(msg);
       if (ok) setInviteModalVisible(false);
     } else {
-      if (data?.code === "CONFLICT") {
-        // const msg = `[초대 코드]${
-        //   data.result.inviteCode
-        // }${"\n"}말풍선을 꾹 눌러서 입장하세요!`;
-        // const ok = await onSend(msg);
-        // if (ok) setInviteModalVisible(false);
-      } else {
-        showToast(data?.message);
-      }
+      showToast(data?.message);
     }
   };
 
@@ -72,11 +122,13 @@ export default function ChatCompanionScreen({ navigation, route }) {
     try {
       const userId = controller.userId;
       const data = await joinByInvite(inviteCode, userId);
+      console.log(data);
       if (data?.isSuccess) {
         navigation.replace("Chat", {
           initialRoomId: data?.result.result,
           peerName: "그룹 대화방",
           postId,
+          justJoined: true,
         });
       } else {
         showToast(data?.message);
@@ -90,7 +142,7 @@ export default function ChatCompanionScreen({ navigation, route }) {
   return (
     <>
       <ChatBaseScreen
-        title={headerTitle}
+        title={peerName}
         listHeaderText={`${peerName}님과의 대화가 시작되었습니다.`}
         controller={controller}
         onPressExit={async () => {
@@ -102,7 +154,7 @@ export default function ChatCompanionScreen({ navigation, route }) {
         }}
         exitText={`방을 나가는 동시에${"\n"}모든 대화 기록이 삭제됩니다.`}
         inputLeftButton={
-          controller.isOwner && !controller.isGroup ? (
+          controller.authorView ? (
             <TouchableOpacity
               onPress={() => {
                 setInviteModalVisible(true);

@@ -158,38 +158,42 @@ export default function CompanionScreen() {
     showToast("검색되었습니다");
   }, [keyword]);
 
-  const handleToggleScrap = useCallback(async (postId, next) => {
-    try {
-      if (next) await addPostScrap(postId);
-      else await cancelPostScrap(postId);
+  const handleToggleScrap = useCallback(
+    async (postId, next) => {
+      try {
+        if (next) await addPostScrap(postId);
+        else await cancelPostScrap(postId);
 
-      setPosts((prev) =>
-        prev.map((p) => (p.id === postId ? { ...p, scraped: next } : p))
-      );
+        // 1) posts 갱신
+        setPosts((prev) =>
+          prev.map((p) => (p.id === postId ? { ...p, scraped: next } : p))
+        );
 
-      setStoryPosts((prev) => {
-        if (next) {
-          const exists = prev.some((p) => p.id === postId);
-          if (exists) {
-            return sortCompanionStoryPosts(
-              prev.map((p) => (p.id === postId ? { ...p, scraped: true } : p))
-            );
+        // 2) storyPosts 갱신
+        setStoryPosts((prev) => {
+          if (next) {
+            // 이미 존재하면 scraped만 true로
+            if (prev.some((p) => p.id === postId)) {
+              return sortCompanionStoryPosts(
+                prev.map((p) => (p.id === postId ? { ...p, scraped: true } : p))
+              );
+            }
+            // 없으면 posts(클로저 스냅샷)에서 찾아 추가 (없으면 그냥 prev 유지)
+            const target = posts.find((p) => p.id === postId);
+            if (!target) return prev; // ← 가드
+            const added = [...prev, { ...target, scraped: true }];
+            return sortCompanionStoryPosts(added);
+          } else {
+            // 해제면 리스트에서 제거
+            return prev.filter((p) => p.id !== postId);
           }
-          let added;
-          setPosts((cur) => {
-            const target = cur.find((p) => p.id === postId);
-            added = target ? [...prev, { ...target, scraped: true }] : prev;
-            return cur;
-          });
-          return sortCompanionStoryPosts(added);
-        } else {
-          return sortCompanionStoryPosts(prev.filter((p) => p.id !== postId));
-        }
-      });
-    } catch (e) {
-      showToast("스크랩 오류! 다시 시도해주세요.");
-    }
-  }, []);
+        });
+      } catch (e) {
+        showToast("스크랩 오류! 다시 시도해주세요.");
+      }
+    },
+    [posts]
+  );
 
   const handleChangeState = useCallback(async (postId, newStatus) => {
     await changePostState(postId, newStatus);

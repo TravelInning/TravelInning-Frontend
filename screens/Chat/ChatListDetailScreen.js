@@ -5,13 +5,16 @@ import {
   Text,
   FlatList,
   Pressable,
+  TouchableOpacity,
 } from "react-native";
 import { SCREEN_HEIGHT, theme } from "../../colors/color";
 import { LinearGradient } from "expo-linear-gradient";
 import ChatBox from "../../component/chat/ChatBox";
-import { useEffect, useState } from "react";
-import { loadPostChatLists, loadRoomSummary } from "../../api/chat/chat";
+import { useCallback, useEffect, useState } from "react";
+import { loadPostChatLists, loadPostHeader } from "../../api/chat/chat";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { yyyymmdd } from "../../utils/time";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function ChatListDetailScreen({ route, navigation }) {
   const { postId } = route.params;
@@ -21,13 +24,27 @@ export default function ChatListDetailScreen({ route, navigation }) {
 
   useEffect(() => {
     const loadData = async () => {
-      // const headerData = await loadRoomSummary(postId);
-      // setHeader(headerData);
+      const headerData = await loadPostHeader(postId);
+      setHeader(headerData);
       const roomData = await loadPostChatLists(postId);
-      setRooms(roomData.rooms);
+      setRooms(roomData?.rooms ?? []);
     };
     loadData();
-  }, []);
+  }, [postId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let alive = true;
+      (async () => {
+        const roomData = await loadPostChatLists(postId);
+        if (!alive) return;
+        setRooms(roomData?.rooms ?? []);
+      })();
+      return () => {
+        alive = false;
+      };
+    }, [postId])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -44,14 +61,14 @@ export default function ChatListDetailScreen({ route, navigation }) {
         />
         <View style={styles.postContainer}>
           <View style={{ flex: 3 }}>
-            <Text style={styles.smallText}>작성일 | 2024년 12월 31일</Text>
+            <Text style={styles.smallText}>{`작성일 | ${yyyymmdd(
+              header?.createdAt
+            )}`}</Text>
             <Text numberOfLines={1} style={styles.title}>
-              게시글 제목 | 영역은 표시해놓음요를레이후
+              {header?.title}
             </Text>
             <Text numberOfLines={5} style={styles.postText}>
-              {
-                "안녕하세요\n저는 25살 여성 이아무개입니다.\n어쩌구ㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜ"
-              }
+              {header?.content}
             </Text>
             <Pressable
               style={({ pressed }) => [
@@ -67,7 +84,7 @@ export default function ChatListDetailScreen({ route, navigation }) {
               </Text>
             </Pressable>
           </View>
-          {/* {header.authorView && (
+          {header?.authorView && (
             <View
               style={{
                 flex: 1,
@@ -77,13 +94,13 @@ export default function ChatListDetailScreen({ route, navigation }) {
             >
               <Text style={styles.smallText}>단체 채팅방 초대 코드</Text>
               <View style={styles.rowContainer}>
-                <Text style={styles.codeText}>QZEJRnp1</Text>
+                <Text style={styles.codeText}>{header?.inviteCode}</Text>
                 <TouchableOpacity activeOpacity={0.5} style={styles.button}>
                   <Text style={styles.smallText}>복사</Text>
                 </TouchableOpacity>
               </View>
             </View>
-          )} */}
+          )}
         </View>
       </ImageBackground>
       <View style={styles.chatConatiner}>

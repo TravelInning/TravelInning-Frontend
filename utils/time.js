@@ -1,3 +1,12 @@
+export const yyyymmdd = (date) => {
+  const newDate = new Date(date);
+  const year = String(newDate.getFullYear());
+  const month = String(newDate.getMonth() + 1).padStart(2, "0");
+  const day = String(newDate.getDate()).padStart(2, "0");
+
+  return `${year}년 ${month}월 ${day}일`;
+};
+
 export const ymdw = (date) => {
   const weekMap = ["일", "월", "화", "수", "목", "금", "토"];
   const newDate = new Date(date);

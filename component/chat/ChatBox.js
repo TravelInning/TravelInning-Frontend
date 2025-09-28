@@ -12,6 +12,7 @@ const ChatBox = ({ item }) => {
     group,
     postId,
     participants,
+    opponentName,
     participantProfileImages,
     lastMessage,
     lastAt,
@@ -34,7 +35,7 @@ const ChatBox = ({ item }) => {
     >
       <Pressable
         onPress={() =>
-          navigation.navigate("Chat", {
+          navigation.navigate("ChatCompanion", {
             initialRoomId: roomId,
             postId,
             peerName: "",
@@ -62,8 +63,8 @@ const ChatBox = ({ item }) => {
         ) : (
           <Image
             source={
-              participantProfileImages?.[0]
-                ? { uri: participantProfileImages[0] }
+              participantProfileImages?.[1]
+                ? { uri: participantProfileImages[1] }
                 : require("../../assets/images/chat/base_profile.png")
             }
             style={styles.aloneImg}
@@ -72,7 +73,7 @@ const ChatBox = ({ item }) => {
 
         <View style={styles.textContainer}>
           <Text style={styles.mediumText}>
-            {!group ? `상대 닉네임과의 1:1 채팅` : "단체대화방"}
+            {!group ? `${opponentName}와의 1:1 채팅` : "단체대화방"}
           </Text>
           <Text numberOfLines={1} style={styles.smallText}>
             {lastMessage}

@@ -10,9 +10,8 @@ import {
   joinRoomDual,
   sendMessageDual,
 } from "../socket/chatSocket";
-import { loadMessages, createOneChat, loadRoomSummary } from "../api/chat/chat";
+import { loadMessages, createOneChat } from "../api/chat/chat";
 
-// 중복 제거: 서버 id만 신뢰
 const dedupById = (arr) => {
   const seen = new Set();
   const out = [];
@@ -51,8 +50,7 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
   // ids / meta
   const [userId, setUserId] = useState(null);
   const [roomId, setRoomId] = useState(initialRoomId ?? null);
-  const [isGroup, setIsGroup] = useState(false);
-  const [isOwner, setIsOwner] = useState(false);
+  const [authorView, setAuthorView] = useState(false);
 
   // messages / loading
   const [messages, setMessages] = useState([]);
@@ -109,30 +107,22 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
     };
   }, [userId, roomId, baseURL]);
 
-  // isOwner, isGroup (서버 스펙에 맞게 postId/roomId 중 필요한 값 사용)
-  useEffect(() => {
-    (async () => {
-      if (!postId) return;
-      const sum = await loadRoomSummary(postId);
-      setIsOwner(!!sum?.authorView);
-      setIsGroup(!!sum?.group);
-    })();
-  }, [postId]);
-
   // 초기 메시지
   useEffect(() => {
     (async () => {
       if (!roomId || !userId) return;
       setLoading(true);
       try {
-        const page = await loadMessages({
-          roomId,
-          size: 20,
-          dir: "next",
-        });
+        const page = await loadMessages({ roomId, size: 20, dir: "next" });
+
+        if (typeof page?.authorView === "boolean") {
+          setAuthorView(page.authorView);
+        }
+
         const ui = (page?.messages ?? [])
           .map((m) => mapIncoming(m, userId))
           .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
         setMessages(dedupById(ui));
         setNextCursor(page?.nextCursor);
         setHasMoreOlder(!!page?.nextCursor);
@@ -153,14 +143,13 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
     return created.roomId;
   }, [roomId, postId]);
 
-  // 메시지 보내기 (ack 우선, 실패 시 로컬 에코)
+  // 메시지 보내기
   const onSend = useCallback(
     async (text) => {
       const content = (text || "").trim();
       if (!content || !userId) return false;
       try {
         const ensured = await ensureRoom();
-
         const s = getSocket();
         if (!s || !s.connected) return false;
 
@@ -205,6 +194,11 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
         dir: "next",
         cursor: nextCursor,
       });
+
+      if (typeof page?.authorView === "boolean") {
+        setAuthorView(page.authorView);
+      }
+
       const older = (page?.messages ?? [])
         .map((m) => mapIncoming(m, userId))
         .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -217,7 +211,7 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
     }
   }, [roomId, hasMoreOlder, loadingOlder, nextCursor, userId]);
 
-  // UI 그룹핑 (senderId까지 동일해야 묶임)
+  // UI 그룹핑
   const messagesComputed = useMemo(() => {
     const arr = messages;
     return arr.map((m, i) => {
@@ -244,6 +238,16 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
     });
   }, [messages]);
 
+  const lastServerMessageId = useMemo(() => {
+    let maxId = 0;
+    for (const m of messages) {
+      const n =
+        typeof m.id === "number" ? m.id : Number.isFinite(+m.id) ? +m.id : NaN;
+      if (Number.isFinite(n)) maxId = Math.max(maxId, n);
+    }
+    return maxId || null;
+  }, [messages]);
+
   // 스크롤
   useEffect(() => {
     const show = Keyboard.addListener("keyboardDidShow", () => {
@@ -258,12 +262,13 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
 
   const handleScroll = useCallback(
     (e) => {
-      const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+      const { contentOffset } = e.nativeEvent;
+      if (contentOffset.y <= 40) loadOlder();
+      const { contentSize, layoutMeasurement } = e.nativeEvent;
       const pad = 40;
       const stayBottom =
         contentOffset.y + layoutMeasurement.height >= contentSize.height - pad;
       atBottomRef.current = stayBottom;
-      if (contentOffset.y <= 40) loadOlder();
     },
     [loadOlder]
   );
@@ -273,12 +278,13 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
     userId,
     roomId,
     setRoomId,
-    isGroup,
-    isOwner,
+    authorView,
     messages: messagesComputed,
     loading,
     loadingOlder,
     onSend,
     handleScroll,
+    setRoomId,
+    lastServerMessageId,
   };
 };

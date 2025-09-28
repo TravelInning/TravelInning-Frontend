@@ -183,7 +183,7 @@ export default function App() {
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="Chat"
+            name="ChatCompanion"
             component={ChatCompanionScreen}
             options={{
               headerShown: false,

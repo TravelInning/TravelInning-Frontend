@@ -79,7 +79,7 @@ export default function MainScreen() {
             ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="GameInfo"
         component={TestPage}
         options={{
@@ -91,7 +91,7 @@ export default function MainScreen() {
               <GameInfoGray width={18} height={18} />
             ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name="Story"
         component={StoryNav}
