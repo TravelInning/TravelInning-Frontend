@@ -22,6 +22,9 @@ import { useIsFocused } from "@react-navigation/native";
 import { homeClubMapping } from "../../constants/mapping";
 import { loadProfile } from "../../api/mypage/profile";
 import { loadClub } from "../../api/club/club";
+import { loadMyTravelInningList } from "../../api/mypage/myTravelInning";
+import { yymmdd } from "../../utils/time";
+import { normalizeImageUrl } from "../../utils/image";
 
 const activitys = [
   {
@@ -40,6 +43,7 @@ export default function MyPageMainScreen({ navigation }) {
   const isFocused = useIsFocused();
   const [profile, setProfile] = useState({});
   const [teamId, setTeamId] = useState(null);
+  const [travelInning, setTravelInning] = useState([]);
 
   useEffect(() => {
     let mounted = true;
@@ -48,6 +52,8 @@ export default function MyPageMainScreen({ navigation }) {
       if (mounted && prof && prof.isSuccess) setProfile(prof.result);
       const data = await loadClub();
       if (mounted && data && data.isSuccess) setTeamId(data.result.teamId);
+      const mytravelinning = await loadMyTravelInningList();
+      if (mounted && mytravelinning) setTravelInning(mytravelinning);
     })();
     return () => {
       mounted = false;
@@ -206,7 +212,11 @@ export default function MyPageMainScreen({ navigation }) {
               horizontal
               showsHorizontalScrollIndicator={false}
               data={[0]}
-              keyExtractor={(item) => item.toString()}
+              keyExtractor={(item, index) =>
+                item?.imageUrl
+                  ? `${item.date}-${item.imageUrl}-${index}`
+                  : `${item.date}-${item.opponentTeamId}-${index}`
+              }
               renderItem={({ item, index }) =>
                 index > 0 ? (
                   <View style={{ alignItems: "center" }}>
@@ -218,17 +228,29 @@ export default function MyPageMainScreen({ navigation }) {
                           finalColor="rgba(0, 0, 0, 0)"
                         >
                           <Image
-                            source={require("../../assets/images/companion/logo.png")}
+                            source={
+                              item.imageUrl
+                                ? { uri: normalizeImageUrl(item.imageUrl) }
+                                : require("../../assets/images/companion/logo.png")
+                            }
                             style={styles.travelImage}
                           />
                         </Shadow>
                       </TouchableOpacity>
                       <Image
-                        source={require("../../assets/images/clubs/doosan.png")}
+                        source={
+                          item.opponentTeamImageUrl
+                            ? {
+                                uri: normalizeImageUrl(
+                                  item.opponentTeamImageUrl
+                                ),
+                              }
+                            : require("../../assets/images/clubs/doosan.png")
+                        }
                         style={styles.travelLogoCircle}
                       />
                     </View>
-                    <Text style={styles.date}>23년 10월 27일</Text>
+                    <Text style={styles.date}>{yymmdd(item.date)}</Text>
                   </View>
                 ) : (
                   <View>
@@ -252,6 +274,7 @@ export default function MyPageMainScreen({ navigation }) {
               }
               contentContainerStyle={styles.travelContainer}
             />
+
             {/* my activity */}
             <Text style={styles.subTitle}>나의 활동</Text>
             <View
