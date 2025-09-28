@@ -31,7 +31,7 @@ export const PostCard = ({
     title,
     content,
     authorName,
-    scraped,
+    scraped = false,
     thumbnailUrl,
     mine,
     status,

@@ -205,7 +205,7 @@ export default function MyPageMainScreen({ navigation }) {
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
-              data={[0, 1, 2, 3, 4, 5]}
+              data={[0]}
               keyExtractor={(item) => item.toString()}
               renderItem={({ item, index }) =>
                 index > 0 ? (

@@ -17,7 +17,6 @@ export const loadPostChatLists = async (postId) => {
     const { data } = await apiClient.get(
       `api/chats/companion/${postId}/active-rooms`
     );
-    console.log("load post chat list : ", data.result);
     return data?.result;
   } catch (error) {
     showToast("정보를 불러오는데 실패했습니다. 다시 시도해주세요.");
@@ -26,15 +25,16 @@ export const loadPostChatLists = async (postId) => {
   }
 };
 
-export const loadRoomSummary = async (postId) => {
+export const loadPostHeader = async (postId) => {
   try {
-    console.log(postId);
-    const { data } = await apiClient.get(`/api/chats/rooms/${postId}/summary`);
-    console.log("load summary : ", data.result);
+    const { data } = await apiClient.get(
+      `/api/chats/companion/${postId}/header`
+    );
+    console.log("loadPostHeader : ", data.result);
     return data?.result;
   } catch (error) {
     console.error(
-      "loadRoomSummary error: ",
+      "loadPostHeader error: ",
       error?.response?.data || error?.message
     );
     return null;
@@ -54,6 +54,8 @@ export const loadMessages = async ({
       `/api/companion/chats/rooms/${roomId}/messages`,
       { params }
     );
+    console.log("load messages : ", data.result);
+
     return data?.result;
   } catch (error) {
     console.error(
@@ -77,7 +79,7 @@ export const leaveChat = async (roomId) => {
 export const createOneChat = async (postId) => {
   try {
     const { data } = await apiClient.post(
-      `/api/compnaion/chats/rooms/OneOnOne?postId=${postId}`
+      `/api/companion/chats/rooms/OneOnOne?postId=${postId}`
     );
     console.log("create 1:1Room: ", data);
     return data.result;
@@ -89,7 +91,7 @@ export const createOneChat = async (postId) => {
 
 export const createGroupChat = async (postId, ownerId) => {
   try {
-    const { data } = await apiClient.post(`/api/compnaion/chats/rooms/invite`, {
+    const { data } = await apiClient.post(`/api/companion/chats/rooms/invite`, {
       postId,
       ownerId,
     });
@@ -105,7 +107,7 @@ export const createGroupChat = async (postId, ownerId) => {
 export const joinByInvite = async (inviteCode, userId) => {
   try {
     const { data } = await apiClient.post(
-      `/api/compnaion/chats/rooms/joinByInvite?inviteCode=${encodeURIComponent(
+      `/api/companion/chats/rooms/joinByInvite?inviteCode=${encodeURIComponent(
         inviteCode
       )}&userId=${userId}`
     );
@@ -113,5 +115,17 @@ export const joinByInvite = async (inviteCode, userId) => {
   } catch (error) {
     console.error("move to GroupRoom error: ", error);
     return null;
+  }
+};
+
+export const markRoomRead = async (roomId, lastMessageId) => {
+  try {
+    await apiClient.post(`/api/chats/rooms/${roomId}/read`, null, {
+      params: { lastMessageId },
+    });
+    return true;
+  } catch (e) {
+    console.log("markRoomRead error:", e?.response?.data || e?.message);
+    return false;
   }
 };

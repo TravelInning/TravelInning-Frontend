@@ -24,8 +24,8 @@ import { addPostScrap, cancelPostScrap } from "../../api/companion/scrap";
 import OptionModal from "../../component/common/OptionModal";
 import { Header } from "../../component/Header/Header";
 import { timeAgo } from "../../utils/time";
-import { openOrCreateOneOnOne } from "../../api/chat/openOrCreate";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { createOneChat } from "../../api/chat/chat";
 
 const CompanionPostDetail = ({ navigation, route }) => {
   const { id } = route.params;
@@ -40,6 +40,7 @@ const CompanionPostDetail = ({ navigation, route }) => {
       if (result) {
         setPost(result);
         setIsScrap(result.isScraped);
+        console.log(post);
       }
     };
     handlePost();
@@ -62,7 +63,7 @@ const CompanionPostDetail = ({ navigation, route }) => {
 
   const onClickChat = async () => {
     try {
-      const { roomId, peerName: name } = await openOrCreateOneOnOne(id);
+      const { roomId, peerName } = await createOneChat(id);
       if (!roomId) {
         showToast("대화방을 만들 수 없어요. 잠시 후 다시 시도해주세요.");
         return;
@@ -70,7 +71,7 @@ const CompanionPostDetail = ({ navigation, route }) => {
       navigation.navigate("Chat", {
         initialRoomId: roomId,
         postId: id,
-        peerName: name || post?.authorName || "상대 닉네임",
+        peerName: post?.authorName || "상대 닉네임",
       });
     } catch (e) {
       showToast("대화방 열기에 실패했어요.");
