@@ -10,7 +10,7 @@ import {
   joinRoomDual,
   sendMessageDual,
 } from "../socket/chatSocket";
-import { loadMessages, createOneChat } from "../api/chat/chat";
+import { loadMessages } from "../api/chat/chat";
 
 const dedupById = (arr) => {
   const seen = new Set();
@@ -43,12 +43,7 @@ const mapIncoming = (raw, myId) => {
 
 const JOIN_SEND_DELAY_MS = 120;
 
-export const useChatRoom = ({
-  initialRoomId,
-  postId,
-  baseURL,
-  allowCreateIfNoRoom = true,
-}) => {
+export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
   const listRef = useRef(null);
   const atBottomRef = useRef(true);
 
@@ -139,30 +134,22 @@ export const useChatRoom = ({
     })();
   }, [roomId, userId]);
 
-  // 방 없으면 생성
-  const ensureRoom = useCallback(async () => {
-    if (roomId) return roomId;
-    if (!allowCreateIfNoRoom) throw new Error("room-not-ready");
-    const created = await createOneChat(postId);
-    if (!created?.roomId) throw new Error("createOneChat failed");
-    setRoomId(created.roomId);
-    return created.roomId;
-  }, [roomId, postId, allowCreateIfNoRoom]);
-
   // 메시지 보내기
   const onSend = useCallback(
     async (text) => {
       const content = (text || "").trim();
       if (!content || !userId) return false;
+      if (!roomId) {
+        return false;
+      }
       try {
-        const ensured = await ensureRoom();
         const s = getSocket();
         if (!s || !s.connected) return false;
 
-        await joinRoomDual(ensured, userId);
+        await joinRoomDual(roomId, userId);
         await new Promise((r) => setTimeout(r, JOIN_SEND_DELAY_MS));
 
-        const saved = await sendMessageDual(ensured, userId, content);
+        const saved = await sendMessageDual(roomId, userId, content);
         if (saved) {
           const ui = mapIncoming(saved, userId);
           setMessages((prev) => dedupById([...prev, ui]));
@@ -186,7 +173,7 @@ export const useChatRoom = ({
         return false;
       }
     },
-    [userId, ensureRoom]
+    [userId, roomId]
   );
 
   // 과거 로드
