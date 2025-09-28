@@ -34,7 +34,6 @@ export default function ChatCompanionScreen({ navigation, route }) {
     initialRoomId,
     postId,
     baseURL: SOCKET_URL,
-    allowCreateIfNoRoom: false,
   });
 
   useEffect(() => {

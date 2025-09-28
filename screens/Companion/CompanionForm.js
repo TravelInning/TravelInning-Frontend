@@ -50,7 +50,7 @@ export default function CompanionForm({ navigation, route }) {
     if (remain === 0) return;
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaType,
       allowsMultipleSelection: true,
       selectionLimit: remain,
       quality: 1,
