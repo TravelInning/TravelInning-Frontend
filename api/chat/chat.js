@@ -54,7 +54,6 @@ export const loadMessages = async ({
       `/api/companion/chats/rooms/${roomId}/messages`,
       { params }
     );
-    console.log("load messages : ", data.result);
 
     return data?.result;
   } catch (error) {
@@ -127,5 +126,25 @@ export const markRoomRead = async (roomId, lastMessageId) => {
   } catch (e) {
     console.log("markRoomRead error:", e?.response?.data || e?.message);
     return false;
+  }
+};
+
+export const loadParticipantsOthers = async ({
+  roomId,
+  type = "COMPANION",
+}) => {
+  try {
+    const { data } = await apiClient.get(
+      `/api/chats/rooms/${roomId}/participants/others`,
+      { params: { type } }
+    );
+    return data?.result?.participants ?? [];
+  } catch (error) {
+    console.error(
+      "loadParticipantsOthers error:",
+      error?.response?.data || error?.message
+    );
+    showToast("참여자 정보를 불러오지 못했어요.");
+    return [];
   }
 };

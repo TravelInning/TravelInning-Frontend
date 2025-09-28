@@ -14,6 +14,7 @@ import {
   createGroupChat,
   joinByInvite,
   markRoomRead,
+  loadParticipantsOthers,
 } from "../../api/chat/chat";
 import { useChatRoom } from "../../hooks/useChatRoom";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -33,6 +34,7 @@ export default function ChatCompanionScreen({ navigation, route }) {
     initialRoomId,
     postId,
     baseURL: SOCKET_URL,
+    allowCreateIfNoRoom: false,
   });
 
   useEffect(() => {
@@ -45,14 +47,19 @@ export default function ChatCompanionScreen({ navigation, route }) {
   const [moveToModalVisible, setMoveToModalVisible] = useState(false);
   const [inviteCode, setInviteCode] = useState(null);
 
-  const handleLongPress = useCallback((item) => {
-    if (!item?.text) return;
-    const m = item.text.match(INVITE_RE);
-    if (m) {
-      setInviteCode(m[1]);
-      setMoveToModalVisible(true);
-    }
-  }, []);
+  const [participants, setParticipants] = useState([]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (!controller.roomId) return;
+      const list = await loadParticipantsOthers({
+        roomId: controller.roomId,
+        type: "COMPANION",
+      });
+      setParticipants(list);
+    };
+    fetch();
+  }, [controller.roomId]);
 
   const latestRef = useRef({
     roomId: null,
@@ -97,6 +104,15 @@ export default function ChatCompanionScreen({ navigation, route }) {
     }
   }, [route?.params?.justJoined, controller.roomId]);
 
+  const handleLongPress = useCallback((item) => {
+    if (!item?.text) return;
+    const m = item.text.match(INVITE_RE);
+    if (m) {
+      setInviteCode(m[1]);
+      setMoveToModalVisible(true);
+    }
+  }, []);
+
   const sendInviteCode = async () => {
     const userId = controller.userId;
     if (!userId) {
@@ -124,9 +140,9 @@ export default function ChatCompanionScreen({ navigation, route }) {
       const data = await joinByInvite(inviteCode, userId);
       console.log(data);
       if (data?.isSuccess) {
-        navigation.replace("Chat", {
-          initialRoomId: data?.result.result,
-          peerName: "그룹 대화방",
+        navigation.replace("ChatCompanion", {
+          initialRoomId: data?.result,
+          peerName: "단체 대화방",
           postId,
           justJoined: true,
         });
@@ -143,8 +159,13 @@ export default function ChatCompanionScreen({ navigation, route }) {
     <>
       <ChatBaseScreen
         title={peerName}
-        listHeaderText={`${peerName}님과의 대화가 시작되었습니다.`}
+        listHeaderText={
+          peerName === "단체 대화방"
+            ? "단체 대화가 시작되었습니다."
+            : `${peerName}님과의 대화가 시작되었습니다.`
+        }
         controller={controller}
+        participants={participants}
         onPressExit={async () => {
           const userName = await AsyncStorage.getItem("userName");
           const text = `[SYSTEM] ${userName}님이 대화방을 나갔습니다.`;

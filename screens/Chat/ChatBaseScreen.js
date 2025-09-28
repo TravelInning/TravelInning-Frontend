@@ -32,6 +32,7 @@ export default function ChatBaseScreen({
   inputPlaceholder = "메시지를 입력하세요.",
   inputLeftButton = null,
   handleLongPress = () => {},
+  participants = [],
 }) {
   const headerHeight = useHeaderHeight();
   const {
@@ -68,6 +69,36 @@ export default function ChatBaseScreen({
           <Out width={17} height={18} />
         </TouchableOpacity>
       </Header>
+
+      {/* 참여자 */}
+      {participants?.length > 1 && (
+        <View style={styles.participantsWrap}>
+          <Text style={styles.participantsTitle}>대화 참여자 목록</Text>
+
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={participants}
+            keyExtractor={(p) => String(p.memberId)}
+            contentContainerStyle={{ gap: 11 }}
+            renderItem={({ item }) => (
+              <View style={styles.participantItem}>
+                <Image
+                  source={
+                    item.profileUrl
+                      ? { uri: item.profileUrl }
+                      : require("../../assets/images/chat/base_profile.png")
+                  }
+                  style={styles.participantAvatar}
+                />
+                <Text style={styles.participantName} numberOfLines={1}>
+                  {item.name || `user#${item.memberId}`}
+                </Text>
+              </View>
+            )}
+          />
+        </View>
+      )}
 
       {/* 공지 배너 (옵션) */}
       {Boolean(topicText) && (
@@ -180,6 +211,33 @@ const styles = StyleSheet.create({
     fontFamily: "Pretendard-SemiBold",
     fontSize: 12,
     color: theme.main_black,
+  },
+
+  participantsWrap: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: "#fff",
+  },
+  participantsTitle: {
+    fontFamily: "Pretendard-SemiBold",
+    fontSize: 10,
+    color: theme.main_black,
+    paddingBottom: 10,
+  },
+  participantItem: { alignItems: "center" },
+  participantAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 14,
+    marginBottom: 5,
+    backgroundColor: "#F2F2F2",
+  },
+  participantName: {
+    fontFamily: "Pretendard-SemiBold",
+    fontSize: 8,
+    color: theme.main_black,
+    maxWidth: 37,
+    textAlign: "center",
   },
 
   messagesContainer: {

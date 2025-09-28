@@ -84,7 +84,7 @@ export default function ChatListDetailScreen({ route, navigation }) {
               </Text>
             </Pressable>
           </View>
-          {header?.authorView && (
+          {/* {header?.authorView && (
             <View
               style={{
                 flex: 1,
@@ -100,7 +100,7 @@ export default function ChatListDetailScreen({ route, navigation }) {
                 </TouchableOpacity>
               </View>
             </View>
-          )}
+          )} */}
         </View>
       </ImageBackground>
       <View style={styles.chatConatiner}>
