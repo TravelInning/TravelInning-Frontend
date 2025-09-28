@@ -24,8 +24,6 @@ const ChatBox = ({ item }) => {
     images.push(null);
   }
 
-  console.log("participantProfileImages: ", participantProfileImages);
-
   return (
     <Shadow
       distance={2}
@@ -38,7 +36,7 @@ const ChatBox = ({ item }) => {
           navigation.navigate("ChatCompanion", {
             initialRoomId: roomId,
             postId,
-            peerName: "",
+            peerName: !group ? opponentName : "단체 대화방",
           })
         }
         style={({ pressed }) => [

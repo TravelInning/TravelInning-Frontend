@@ -63,12 +63,12 @@ const CompanionPostDetail = ({ navigation, route }) => {
 
   const onClickChat = async () => {
     try {
-      const { roomId, peerName } = await createOneChat(id);
+      const { roomId } = await createOneChat(id);
       if (!roomId) {
         showToast("대화방을 만들 수 없어요. 잠시 후 다시 시도해주세요.");
         return;
       }
-      navigation.navigate("Chat", {
+      navigation.navigate("ChatCompanion", {
         initialRoomId: roomId,
         postId: id,
         peerName: post?.authorName || "상대 닉네임",

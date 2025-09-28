@@ -43,7 +43,12 @@ const mapIncoming = (raw, myId) => {
 
 const JOIN_SEND_DELAY_MS = 120;
 
-export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
+export const useChatRoom = ({
+  initialRoomId,
+  postId,
+  baseURL,
+  allowCreateIfNoRoom = true,
+}) => {
   const listRef = useRef(null);
   const atBottomRef = useRef(true);
 
@@ -137,11 +142,12 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
   // 방 없으면 생성
   const ensureRoom = useCallback(async () => {
     if (roomId) return roomId;
+    if (!allowCreateIfNoRoom) throw new Error("room-not-ready");
     const created = await createOneChat(postId);
     if (!created?.roomId) throw new Error("createOneChat failed");
     setRoomId(created.roomId);
     return created.roomId;
-  }, [roomId, postId]);
+  }, [roomId, postId, allowCreateIfNoRoom]);
 
   // 메시지 보내기
   const onSend = useCallback(
@@ -284,7 +290,6 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
     loadingOlder,
     onSend,
     handleScroll,
-    setRoomId,
     lastServerMessageId,
   };
 };
