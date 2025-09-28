@@ -1,12 +1,12 @@
 import {
   Image,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
   TextInput,
   Keyboard,
+  TouchableOpacity,
 } from "react-native";
 import { theme } from "../../../colors/color";
 import DropDown from "../../../assets/icon/story/dropdown.svg";
@@ -15,6 +15,11 @@ import { DateModal } from "../../../component/MyPage/MyPageComp";
 import Plus from "../../../assets/icon/mypage/plus.svg";
 import { Shadow } from "react-native-shadow-2";
 import * as ImagePicker from "expo-image-picker";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { loadClub } from "../../../api/club/club";
+import { homeClubMapping } from "../../../constants/mapping";
+import { saveMyTravelInning } from "../../../api/mypage/myTravelInning";
+import { showToast } from "../../../component/Toast";
 
 export default function MyTravelinningScreen({ navigation }) {
   const currentDate = new Date();
@@ -23,20 +28,10 @@ export default function MyTravelinningScreen({ navigation }) {
   const [day, setDay] = useState(currentDate.getDate());
   const [image, setImage] = useState(null);
   const [rivalClub, setRivalClub] = useState(null);
+  const [teamId, setTeamId] = useState(null);
   const [memo, setMemo] = useState("");
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const imageMap = {
-    KIA: require("../../../assets/images/clubs/kia.png"),
-    삼성: require("../../../assets/images/clubs/samsung.jpg"),
-    LG: require("../../../assets/images/clubs/lg.png"),
-    두산: require("../../../assets/images/clubs/doosan.png"),
-    KT: require("../../../assets/images/clubs/kt.png"),
-    SSG: require("../../../assets/images/clubs/ssg.png"),
-    롯데: require("../../../assets/images/clubs/lotte.png"),
-    한화: require("../../../assets/images/clubs/hanwha.png"),
-    키움: require("../../../assets/images/clubs/kiwoom.png"),
-    NC: require("../../../assets/images/clubs/nc.png"),
-  };
+  const [submitting, setSubmitting] = useState(false);
 
   // modal
   const [currentSelected, setCurrentSelected] = useState("year");
@@ -75,7 +70,14 @@ export default function MyTravelinningScreen({ navigation }) {
     };
   }, []);
 
-  // image
+  useEffect(() => {
+    (async () => {
+      const data = await loadClub();
+      const id = Number(data?.result?.teamId);
+      setTeamId(Number.isFinite(id) ? id : null);
+    })();
+  }, []);
+
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaType,
@@ -89,19 +91,59 @@ export default function MyTravelinningScreen({ navigation }) {
     }
   };
 
+  const onSubmit = async () => {
+    if (submitting) return;
+    if (!rivalClub) {
+      showToast?.("경기 구단을 선택해 주세요.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const res = await saveMyTravelInning({
+        date: `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(
+          2,
+          "0"
+        )}`,
+        opponentTeamId: Number(rivalClub),
+        content: memo?.trim() || "",
+        imageUri: image,
+      });
+
+      if (res && res.isSuccess) {
+        showToast?.("등록되었습니다!");
+        navigation.goBack();
+      } else {
+        showToast?.(res?.message || "등록에 실패했어요.");
+      }
+    } catch (e) {
+      showToast?.("네트워크 오류가 발생했어요.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <SafeAreaView style={theme.container}>
+    <SafeAreaView style={styles.parentContainer}>
       {!isKeyboardVisible && (
         <View style={styles.container}>
-          <Text
+          <View
             style={{
-              ...styles.subTitle,
-              alignSelf: "flex-start",
+              width: "100%",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
               marginTop: 8,
             }}
           >
-            나의 트래블이닝
-          </Text>
+            <Text style={styles.subTitle}>나의 트래블이닝</Text>
+            <TouchableOpacity disabled={submitting} onPress={onSubmit}>
+              <Text style={[styles.subTitle, { color: theme.main_blue }]}>
+                작성 완료
+              </Text>
+            </TouchableOpacity>
+          </View>
           {/* date selector */}
           <View style={styles.filterContainer}>
             <Pressable
@@ -190,7 +232,11 @@ export default function MyTravelinningScreen({ navigation }) {
           {/* my */}
           <View style={{ alignItems: "center" }}>
             <Image
-              source={require("../../../assets/images/clubs/lotte.png")}
+              source={
+                teamId
+                  ? homeClubMapping[teamId - 1].imgSrc
+                  : require("../../../assets/images/clubs/lotte.png")
+              }
               style={styles.clubImage}
             />
             <Text style={styles.myclubText}>나의 구단</Text>
@@ -211,7 +257,10 @@ export default function MyTravelinningScreen({ navigation }) {
                   });
                 }}
               >
-                <Image source={imageMap[rivalClub]} style={styles.clubImage} />
+                <Image
+                  source={homeClubMapping[rivalClub - 1].imgSrc}
+                  style={styles.clubImage}
+                />
               </Pressable>
             ) : (
               <Shadow
@@ -265,6 +314,10 @@ export default function MyTravelinningScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  parentContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
   subTitle: {
     fontFamily: "Pretendard-Bold",
     fontSize: 15,

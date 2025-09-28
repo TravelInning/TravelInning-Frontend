@@ -11,13 +11,47 @@ export const loadMyTravelInningList = async () => {
   }
 };
 
-export const saveMyTravelInning = async () => {
+export const saveMyTravelInning = async ({
+  date,
+  opponentTeamId,
+  content,
+  imageUri,
+}) => {
   try {
-    const { data } = await apiClient.post(`/api/mypage`);
-    console.log("saveMyTravelInning load: ", data);
+    const form = new FormData();
+
+    const requestJson = {
+      date,
+      opponentTeamId: Number(opponentTeamId),
+      content: content || "",
+    };
+    form.append("request", JSON.stringify(requestJson));
+
+    if (imageUri) {
+      const filename = imageUri.split("/").pop() || `image_${Date.now()}.jpg`;
+      const ext = (filename.split(".").pop() || "").toLowerCase();
+      const mime =
+        ext === "png"
+          ? "image/png"
+          : ext === "webp"
+          ? "image/webp"
+          : "image/jpeg";
+
+      form.append("image", {
+        uri: imageUri,
+        name: filename,
+        type: mime,
+      });
+    }
+
+    const { data } = await apiClient.post("/api/mypage", form, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return data;
   } catch (error) {
-    console.log("saveMyTravelInning error: ", error);
+    console.log("saveMyTravelInning error:", error);
     return false;
   }
 };
