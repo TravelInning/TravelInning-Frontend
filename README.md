@@ -748,12 +748,6 @@ export const sendMessageDual = async (displayRoomId, userId, message) => {
 
 ---
 
-## 🎯 트러블슈팅
-
-> 작성 예정
-
----
-
 ## 📚 협업 도구
 
 - **디자인**: Figma
