@@ -138,16 +138,11 @@ export const useChatRoom = ({ initialRoomId, postId, baseURL }) => {
   const onSend = useCallback(
     async (text) => {
       const content = (text || "").trim();
-      if (!content || !userId) return false;
-      if (!roomId) {
-        return false;
-      }
+      if (!content || !userId || !roomId) return false;
+
       try {
         const s = getSocket();
         if (!s || !s.connected) return false;
-
-        await joinRoomDual(roomId, userId);
-        await new Promise((r) => setTimeout(r, JOIN_SEND_DELAY_MS));
 
         const saved = await sendMessageDual(roomId, userId, content);
         if (saved) {
