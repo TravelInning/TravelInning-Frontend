@@ -10,6 +10,13 @@
 
 ### 주요 기능
 
+- **회원가입 & 로그인**
+
+  - JWT 기반 보안 인증 (AccessToken + RefreshToken)
+  - SMS/Email 이중 인증 시스템
+  - 닉네임 중복 검사 및 유효성 검증
+  - 자동 로그인 및 토큰 갱신
+
 - **홈 (맞춤형 여행지 추천)**
 
   - 사용자 선호 구단 기반 홈구장 주변 관광지 추천
@@ -126,7 +133,203 @@
 
 ## 🔧 주요 기능 구현
 
-### 1. JWT 기반 인증 시스템
+### 1. 회원가입 다단계 인증 프로세스
+
+**SMS + Email 이중 인증 및 닉네임 중복 검사**
+
+회원가입 과정에서 사용자 신뢰성을 확보하기 위해 전화번호와 이메일 이중 인증을 구현했습니다.
+
+#### 전화번호 인증 (SMS)
+
+```javascript
+// SMS 인증번호 발송
+export const sendSMScode = async (phoneNumber) => {
+  try {
+    await axios.post(
+      `${API_URL}/api/members/sms/auth`,
+      {
+        phoneNumber: phoneNumber.replace(/-/g, ""), // 하이픈 제거
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    return true;
+  } catch (error) {
+    console.log("send SMScode error: ", error);
+    return false;
+  }
+};
+
+// SMS 인증번호 검증
+export const verifySMScode = async (phoneNumber, verificationCode) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/api/members/sms/auth/verify`,
+      {
+        phoneNumber: phoneNumber.replace(/-/g, ""),
+        code: verificationCode.toString(),
+      }
+    );
+    return response.data?.isSuccess || false;
+  } catch (error) {
+    console.log("verify SMScode error: ", error);
+    return false;
+  }
+};
+```
+
+**전화번호 포맷팅 처리**
+
+```javascript
+// 010-1234-5678 형식으로 자동 변환
+const handlePhoneNumberChange = (text) => {
+  const formattedText = text
+    .replace(/[^0-9]/g, "") // 숫자만 추출
+    .replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3") // 하이픈 추가
+    .slice(0, 13); // 최대 13자
+  setPhoneNumber(formattedText);
+};
+```
+
+#### 이메일 인증
+
+```javascript
+// 이메일 중복 확인
+export const checkEmail = async (email) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/api/members/email/duplicate`,
+      {
+        email,
+      }
+    );
+    return !response.data?.result.checkLoginId; // 중복 없으면 true
+  } catch (error) {
+    console.log("check email error: ", error);
+    showToast("이메일 중복 확인에 실패했습니다. 다시 시도해주세요.");
+    return false;
+  }
+};
+
+// 이메일 인증번호 발송
+export const sendEmailCode = async (email) => {
+  try {
+    const response = await axios.post(`${API_URL}/api/members/email/auth`, {
+      email: email,
+    });
+    return true;
+  } catch (error) {
+    console.log("send email code error : ", error);
+    showToast("인증 번호 전송에 실패했습니다. 다시 시도해주세요.");
+    return false;
+  }
+};
+
+// 이메일 인증번호 검증
+export const verifyEmailCode = async (email, verificationCode) => {
+  try {
+    await axios.post(`${API_URL}/api/members/email/auth/verify`, {
+      email: email,
+      code: verificationCode,
+    });
+    return true;
+  } catch (error) {
+    console.log("verify email code error: ", error);
+    showToast("인증 번호가 올바르지 않습니다.");
+    return false;
+  }
+};
+```
+
+**이메일 유효성 검증**
+
+```javascript
+// 이메일 형식 실시간 검증
+const validateEmailFormat = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const handleEmailChange = (text) => {
+  setEmail(text);
+  validateEmailFormat(text) ? setIsValidEmail(true) : setIsValidEmail(false);
+};
+```
+
+#### 닉네임 중복 검사
+
+```javascript
+export const handleNickname = async (nickname, setIsError) => {
+  try {
+    const { data } = await axios.post(
+      `${API_URL}/api/members/nickname/duplicate`,
+      {
+        nickname: nickname,
+      }
+    );
+    setIsError(false);
+    return data?.result.checkNickname || false; // 사용 가능하면 false
+  } catch (error) {
+    console.log("nickname check: ", error);
+    showToast(`닉네임 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.`);
+    setIsError(true);
+    return false;
+  }
+};
+```
+
+#### 최종 회원가입
+
+```javascript
+export const handleSignUp = async (
+  nickname,
+  password,
+  email,
+  gender,
+  introduceMessage,
+  selectedTerms
+) => {
+  try {
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        nickname,
+        password,
+        email,
+        gender,
+        introduceMessage,
+        memberTerm: selectedTerms, // 약관 동의 정보
+      })
+    );
+    formData.append("profileImage", ""); // 선택적 프로필 이미지
+
+    const result = await axios.post(`${API_URL}/api/members/join`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return result.data.isSuccess;
+  } catch (error) {
+    console.log("member join error: ", error);
+    showToast("오류가 발생했습니다. 다시 시도해주세요.");
+    return false;
+  }
+};
+```
+
+**핵심 포인트:**
+
+- **단계별 검증**: SMS → Email → 닉네임 순차 진행으로 사용자 경험 개선
+- **실시간 유효성 검사**: 이메일 형식, 전화번호 형식을 입력 중 즉시 검증
+- **중복 방지**: 이메일/닉네임 실시간 중복 검사로 가입 실패율 감소
+- **보안 강화**: 전화번호와 이메일 이중 인증으로 신뢰성 확보
+- **재요청 기능**: 인증번호 미수신 시 재발송 가능
+- **FormData 활용**: 프로필 이미지 업로드를 위한 multipart/form-data 처리
+- **연속 요청 방지**: `isRequesting` 플래그로 중복 API 호출 차단
+
+---
+
+### 2. JWT 기반 인증 시스템
 
 **AccessToken + RefreshToken을 활용한 보안 인증 구현**
 
@@ -154,11 +357,39 @@ apiClient.interceptors.request.use(async (config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
+    const originalRequest = error.config;
+
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // RefreshToken으로 AccessToken 재발급 시도
-      // 성공 → 원래 요청 재시도
-      // 실패 → 자동 로그아웃 처리
+      originalRequest._retry = true;
+
+      const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      if (refreshToken) {
+        try {
+          const data = await refresh(refreshToken);
+          if (data?.result?.accessToken) {
+            // 새 토큰 저장
+            await AsyncStorage.setItem("accessToken", data.result.accessToken);
+            await SecureStore.setItemAsync(
+              "refreshToken",
+              data.result.refreshToken
+            );
+
+            // 헤더 업데이트 후 원래 요청 재시도
+            apiClient.defaults.headers.Authorization = `Bearer ${data.result.accessToken}`;
+            originalRequest.headers.Authorization = `Bearer ${data.result.accessToken}`;
+
+            return apiClient(originalRequest);
+          }
+        } catch (refreshError) {
+          console.log("refresh failed:", refreshError);
+        }
+      }
+
+      // RefreshToken 실패 시 자동 로그아웃
+      await AsyncStorage.removeItem("accessToken");
+      await SecureStore.deleteItemAsync("refreshToken");
     }
+
     return Promise.reject(error);
   }
 );
@@ -169,10 +400,11 @@ apiClient.interceptors.response.use(
 - 401 에러 발생 시 사용자 인지 없이 자동으로 토큰 갱신
 - RefreshToken 실패 시 자동 로그아웃으로 보안 강화
 - 재시도 플래그(`_retry`)로 무한 루프 방지
+- SecureStore 사용으로 RefreshToken 보안 강화
 
 ---
 
-### 2. 스플래시 화면 자동 로그인 로직
+### 3. 스플래시 화면 자동 로그인 로직
 
 **앱 시작 시 토큰 유효성 검증 및 자동 라우팅**
 
@@ -215,7 +447,7 @@ const boot = async () => {
 
 ---
 
-### 3. Socket.IO 실시간 채팅
+### 4. Socket.IO 실시간 채팅
 
 **동행찾기(1:1/그룹) 및 이야기방 실시간 메시지 처리**
 
@@ -284,7 +516,7 @@ export const sendMessageDual = async (displayRoomId, userId, message) => {
 
 ---
 
-### 4. 채팅 기능별 구현
+### 5. 채팅 기능별 구현
 
 #### 동행찾기 채팅
 
@@ -513,12 +745,6 @@ export const sendMessageDual = async (displayRoomId, userId, message) => {
 - `DELETE /api/mypage/delete` - 계정 삭제
 
 </details>
-
----
-
-## 🎯 트러블슈팅
-
-> 작성 예정
 
 ---
 
