@@ -2,7 +2,6 @@ import io from "socket.io-client";
 import { normalizeRoomId } from "../utils/normalizeRoomId";
 
 let socket = null;
-let pendingQueue = [];
 const joinedRooms = new Set();
 
 export const initSocket = (baseURL) => {
@@ -17,12 +16,6 @@ export const initSocket = (baseURL) => {
 
   socket.on("connect", () => {
     joinedRooms.clear();
-    if (pendingQueue.length) {
-      pendingQueue.forEach(({ event, payload, ack }) =>
-        socket.emit(event, payload, ack)
-      );
-      pendingQueue = [];
-    }
   });
 
   socket.on("connect_error", (err) => {
@@ -34,10 +27,10 @@ export const initSocket = (baseURL) => {
     );
   });
 
-  socket.on("error", (error) => console.log("[socket] error:", error));
-  socket.on("disconnect", (reason) =>
-    console.log("[socket] disconnect:", reason)
-  );
+  // socket.on("error", (error) => console.log("[socket] error:", error));
+  // socket.on("disconnect", (reason) =>
+  //   console.log("[socket] disconnect:", reason)
+  // );
 
   return socket;
 };
@@ -50,7 +43,6 @@ export const disconnectSocket = () => {
   } finally {
     socket = null;
     joinedRooms.clear();
-    pendingQueue = [];
   }
 };
 
@@ -86,7 +78,6 @@ const rawSend = (roomId, senderId, message) =>
     const t = setTimeout(() => {
       if (!settled) {
         settled = true;
-        console.log("[sendMessage] ack TIMEOUT (no ack within 5s)");
         resolve(null);
       }
     }, 5000);
@@ -95,7 +86,6 @@ const rawSend = (roomId, senderId, message) =>
       if (!settled) {
         settled = true;
         clearTimeout(t);
-        console.log("[sendMessage] ack serverMsg =", JSON.stringify(serverMsg));
         resolve(serverMsg || null);
       }
     });
